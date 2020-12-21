@@ -1,3 +1,8 @@
+# Ignore hidden files
+.*
+!/.gitignore
+!/.gitattributes
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

@@ -1,0 +1,2 @@
+src/someotherfile.py export-subst
+src/version.py export-subst
