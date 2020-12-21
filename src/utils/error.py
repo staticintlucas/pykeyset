@@ -18,7 +18,7 @@ class KeysetError(Exception):
 def error(conf, *args, **kwargs):
     '''Print an error message when running as a script, or raise an exception'''
 
-    print_errors = conf.as_script or conf.verbosity >= Verbosity.VERBOSE
+    print_errors = conf.is_script or conf.verbosity >= Verbosity.VERBOSE
     no_raise = kwargs.pop('no_raise', False)
 
     if print_errors:
@@ -36,7 +36,7 @@ def error(conf, *args, **kwargs):
 def warning(conf, *args, **kwargs):
     '''Print a warning message if the verbosity setting is high enough'''
 
-    print_warnings = (conf.as_script and conf.verbosity >= Verbosity.NORMAL) or \
+    print_warnings = (conf.is_script and conf.verbosity >= Verbosity.NORMAL) or \
         conf.verbosity >= Verbosity.VERBOSE
 
     if print_warnings:
@@ -65,7 +65,7 @@ def info(conf, *args, **kwargs):
 def done(conf, *args, **kwargs):
     '''Print a done message if the verbosity setting is high enough'''
 
-    print_done = (conf.as_script and conf.verbosity >= Verbosity.VERBOSE)
+    print_done = (conf.is_script and conf.verbosity >= Verbosity.VERBOSE)
 
     if print_done:
         msg = as_string(*args, **{k: v for k, v in kwargs.items() if k not in ('color', 'file')})

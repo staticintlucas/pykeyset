@@ -18,24 +18,26 @@ Copyright (c) 2020 Lucas Jansen'''
 
 class Config():
 
-    def __init__(self, configuration={}, is_script=False):
+    def __init__(self, **configuration):
         '''Construct a Config object from a dict'''
 
-        # Allows copying one Config object to another
-        if not isinstance(configuration, dict):
-            configuration = {k: v for k, v in vars(configuration).items() if not k.startswith('__')}
+        clone = configuration.pop('clone', None)
+        if clone is not None:
+            configuration = dict(vars(clone), **configuration)
 
-        self.verbosity = configuration.pop('verbosity',
-            Verbosity.NORMAL if is_script else Verbosity.QUIET)
         self.color = configuration.pop('color', None)
         self.profile = configuration.pop('profile', False)
         self.dpi = configuration.pop('dpi', 96)
-        self.as_script = is_script
+        self.is_script = configuration.pop('is_script', False)
+        self.verbosity = configuration.pop('verbosity',
+            Verbosity.NORMAL if self.is_script else Verbosity.QUIET)
 
         # This stores the cmdlists and commands to execute if instantiated from argv, otherwise
         # Config does not need to store that information
         self._cmdlists = []
         self._commands = []
+        configuration.pop('_cmdlists', None)
+        configuration.pop('_commands', None)
 
         for key in configuration:
             warning(self, f"ignoring unknown key '{key}' when constructing Config object")
@@ -116,7 +118,7 @@ class Config():
 
             sys.exit(0)
 
-        self = cls({}, is_script=True)
+        self = cls(is_script=True)
 
         # Override default config only if set
         self._commands = args.get('commands', self._commands)

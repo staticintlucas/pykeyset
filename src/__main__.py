@@ -45,7 +45,7 @@ def _start():
     except:
         # Create a default conf if the error occurred before/as the real conf is created
         if conf is None:
-            conf = Config({}, is_script=True)
+            conf = Config(is_script=True)
         trace = traceback.format_exc()
         error(conf, 'Internal error:\n{:s}'.format(trace), file=sys.stderr, no_raise=True)
 

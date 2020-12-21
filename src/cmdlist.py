@@ -4,7 +4,7 @@ import sys
 from inspect import signature
 
 from .utils.error import error, info
-from .command import Context, load_font
+from . import command
 
 from colorama import Style
 
@@ -12,7 +12,7 @@ from colorama import Style
 COMMANDS = {
     'load kle': dict(args='{<file>|<url>}', fun=lambda *_: None,
         desc='load a keyboard layout editor layout'),
-    'load font': dict(args='{<name>|<file>}', fun=load_font,
+    'load font': dict(args='{<name>|<file>}', fun=command.load_font,
         desc='load an SVG font file (use name for built in fonts)'),
     'load novelty': dict(args='<file>', fun=lambda *_: None,
         desc='load an SVG novelty file'),
@@ -39,7 +39,7 @@ FMT_HELP_WIDTH = 24
 
 def execute(conf, name, commands):
 
-    context = Context(conf, name)
+    context = command.Context(conf, name)
 
     for line in commands:
 
