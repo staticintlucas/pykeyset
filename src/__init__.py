@@ -1,9 +1,6 @@
 # coding: utf-8
 
-from .version import get_versions
-__version__ = get_versions()['version']
-del get_versions
+from . import version
+__version__ = version.get_versions()['version']
 
-from .__main__ import main
-
-__all__ = ['main', '__version__']
+from .utils.config import Config

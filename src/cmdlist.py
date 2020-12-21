@@ -3,18 +3,20 @@
 import sys
 from inspect import signature
 
-from ..utils import error, info
+from .utils.error import error, info
+from .command import Context, load_font
 
 from colorama import Style
 
+
 COMMANDS = {
-    'load kle': dict(args='(<file>|<url>)', fun=lambda *_: None,
+    'load kle': dict(args='{<file>|<url>}', fun=lambda *_: None,
         desc='load a keyboard layout editor layout'),
-    'load font': dict(args='(<name>|<file>)', fun=lambda *_: None,
+    'load font': dict(args='{<name>|<file>}', fun=load_font,
         desc='load an SVG font file (use name for built in fonts)'),
     'load novelty': dict(args='<file>', fun=lambda *_: None,
         desc='load an SVG novelty file'),
-    'load profile': dict(args='(<name>|<file>)', fun=lambda *_: None,
+    'load profile': dict(args='{<name>|<file>}', fun=lambda *_: None,
         desc='load an keycap profile configuration file'),
     'generate layout': dict(args='', fun=lambda *_: None,
         desc='generate a layout diagram'),
@@ -26,36 +28,36 @@ COMMANDS = {
         desc='export the generated graphic as a PNG image'),
     'save ai': dict(args='[<file>]', fun=lambda *_: None,
         desc='export the generated graphic as an Illustrator file'),
-    'set': dict(args='<option> [<value>]', fun=lambda *_: None,
+    'set': dict(args='<option> <value>', fun=lambda *_: None,
         desc='set an option (overrides command line options)'),
-    'reset': dict(args='[<arg>]', fun=lambda *_: None,
+    'reset': dict(args='[<option>]', fun=lambda *_: None,
         desc='reset the given option (default: reset all options)'),
 }
 
-WIDTH = 24
+FMT_HELP_WIDTH = 24
 
 
-def execute(conf, command):
+def execute(conf, name, commands):
 
-    for cmd, val in COMMANDS.items():
+    context = Context(conf, name)
 
-        if command.startswith(cmd):
+    for line in commands:
 
-            if conf.verbose:
-                info(conf, f"executing command '{command}'")
+        cmd = next((c for c, _ in COMMANDS.items() if line.startswith(c)), None)
 
-            fun = val['fun']
-            args = command[len(cmd):].split()
+        if cmd is None:
+            error(conf, f"invalid command '{line}'")
 
-            fun(args)
-            break
+        info(conf, f"executing command '{line}'")
 
-    else:
-        error(conf, f"unknown command '{command.split()[0]}'")
-        sys.exit(1)
+        fun = COMMANDS[cmd]['fun']
+
+        args = line[len(cmd):].split()
+
+        fun(context, *args)
 
 
-def help():
+def help_msg():
 
     message = ['commands:']
 
@@ -63,11 +65,13 @@ def help():
 
         msg = f'  {cmd} {val["args"]}'
 
-        if len(msg) > WIDTH - 2:
-            msg = f'{msg}\n{" " * WIDTH}{val["desc"]}'
+        if len(msg) > FMT_HELP_WIDTH - 2:
+            msg = f'{msg}\n{" " * FMT_HELP_WIDTH}{val["desc"]}'
         else:
-            msg = f'{msg.ljust(WIDTH)}{val["desc"]}'
+            msg = f'{msg.ljust(FMT_HELP_WIDTH)}{val["desc"]}'
 
         message.append(msg)
 
     return '\n'.join(message)
+
+__all__ = ['execute', 'help_msg']
