@@ -1,5 +1,22 @@
+<!--
+    - This is a Cherry replica font based on the font used on original Cherry doubleshot and modern
+      GMK keycaps. Many glyphs are taken from or based upon the Open Cherry font created by
+      Dakota Felder (https://github.com/dakotafelder/open-cherry).
+    - New glyphs were created for several special characters by Lucas Jansen for use on the TA
+      Origins keyset.
+-->
 <svg>
 <defs>
+    <!-- These are like standard SVG paths for the glyphs of the font -->
+    <!-- data-name is the character represented by the glyph -->
+    <!-- d is a standard SVG path -->
+    <!-- transform (optional) is a standard SVG transformation -->
+    <!-- data-align (optional) modifies the vertical alignment relative to other glyphs.
+        - top aligns with the top of the caps height
+        - ctr aligns centred relative to the caps height
+        - btm aligns on the baseline -->
+    <!-- data-width (optional) overrides the autocalculated width. The glyph is horizontally centred
+        within this width-->
     <path data-name="A" transform="translate(0,-17.8) scale(0.985,-0.985)" d="M588 79c3 -7 5 -15 5 -24c0 -40 -33 -73 -73 -73c-33 0 -63 24 -71 56l-50 159c-4 14 -15 21 -29 21h-192c-14 0 -25 -7 -29 -21l-50 -159c-8 -32 -38 -56 -71 -56c-40 0 -73 33 -73 73c0 9 2 17 5 24l194 568c11 41 58 72 115 72s104 -31 115 -72zM332 325c18 0 26 11 21 28l-52 163c-4 14 -13 21 -24 21s-20 -7 -24 -21l-52 -163c-5 -17 3 -28 21 -28h110z" />
     <path data-name="B" transform="translate(0,4.1) scale(1.052,-1.052)" d="M553 363c53 -34 89 -95 89 -164c0 -108 -88 -195 -196 -195h-299c-41 0 -74 33 -74 74v543c0 40 33 73 74 73h294c93 0 171 -77 171 -171c0 -52 -24 -99 -61 -130c-14 -11 -13 -20 2 -30zM226 569v-144c0 -12 8 -19 22 -19h114c59 0 107 40 107 91c0 50 -48 91 -107 91h-114c-14 0 -22 -8 -22 -19zM377 111c66 0 119 44 119 101c0 56 -53 101 -119 101h-126c-16 0 -25 -8 -25 -21v-160c0 -13 9 -21 25 -21h126z" />
     <path data-name="C" transform="translate(0,-0.1) scale(1.008,-1.008)" d="M579 242c36 -15 52 -54 34 -83c-57 -96 -153 -159 -261 -159c-174 0 -315 161 -315 360c0 198 140 360 315 360c113 0 211 -68 266 -170c1 0 1 -1 1 -1c18 -34 -3 -72 -36 -86s-69 3 -88 36c-33 57 -85 94 -143 94c-99 0 -179 -105 -179 -233c0 -129 80 -233 179 -233c53 0 100 30 133 79l1 1c22 31 60 49 93 35z" />
@@ -116,7 +133,15 @@
     <path data-name="§" transform="scale(0.854,-0.854) skewX(-10)" d="M417 431l-215 95c-43 -26 -54 -41 -54 -64c0 -17 10 -33 38 -46l215 -95c43 26 54 41 54 64c0 17 -10 33 -38 46zM401 170c0 23 -17 41 -62 60l-186 80c-94 40 -141 102 -141 155c0 71 34 105 104 124c-47 27 -68 61 -68 116c0 102 87 145 217 145c117 0 224 -77 224 -120c0 -31 -30 -47 -50 -47c-58 0 -97 47 -168 47c-41 0 -67 -14 -67 -50c0 -23 17 -41 62 -60l186 -80c94 -40 141 -102 141 -155c0 -63 -29 -97 -104 -124c47 -27 68 -61 68 -116c0 -102 -87 -145 -221 -145c-122 0 -229 77 -229 120c0 31 30 47 50 47c58 0 97 -47 173 -47c45 0 71 14 71 50z" />
     <path data-name="¨" transform="scale(1.5,-1.5)" d="M88 350c-38 0 -68 30 -68 68c0 36 30 66 68 66c37 0 66 -30 66 -66c0 -38 -30 -68 -66 -68zM338 350c-38 0 -68 30 -68 68c0 36 30 66 68 66c36 0 66 -30 66 -66c0 -38 -30 -68 -66 -68z" />
     <path data-name="ƒ" transform="scale(0.985,-0.985)" d="M222 430l28 152c17 95 85 155 150 155c76 0 136 -22 136 -78c0 -56 -45 -73 -80 -73c-44 0 -50 -2 -55 -28l-24 -129h55c32 0 57 -25 57 -57c0 -32 -25 -57 -57 -57h-77l-70 -370c-17 -95 -85 -142 -157 -142c-70 0 -122 32 -122 79c0 41 22 71 75 71c44 0 50 2 55 28l64 335h-55c-32 0 -57 25 -57 57c0 32 25 57 57 57h77z" />
+
+    <!-- Default kerning for the font -->
+    <!-- k is the default spacing between characters -->
+    <!-- d is the amount of autoadjustment the script will do based on the characters -->
     <defaultkern k="120" d="30" />
+
+    <!-- Fine tuned kerning for individual characters -->
+    <!-- u is the pair of characters -->
+    <!-- k is added to the computed kerning to adjust the glyph placement -->
     <kern u="F3" k="-10" />
     <kern u="F4" k="-30" />
     <kern u="F5" k="-20" />

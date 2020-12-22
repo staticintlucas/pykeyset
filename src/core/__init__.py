@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from .. import utils
-from .load_font import load_font
+from .font import Font
 
 class Context():
 
@@ -15,4 +15,4 @@ class Context():
         self.profile = None
 
 
-__all__ = ['Context', 'load_font']
+__all__ = ['Context', 'Font']

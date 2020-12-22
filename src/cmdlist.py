@@ -4,7 +4,7 @@ import sys
 from inspect import signature
 
 from .utils.error import error, info
-from . import command
+from . import core
 
 from colorama import Style
 
@@ -12,7 +12,7 @@ from colorama import Style
 COMMANDS = {
     'load kle': dict(args='{<file>|<url>}', fun=lambda *_: None,
         desc='load a keyboard layout editor layout'),
-    'load font': dict(args='{<name>|<file>}', fun=command.load_font,
+    'load font': dict(args='{<name>|<file>}', fun=core.Font.load,
         desc='load an SVG font file (use name for built in fonts)'),
     'load novelty': dict(args='<file>', fun=lambda *_: None,
         desc='load an SVG novelty file'),
@@ -39,7 +39,7 @@ FMT_HELP_WIDTH = 24
 
 def execute(conf, name, commands):
 
-    context = command.Context(conf, name)
+    context = core.Context(conf, name)
 
     for line in commands:
 
@@ -51,10 +51,16 @@ def execute(conf, name, commands):
         info(conf, f"executing command '{line}'")
 
         fun = COMMANDS[cmd]['fun']
+        num_args = len(signature(fun).parameters) - 1 # Subtract one for the context
 
         args = line[len(cmd):].split()
 
-        fun(context, *args)
+        if len(args) < num_args:
+            error(conf, f"not enough arguments for command '{cmd}' in '{name}'")
+        elif len(args) > num_args:
+            error(conf, f"too many arguments for command '{cmd}' in '{name}'")
+        else:
+            fun(context, *args)
 
 
 def help_msg():

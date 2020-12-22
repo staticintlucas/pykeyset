@@ -31,6 +31,7 @@ setup(
     },
     install_requires=[
         'colorama',
+        'ansiwrap',
     ],
     cmdclass=versioneer.get_cmdclass(),
 )

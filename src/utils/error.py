@@ -2,8 +2,10 @@
 
 import sys
 import io
+from shutil import get_terminal_size
 
 from colorama import colorama_text, Fore, Style
+from ansiwrap import fill
 
 
 class Verbosity():
@@ -93,10 +95,14 @@ def print_color(*args, **kwargs):
     color = kwargs.pop('color', None)
     color = color if color is not None else file.isatty()
 
+    # Use word wrapping if we can get the terminal size
+    width, _ = get_terminal_size((99999, 0))
+    msg = fill(as_string(*args, **kwargs), width)
+
     # Auto convert to WinAPI calls on Windows if we want color, else don't convert anything
     convert = None if color else False
     # Auto strip escape sequences on Windows, else strip everything so we get no color
     strip = None if color else True
 
     with colorama_text(convert=convert, strip=strip):
-        print(*args, file=file, **kwargs)
+        print(msg, file=file, **kwargs)
