@@ -39,7 +39,7 @@ def _start():
     # If a fatal error occurs and the program needs to exit. The error will already have been
     # printed when it is raised, so we can just ignore it here
     except KeysetError:
-        result = 1
+        pass
 
     # Any other exception is an internal error so we print the full traceback
     except:
@@ -47,7 +47,7 @@ def _start():
         if conf is None:
             conf = Config(is_script=True)
         trace = traceback.format_exc()
-        error(conf, 'Internal error:\n{:s}'.format(trace), file=sys.stderr, no_raise=True)
+        error(conf, 'Internal error:\n{:s}'.format(trace), file=sys.stderr, no_raise=True, wrap=False)
 
     else:
         end = perf_counter()

@@ -5,6 +5,7 @@ from inspect import signature
 
 from .utils.error import error, info
 from . import core
+from .core import fontgen
 
 from colorama import Style
 
@@ -17,6 +18,9 @@ COMMANDS = {
     'load novelty': dict(args='<file>', fun=lambda *_: None,
         desc='load an SVG novelty file'),
     'load profile': dict(args='{<name>|<file>}', fun=lambda *_: None,
+        desc='load an keycap profile configuration file'),
+    'new font': dict(args='<output> <input>',
+        fun=lambda ctx, outp, inp: core.fontgen.fontgen(ctx.conf, outp, inp),
         desc='load an keycap profile configuration file'),
     'generate layout': dict(args='', fun=lambda *_: None,
         desc='generate a layout diagram'),

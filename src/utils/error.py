@@ -24,7 +24,7 @@ def error(conf, *args, **kwargs):
     no_raise = kwargs.pop('no_raise', False)
 
     if print_errors:
-        msg = as_string(*args, **{k: v for k, v in kwargs.items() if k not in ('color', 'file')})
+        msg = as_string(*args, **{k: v for k, v in kwargs.items() if k not in ('color', 'file', 'wrap')})
 
         if 'color' not in kwargs:
             kwargs['color'] = conf.color
@@ -42,7 +42,7 @@ def warning(conf, *args, **kwargs):
         conf.verbosity >= Verbosity.VERBOSE
 
     if print_warnings:
-        msg = as_string(*args, **{k: v for k, v in kwargs.items() if k not in ('color', 'file')})
+        msg = as_string(*args, **{k: v for k, v in kwargs.items() if k not in ('color', 'file', 'wrap')})
 
         if 'color' not in kwargs:
             kwargs['color'] = conf.color
@@ -56,7 +56,7 @@ def info(conf, *args, **kwargs):
     print_info = conf.verbosity >= Verbosity.VERBOSE
 
     if print_info:
-        msg = as_string(*args, **{k: v for k, v in kwargs.items() if k not in ('color', 'file')})
+        msg = as_string(*args, **{k: v for k, v in kwargs.items() if k not in ('color', 'file', 'wrap')})
 
         if 'color' not in kwargs:
             kwargs['color'] = conf.color
@@ -70,7 +70,7 @@ def done(conf, *args, **kwargs):
     print_done = (conf.is_script and conf.verbosity >= Verbosity.VERBOSE)
 
     if print_done:
-        msg = as_string(*args, **{k: v for k, v in kwargs.items() if k not in ('color', 'file')})
+        msg = as_string(*args, **{k: v for k, v in kwargs.items() if k not in ('color', 'file', 'wrap')})
 
         if 'color' not in kwargs:
             kwargs['color'] = conf.color
@@ -96,8 +96,11 @@ def print_color(*args, **kwargs):
     color = color if color is not None else file.isatty()
 
     # Use word wrapping if we can get the terminal size
-    width, _ = get_terminal_size((99999, 0))
-    msg = fill(as_string(*args, **kwargs), width)
+    if kwargs.pop('wrap', True):
+        width, _ = get_terminal_size((99999, 0))
+        msg = fill(as_string(*args, **kwargs), width)
+    else:
+        msg = as_string(*args, **kwargs)
 
     # Auto convert to WinAPI calls on Windows if we want color, else don't convert anything
     convert = None if color else False
