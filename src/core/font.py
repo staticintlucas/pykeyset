@@ -53,7 +53,7 @@ class Font:
         if not path.isfile(self.file):
 
             if not any(c in self.file for c in './\\'):
-                filename = path.join(fonts.FONT_DIR, f'{self.file}.svg')
+                filename = path.join(fonts.FONT_DIR, f'{self.file}.ksfont')
 
                 if not path.isfile(filename):
                     error(ctx.conf, f"cannot load font '{self.file}'. No such font")

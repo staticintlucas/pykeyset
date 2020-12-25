@@ -11,6 +11,9 @@ def fontgen(conf, output, input):
     except ModuleNotFoundError:
         error(conf, 'cannot import Python FontForge module. Make sure it is installed on your system')
 
+    if not output.endswith('.ksfont'):
+        output = output + '.ksfont'
+
     info(conf, f"opening font '{input}' with FontForge")
     try:
         font = fontforge.open(input, 0x10) # 0x10 = hidewindow

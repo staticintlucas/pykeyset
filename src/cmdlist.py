@@ -19,9 +19,6 @@ COMMANDS = {
         desc='load an SVG novelty file'),
     'load profile': dict(args='{<name>|<file>}', fun=lambda *_: None,
         desc='load an keycap profile configuration file'),
-    'new font': dict(args='<output> <input>',
-        fun=lambda ctx, outp, inp: core.fontgen.fontgen(ctx.conf, outp, inp),
-        desc='load an keycap profile configuration file'),
     'generate layout': dict(args='', fun=lambda *_: None,
         desc='generate a layout diagram'),
     'generate texture': dict(args='', fun=lambda *_: None,
@@ -36,6 +33,9 @@ COMMANDS = {
         desc='set an option (overrides command line options)'),
     'reset': dict(args='[<option>]', fun=lambda *_: None,
         desc='reset the given option (default: reset all options)'),
+    'newfont': dict(args='<file> <src>',
+        fun=lambda ctx, outp, inp: core.fontgen.fontgen(ctx.conf, outp, inp),
+        desc='create a new ksfont file from a source font'),
 }
 
 FMT_HELP_WIDTH = 24
