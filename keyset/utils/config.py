@@ -7,6 +7,10 @@ from argparse import ArgumentParser, ArgumentError
 from .. import __version__, cmdlist
 from .error import Verbosity, error, warning
 
+
+__all__ = ['config']
+
+
 NAME = 'keyset.py'
 PROG = 'keyset'
 DESCRIPTION = "This script can process a individual commands (with the -c option) or a cmdlist \
@@ -133,3 +137,15 @@ class Config():
         self.dpi = args.get('dpi', self.dpi)
 
         return self
+
+
+class GlobalConfigMeta(type):
+
+    def load_argv(cls, argv):
+        cls._private = Config.from_argv(argv)
+
+    def __getattr__(cls, attr):
+        return getattr(cls._private, attr)
+
+class config(metaclass=GlobalConfigMeta):
+    _private = Config()

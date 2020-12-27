@@ -1,2 +1,4 @@
 include versioneer.py
-include src/version.py
+include keyset/version.py
+include keyset/res/fonts *.xml
+include keyset/res/profiles *.toml

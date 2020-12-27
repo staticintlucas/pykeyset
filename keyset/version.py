@@ -42,8 +42,8 @@ def get_config():
     cfg.VCS = "git"
     cfg.style = "git-describe"
     cfg.tag_prefix = "v"
-    cfg.parentdir_prefix = "keyset-py-"
-    cfg.versionfile_source = "src/version.py"
+    cfg.parentdir_prefix = "keyset_py-"
+    cfg.versionfile_source = "keyset/version.py"
     cfg.verbose = False
     return cfg
 

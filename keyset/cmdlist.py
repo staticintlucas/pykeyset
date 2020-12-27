@@ -17,7 +17,7 @@ COMMANDS = {
         desc='load an SVG font file (use name for built in fonts)'),
     'load novelty': dict(args='<file>', fun=lambda *_: None,
         desc='load an SVG novelty file'),
-    'load profile': dict(args='{<name>|<file>}', fun=lambda *_: None,
+    'load profile': dict(args='{<name>|<file>}', fun=core.Profile.load,
         desc='load an keycap profile configuration file'),
     'generate layout': dict(args='', fun=lambda *_: None,
         desc='generate a layout diagram'),
@@ -29,30 +29,26 @@ COMMANDS = {
         desc='export the generated graphic as a PNG image'),
     'save ai': dict(args='[<file>]', fun=lambda *_: None,
         desc='export the generated graphic as an Illustrator file'),
-    'set': dict(args='<option> <value>', fun=lambda *_: None,
-        desc='set an option (overrides command line options)'),
-    'reset': dict(args='[<option>]', fun=lambda *_: None,
-        desc='reset the given option (default: reset all options)'),
     'newfont': dict(args='<file> <src>',
-        fun=lambda ctx, outp, inp: core.fontgen.fontgen(ctx.conf, outp, inp),
+        fun=lambda ctx, outp, inp: core.fontgen.fontgen(outp, inp),
         desc='create a new ksfont file from a source font'),
 }
 
 FMT_HELP_WIDTH = 24
 
 
-def execute(conf, name, commands):
+def execute(name, commands):
 
-    context = core.Context(conf, name)
+    context = core.Context(name)
 
     for line in commands:
 
         cmd = next((c for c, _ in COMMANDS.items() if line.startswith(c)), None)
 
         if cmd is None:
-            error(conf, f"invalid command '{line}'")
+            error(f"invalid command '{line}'")
 
-        info(conf, f"executing command '{line}'")
+        info(f"executing command '{line}'")
 
         fun = COMMANDS[cmd]['fun']
         num_args = len(signature(fun).parameters) - 1 # Subtract one for the context
@@ -60,9 +56,9 @@ def execute(conf, name, commands):
         args = line[len(cmd):].split()
 
         if len(args) < num_args:
-            error(conf, f"not enough arguments for command '{cmd}' in '{name}'")
+            error(f"not enough arguments for command '{cmd}' in '{name}'")
         elif len(args) > num_args:
-            error(conf, f"too many arguments for command '{cmd}' in '{name}'")
+            error(f"too many arguments for command '{cmd}' in '{name}'")
         else:
             fun(context, *args)
 

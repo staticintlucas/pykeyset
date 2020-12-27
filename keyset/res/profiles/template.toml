@@ -1,0 +1,138 @@
+# This file defines how the keycaps themselves are drawn. The values in this
+# template should be replaced with values for your keycap profile.
+#
+# Text like this that follow a hash (#) is a comment. You can write whatever you
+# want and nobody will care. The comments right before each entry in this file
+# describe what it means
+#
+# All measurements are in mm.
+
+[key]
+
+# The type of keycap profile. Can be cylindrical/spherical/flat
+type = 'cylindrical'
+
+# The depth of the keys (in mm). The script's layouts go pretty ugly if this is
+# impossibly large, but for values < ~3mm it should be ok.
+depth = 0.8
+
+
+[key.bottom]
+
+# Width of the bottom edge of a 1u key. For larger keys the width is
+# automatically calculated from this number
+width = 18.5
+
+# Height (or depth depending on what you call it) of the bottom edge of a key
+height = 18.5
+
+# Radius of the bottom corners of a key.
+radius = 0.5
+
+
+[key.top]
+
+# Width of the top surface of a 1u key key. For larger keys the width is
+# automatically calculated from this number
+width = 10
+
+# Height of the top surface of a key
+height = 12
+
+# Radius of the corners of a 1u key
+radius = 1.5
+
+# Vertical offset of the top surface relative to the bottom. 0 means centred,
+# positive distance is down, negative is up. Usually you leave this centred for
+# uniform profiles and move it up for sculpted profiles
+y-offset = -2
+
+
+# The [key.legend] section acts as a set of default values for the [x.alpha],
+# [x.symbol], and [x.mod] sections. For certain profiles only the letter size
+# needs to be adjusted, while for others (Cherry for example) the alignment is
+# also different
+[key.legend]
+
+# The width of the imaginary 'margin box' the characters will be drawn in
+width = 9
+
+# The height of the imaginary 'margin box' the characters will be drawn in
+height = 11
+
+# Vertical offset of the margin box (relative to the top surface of the key).
+# 0 means centred, positive distance is down, negative is up.
+y-offset = 0
+
+
+# [key.legend] section for 'alpha' keys. In this case 'symbol keys' (those with
+# two legends, the number row for example) are not considered alpha keys
+[key.legend.alpha]
+
+# The letter size. This is the height of capital letters, *not* the actual
+# "font size" which can vary depending on the size of characters in the font
+size = 5
+
+# The size and position of the margin box. These lines are commented out, so the
+# defaults from [key.legend] will be used
+# width = 9
+# height = 11
+# y-offset = 0
+
+
+# [key.legend] section for symbol keys. This includes the number row and all
+# the other symbol keys on your keyboard.
+[key.legend.symbol]
+
+# The letter size. This is the height of capital letters, *not* the actual
+# "font size" which can vary depending on the size of characters in the font
+size = 3.5
+
+# The size and position of the margin box. These lines are commented out, so the
+# defaults from [key.legend] will be used
+# width = 9
+# height = 11
+# y-offset = 0
+
+
+# [key.legend] section for modifier keys
+[key.legend.mod]
+
+# The letter size. This is the height of capital letters, *not* the actual
+# "font size" which can vary depending on the size of characters in the font
+size = 2.5
+
+# The size and position of the margin box. These lines are commented out, so the
+# defaults from [key.legend] will be used
+# width = 9
+# height = 11
+# y-offset = 0
+
+
+[key.homing]
+
+# The default type of homing key (if not specified in the KLE layout).
+default = 'bar'
+
+
+[key.homing.scoop]
+
+# The depth of a scooped homing key
+depth = 0.15
+
+
+[key.homing.bar]
+
+# The size and position of the bar on a barred homing key. Note that the
+# y-offset is relative to the center of the top surface of the key
+width = 3
+height = 0.5
+y-offset = 5
+
+
+[key.homing.bump]
+
+# The radius and position of the bump on a bumped homing key. Note that the
+# y-offset is relative to the center of the top surface of the key
+radius = 0.5
+y-offset = 0

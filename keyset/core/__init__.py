@@ -2,12 +2,12 @@
 
 from .. import utils
 from .font import Font
+from .profile import Profile
 
 class Context():
 
-    def __init__(self, conf, name):
+    def __init__(self, name):
 
-        self.conf = utils.config.Config(clone=conf)
         self.name = name
         self.kle = None
         self.font = None
@@ -15,4 +15,4 @@ class Context():
         self.profile = None
 
 
-__all__ = ['Context', 'Font']
+__all__ = ['Context', 'Font', 'Profile']

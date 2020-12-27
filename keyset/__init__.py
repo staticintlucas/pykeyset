@@ -3,4 +3,4 @@
 from . import version
 __version__ = version.get_versions()['version']
 
-from .utils.config import Config
+from .utils.config import config
