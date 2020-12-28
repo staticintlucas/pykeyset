@@ -10,12 +10,10 @@ from ..utils import tomlparser
 from .. import res
 
 from toml import TomlDecodeError
-# TODO why can't pylint find this?
-from recordclass import recordclass # pylint: disable=import-error
+from recordclass import recordclass
 
 
 ProfileType = Enum('ProfileType', ('CYLINDRICAL', 'SPHERICAL', 'FLAT'))
-HomingProps = recordclass('HomingProps', ('depth', 'width', 'height','radius','offset'))
 
 
 class Profile:
@@ -139,31 +137,42 @@ class Profile:
             error(f"invalid value for key '{e.args[0]}' in section [{e.args[1]}] in profile " \
                 f"'{self.file}'")
 
-        for key, value in homing.items():
-            if not isinstance(value, tomlparser.TomlNode):
-                continue
+        try:
+            if 'scoop' in homing and isinstance(homing['scoop'], tomlparser.TomlNode):
+                depth = homing['scoop'].getkey('depth', type=Number)
 
-            try:
-                depth = legend.getkey('depth', type=Number, default=0)
-                width = legend.getkey('width', type=Number, default=0)
-                height = legend.getkey('height', type=Number, default=0)
-                radius = legend.getkey('radius', type=Number, default=0)
-                offset = legend.getkey('y-offset', type=Number, default=0)
+                self.homing['scoop'] = { 'depth': depth }
 
-                self.homing[key] = HomingProps(depth, width, height, radius, offset)
+            if 'bar' in homing and isinstance(homing['bar'], tomlparser.TomlNode):
+                width = homing['bar'].getkey('width', type=Number, default=0)
+                height = homing['bar'].getkey('height', type=Number, default=0)
+                offset = homing['bar'].getkey('y-offset', type=Number, default=0)
 
-            except ValueError as e:
-                error(f"invalid value for key '{e.args[0]}' in section [{e.args[1]}] in profile " \
-                    f"'{self.file}'")
+                self.homing['bar'] = { 'width': width, 'height': height, 'offset': offset }
+
+            if 'bump' in homing and isinstance(homing['bump'], tomlparser.TomlNode):
+                radius = homing['bump'].getkey('radius', type=Number, default=0)
+                offset = homing['bump'].getkey('y-offset', type=Number, default=0)
+
+                self.homing['bump'] = { 'radius': radius, 'offset': offset }
+
+        except KeyError as e:
+            error(f"no key '{e.args[0]}' in section [{e.args[1]}] in profile '{self.file}'")
+        except ValueError as e:
+            error(f"invalid value for key '{e.args[0]}' in section [{e.args[1]}] in profile " \
+                f"'{self.file}'")
 
         try:
             default = homing.getkey('default', str)
 
-            if default in self.homing:
-                self.defaulthoming = default
-            else:
+            if default not in ('scoop', 'bar', 'bump'):
+                error(f"unknown default homing type '{default}' in section [{homing.section}] in " \
+                    f"file '{self.file}'")
+            elif default not in self.homing:
                 error(f"default homing type '{default}' has no corresponding section " \
                     f"[{homing.section}.{default}] in '{self.file}'")
+            else:
+                self.defaulthoming = default
 
         except KeyError as e:
             error(f"no key '{e.args[0]}' in section [{e.args[1]}] in profile '{self.file}'")

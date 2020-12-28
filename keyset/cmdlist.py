@@ -11,12 +11,12 @@ from colorama import Style
 
 
 COMMANDS = {
-    'load kle': dict(args='{<file>|<url>}', fun=lambda *_: None,
+    'load kle': dict(args='{<file>|<url>}', fun=core.KleLayout.load,
         desc='load a keyboard layout editor layout'),
     'load font': dict(args='{<name>|<file>}', fun=core.Font.load,
-        desc='load an SVG font file (use name for built in fonts)'),
-    'load novelty': dict(args='<file>', fun=lambda *_: None,
-        desc='load an SVG novelty file'),
+        desc='load an XML font file (use name for built in fonts)'),
+    'load icon': dict(args='<file>', fun=lambda *_: None,
+        desc='load an XML icon or novelty file'),
     'load profile': dict(args='{<name>|<file>}', fun=core.Profile.load,
         desc='load an keycap profile configuration file'),
     'generate layout': dict(args='', fun=lambda *_: None,
@@ -43,6 +43,7 @@ def execute(name, commands):
 
     for line in commands:
 
+        line = ' '.join(line.split())
         cmd = next((c for c, _ in COMMANDS.items() if line.startswith(c)), None)
 
         if cmd is None:

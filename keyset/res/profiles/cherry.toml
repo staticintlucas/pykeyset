@@ -39,11 +39,8 @@ depth = 0.15
 [homing.bar]
 width = 3.85
 height = 0.4
-radius = 0.2
 y-offset = 5.05
 
 [homing.bump]
-width = 0.4
-height = 0.4
 radius = 0.2
 y-offset = -0.2
