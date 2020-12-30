@@ -8,13 +8,13 @@ from math import isclose
 from enum import Enum
 
 from ..utils.error import error, warning, info
-from ..utils.types import Point, Size
+from ..utils.types import Point, Size, Color
 
 from recordclass import recordclass
 
 
 Key = recordclass('Key', ('pos', 'size', 'type', 'legend', 'legsize', 'bgcol', 'fgcol'))
-KeyType = Enum('KeyType', ['none', 'norm', 'defhome', 'scoop', 'bar', 'bump', 'space'])
+KeyType = Enum('KeyType', ['NONE', 'NORM', 'DEFHOME', 'SCOOP', 'BAR', 'BUMP', 'SPACE'])
 
 
 KLE_TO_ORD_MAP = (
@@ -62,7 +62,7 @@ def _is_iso_enter(props):
 
 
 
-class KleLayout:
+class KleFile:
 
     def __init__(self):
 
@@ -165,7 +165,7 @@ class KleLayout:
 
         self.size = Size(props.maxw, props.maxh)
 
-        ctx.layout = self
+        ctx.kle = self
 
 
     def _parsekey(self, string, props):
@@ -179,7 +179,7 @@ class KleLayout:
         elif _is_iso_enter(props):
             size = 'iso'
             if props.x2 < 0:
-                props.x -= props.x2
+                pos.x += props.x2
         else:
             for p in ('l', 'x2', 'y2', 'w2', 'h2'):
                 if not isclose(getattr(props, p), props.defaults[p]):
@@ -189,27 +189,26 @@ class KleLayout:
                         "supported as special cases. This warning is about another key that is " \
                         f"using the '{p}' property")
 
-        type = KeyType.norm
-        if 'space' in props.p:
-            type = KeyType.space
+        type = KeyType.NORM
         if any(p in props.p for p in ['deep', 'dish', 'scoop']):
-            type = KeyType.scoop
+            type = KeyType.SCOOP
         elif any(p in props.p for p in ['bar', 'line']):
-            type = KeyType.bar
+            type = KeyType.BAR
         elif any(p in props.p for p in ['bump', 'dot', 'nub', 'nipple']):
-            type = KeyType.bump
-
-        if props.n:
-            type = KeyType.defhome
+            type = KeyType.BUMP
+        elif 'space' in props.p:
+            type = KeyType.SPACE
+        elif props.n:
+            type = KeyType.DEFHOME
         elif props.d:
-            type = KeyType.none
+            type = KeyType.NONE
 
-        bgcol = props.c
+        bgcol = Color(props.c)
         if '\n' in props.t:
             fgcol = kle_to_ord(props.t.split('\n'), props.a)
-            fgcol = [fg if fg else '#000000' for fg in fgcol]
+            fgcol = [Color(fg) if fg else Color(0, 0, 0) for fg in fgcol]
         else:
-            fgcol = 12 * [props.t]
+            fgcol = 12 * [Color(props.t)]
 
         legsize = [props.f] * 9
 

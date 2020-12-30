@@ -1,19 +1,20 @@
 # coding: utf-8
 
-from .. import utils
 from .font import Font
 from .profile import Profile
-from .kle import KleLayout
+from .kle import KleFile
+from .layout import Layout
 
 class Context():
 
     def __init__(self, name):
 
         self.name = name
-        self.layout = None
+        self.kle = None
         self.font = None
-        self.novelty = None
+        self.icons = []
         self.profile = None
+        self.layout = None
 
 
-__all__ = ['Context', 'Font', 'Profile', 'KleLayout']
+__all__ = ['Context', 'Font', 'Profile', 'KleFile', 'Layout']

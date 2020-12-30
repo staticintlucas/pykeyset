@@ -9,210 +9,110 @@ from .arc_to_bezier import arc_to_bezier
 
 class Path:
 
-    def __init__(self, d):
+    def __init__(self, d=''):
 
         token = iter(t for t in re.split(r'(-?\d+\.?\d*|[A-Za-z])', d) \
             if len(t) > 0 and not t.isspace() and not t == ',')
 
-        point = Point(0, 0)
-        self.rect = Rect(0, 0, 0, 0)
+        self.point = Point(0, 0)
+        self.start = Point(0, 0)
         self.d = []
 
         for t in token:
             try:
                 if t.startswith('m'):
-                    x = float(next(token))
-                    y = float(next(token))
-                    point.x += x
-                    point.y += y
-                    self.d.append(M(point))
+                    d = Point(float(next(token)), float(next(token)))
+                    self.m(d)
 
                 elif t.startswith('M'):
-                    x = float(next(token))
-                    y = float(next(token))
-                    point = Point(x, y)
-                    self.d.append(M(point))
+                    d = Point(float(next(token)), float(next(token)))
+                    self.M(d)
 
                 elif t.startswith('l'):
-                    x = float(next(token))
-                    y = float(next(token))
-                    self.d.append(l(Point(x, y)))
-                    point.x += x
-                    point.y += y
+                    d = Point(float(next(token)), float(next(token)))
+                    self.l(d)
 
                 elif t.startswith('L'):
-                    x = float(next(token))
-                    y = float(next(token))
-                    self.d.append(l(Point(x - point.x, y - point.y)))
-                    point = Point(x, y)
+                    d = Point(float(next(token)), float(next(token)))
+                    self.L(d)
 
                 elif t.startswith('h'):
                     x = float(next(token))
-                    point.x += x
-                    self.d.append(l(Point(x, 0)))
+                    self.h(x)
 
                 elif t.startswith('H'):
                     x = float(next(token))
-                    self.d.append(l(Point(x - point.x, 0)))
-                    point.x = x
+                    self.H(x)
 
                 elif t.startswith('v'):
                     y = float(next(token))
-                    point.y += y
-                    self.d.append(l(Point(0, y)))
+                    self.v(y)
 
                 elif t.startswith('V'):
                     y = float(next(token))
-                    self.d.append(l(Point(0, y - point.y)))
-                    point.y = y
-
-                elif t.lower().startswith('z'):
-                    self.d.append(z())
+                    self.V(y)
 
                 elif t.startswith('c'):
-                    x1 = float(next(token))
-                    y1 = float(next(token))
-                    x2 = float(next(token))
-                    y2 = float(next(token))
-                    x = float(next(token))
-                    y = float(next(token))
-
-                    self.d.append(c(Point(x1, y1), Point(x2, y2), Point(x, y)))
-
-                    point.x += x
-                    point.y += y
+                    d1 = Point(float(next(token)), float(next(token)))
+                    d2 = Point(float(next(token)), float(next(token)))
+                    d = Point(float(next(token)), float(next(token)))
+                    self.c(d1, d2, d)
 
                 elif t.startswith('C'):
-                    x1 = float(next(token))
-                    y1 = float(next(token))
-                    x2 = float(next(token))
-                    y2 = float(next(token))
-                    x = float(next(token))
-                    y = float(next(token))
-
-                    self.d.append(c(Point(x1 - point.x, y1 - point.y),
-                        Point(x2 - point.x, y2 - point.y), Point(x - point.x, y - point.y)))
-
-                    point = Point(x, y)
+                    d1 = Point(float(next(token)), float(next(token)))
+                    d2 = Point(float(next(token)), float(next(token)))
+                    d = Point(float(next(token)), float(next(token)))
+                    self.C(d1, d2, d)
 
                 elif t.startswith('s'):
-                    x2 = float(next(token))
-                    y2 = float(next(token))
-                    x = float(next(token))
-                    y = float(next(token))
-
-                    last = self.d[-1] if len(self.d) > 0 else None
-                    if isinstance(last, c):
-                        x1 = last.d.x - last.d2.x
-                        y1 = last.d.y - last.d2.y
-                        self.d.append(c(Point(x1, y1), Point(x2, y2), Point(x, y)))
-
-                    else:
-                        self.d.append(q(Point(x2, y2), Point(x, y)))
-
-                    point.x += x
-                    point.y += y
+                    d2 = Point(float(next(token)), float(next(token)))
+                    d = Point(float(next(token)), float(next(token)))
+                    self.s(d2, d)
 
                 elif t.startswith('S'):
-                    x2 = float(next(token))
-                    y2 = float(next(token))
-                    x = float(next(token))
-                    y = float(next(token))
-
-                    last = self.d[-1] if len(self.d) > 0 else None
-                    if isinstance(last, c):
-                        x1 = last.d.x - last.d2.x
-                        y1 = last.d.y - last.d2.y
-                        self.d.append(c(Point(x1, y1), Point(x2 - point.x, y2 - point.y),
-                            Point(x - point.x, y - point.y)))
-
-                    else:
-                        self.d.append(q(Point(x2 - point.x, y2 - point.y),
-                            Point(x - point.x, y - point.y)))
-
-                    point = Point(x, y)
+                    d2 = Point(float(next(token)), float(next(token)))
+                    d = Point(float(next(token)), float(next(token)))
+                    self.s(d2, d)
 
                 elif t.startswith('q'):
-                    x1 = float(next(token))
-                    y1 = float(next(token))
-                    x = float(next(token))
-                    y = float(next(token))
-
-                    self.d.append(q(Point(x1, y1), Point(x, y)))
-
-                    point.x += x
-                    point.y += y
+                    d1 = Point(float(next(token)), float(next(token)))
+                    d = Point(float(next(token)), float(next(token)))
+                    self.q(d1, d)
 
                 elif t.startswith('Q'):
-                    x1 = float(next(token))
-                    y1 = float(next(token))
-                    x = float(next(token))
-                    y = float(next(token))
-
-                    self.d.append(q(Point(x2 - point.x, y2 - point.y),
-                        Point(x - point.x, y - point.y)))
-
-                    point = Point(x, y)
+                    d1 = Point(float(next(token)), float(next(token)))
+                    d = Point(float(next(token)), float(next(token)))
+                    self.Q(d1, d)
 
                 elif t.startswith('t'):
-                    x = float(next(token))
-                    y = float(next(token))
-
-                    last = self.d[-1] if len(self.d) > 0 else None
-                    if isinstance(last, q):
-                        x1 = last.d.x - last.d1.x
-                        y1 = last.d.y - last.d1.y
-                        self.d.append(q(Point(x1, y1), Point(x, y)))
-
-                    else:
-                        self.d.append(l(Point(x, y)))
-
-                    point.x += x
-                    point.y += y
+                    d = Point(float(next(token)), float(next(token)))
+                    self.t(d)
 
                 elif t.startswith('T'):
-                    x = float(next(token))
-                    y = float(next(token))
-
-                    last = self.d[-1] if len(self.d) > 0 else None
-                    if isinstance(last, q):
-                        x1 = last.d.x - last.d1.x
-                        y1 = last.d.y - last.d1.y
-                        self.d.append(q(Point(x1, y1), Point(x - point.x, y - point.y)))
-
-                    else:
-                        self.d.append(l(Point(x - point.x, y - point.y)))
-
-                    point = Point(x, y)
+                    d = Point(float(next(token)), float(next(token)))
+                    self.T(d)
 
                 elif t.startswith('a'):
-                    rx = abs(float(next(token)))
-                    ry = abs(float(next(token)))
+                    r = Dist(abs(float(next(token))), abs(float(next(token))))
                     xar = float(next(token))
                     laf = float(next(token)) > 0.5 # Use 0.5 as a threshold between True and False
                     sf = float(next(token)) > 0.5
-                    x = float(next(token))
-                    y = float(next(token))
-
-                    for d1, d2, d in arc_to_bezier(Dist(rx, ry), xar, laf, sf, Point(x, y)):
-                        self.d.append(c(d1, d2, d))
-
-                    point.x += x
-                    point.y += y
+                    d = Point(float(next(token)), float(next(token)))
+                    self.a(r, xar, laf, sf, d)
 
                 elif t.startswith('A'):
-                    rx = float(next(token))
-                    ry = float(next(token))
+                    r = Dist(abs(float(next(token))), abs(float(next(token))))
                     xar = float(next(token))
                     laf = float(next(token)) > 0.5 # Use 0.5 as a threshold between True and False
                     sf = float(next(token)) > 0.5
-                    x = float(next(token))
-                    y = float(next(token))
+                    d = Point(float(next(token)), float(next(token)))
+                    self.A(r, xar, laf, sf, d)
 
-                    for d1, d2, d in arc_to_bezier(Dist(rx, ry), xar, laf, sf, Point(x - point.x, y - point.y)):
-                        self.d.append(c(d1, d2, d))
+                elif t.startswith('z'):
+                    self.z()
 
-                    point = Point(x, y)
+                elif t.startswith('Z'):
+                    self.Z()
 
                 else:
                     error(f"invalid path command '{t}'")
@@ -220,14 +120,150 @@ class Path:
             except (StopIteration, ValueError):
                 error("invalid path")
 
-        minpt = Point(*map(min, zip(*(tuple(seg.min()) for seg in self.d))))
-        maxpt = Point(*map(max, zip(*(tuple(seg.max()) for seg in self.d))))
-
-        self.rect = Rect(minpt.x, minpt.y, maxpt.x - minpt.x, maxpt.y - minpt.y)
-
 
     def __repr__(self):
         return ''.join(str(d) for d in self.d)
+
+
+    def rect(self):
+        """Return the bounding box of the path"""
+        minpt = Point(*map(min, zip(*(tuple(seg.min()) for seg in self.d))))
+        maxpt = Point(*map(max, zip(*(tuple(seg.max()) for seg in self.d))))
+        return Rect(minpt.x, minpt.y, maxpt.x - minpt.x, maxpt.y - minpt.y)
+
+
+    def rel(self, d):
+        """Convert an absolute position d to a relative distance"""
+        return Point(d.x - self.point.x, d.y - self.point.y)
+
+    def abs(self, d):
+        """Convert a relative distance d to an absolute position"""
+        return Point(d.x + self.point.x, d.y + self.point.y)
+
+
+    def m(self, d):
+        """SVG m path command"""
+        return self.M(self.abs(d))
+
+    def l(self, d):
+        """SVG l path command"""
+        self.d.append(_l(d))
+        self.point.x += d.x
+        self.point.y += d.y
+        return self
+
+    def h(self, x):
+        """SVG h path command"""
+        self.d.append(_l(Point(x, 0)))
+        self.point.x += x
+        return self
+
+    def v(self, y):
+        """SVG v path command"""
+        self.d.append(_l(Point(0, y)))
+        self.point.y += y
+        return self
+
+    def c(self, d1, d2, d):
+        """SVG c path command"""
+        self.d.append(_c(d1, d2, d))
+        self.point.x += d.x
+        self.point.y += d.y
+        return self
+
+    def s(self, d2, d):
+        """SVG s path command"""
+        last = self.d[-1] if len(self.d) > 0 else None
+        if isinstance(last, _c):
+            x1 = last.d.x - last.d2.x
+            y1 = last.d.y - last.d2.y
+            self.d.append(_c(Point(x1, y1), d2, d))
+        else:
+            self.d.append(_q(d2, d))
+        self.point.x += d.x
+        self.point.y += d.y
+        return self
+
+    def q(self, d1, d):
+        """SVG q path command"""
+        self.d.append(_q(d1, d))
+        self.point.x += d.x
+        self.point.y += d.y
+        return self
+
+    def t(self, d):
+        """SVG t path command"""
+        last = self.d[-1] if len(self.d) > 0 else None
+        if isinstance(last, _q):
+            x1 = last.d.x - last.d1.x
+            y1 = last.d.y - last.d1.y
+            self.d.append(_q(Point(x1, y1), d))
+        else:
+            self.d.append(_l(d))
+        self.point.x += d.x
+        self.point.y += d.y
+        return self
+
+    def a(self, r, xar, laf, sf, d):
+        """SVG a path command"""
+        for d1, d2, d in arc_to_bezier(r, xar, laf, sf, d):
+            self.d.append(_c(d1, d2, d))
+        self.point.x += d.x
+        self.point.y += d.y
+        return self
+
+    def z(self):
+        """SVG z path command"""
+        self.d.append(_z())
+        if isinstance(self.d[0], _M):
+            self.point = Point(*self.d[0].d)
+        else:
+            self.point = Point(0, 0)
+        return self
+
+    def M(self, d):
+        """SVG M path command"""
+        self.d.append(_M(d))
+        self.point = Point(*d)
+        self.start = self.point
+        return self
+
+    def L(self, d):
+        """SVG L path command"""
+        return self.l(self.rel(d))
+
+    def H(self, x):
+        """SVG H path command"""
+        return self.h(x - self.point.x)
+
+    def V(self, y):
+        """SVG V path command"""
+        return self.v(y - self.point.y)
+
+    def C(self, d1, d2, d):
+        """SVG C path command"""
+        return self.c(self.rel(d1), self.rel(d2), self.rel(d))
+
+    def S(self, d2, d):
+        """SVG S path command"""
+        return self.s(self.rel(d2), self.rel(d))
+
+    def Q(self, d1, d):
+        """SVG Q path command"""
+        return self.q(self.rel(d1), self.rel(d))
+
+    def T(self, d):
+        """SVG T path command"""
+        return self.t(self.rel(d))
+
+    def A(self, r, xar, laf, sf, d):
+        """SVG A path command"""
+        return self.a(r, xar, laf, sf, self.rel(d))
+
+    def Z(self):
+        """SVG Z path command"""
+        return self.z()
+
 
     def transform(self, trns):
         trns = re.sub(r",\s+", ",", trns).split()[::-1]
@@ -263,51 +299,35 @@ class Path:
                 error("invalid transform")
 
     def scale(self, s):
-        self.rect.x *= s.x
-        self.rect.y *= s.y
-        self.rect.w *= s.x
-        self.rect.h *= s.y
         for seg in self.d:
             seg.scale(s)
+        return self
 
     def translate(self, d):
-        self.rect.x += d.x
-        self.rect.y += d.y
         for seg in self.d:
             seg.translate(d)
+        return self
 
     def rotate(self, t):
         for seg in self.d:
             seg.rotate(t)
-
-        minpt = Point(*map(min, zip(*(tuple(seg.min()) for seg in self.d))))
-        maxpt = Point(*map(max, zip(*(tuple(seg.max()) for seg in self.d))))
-
-        self.rect(minpt.x, minpt.y, maxpt.x - minpt.x, maxpt.y - minpt.y)
+        return self
 
     def skew_x(self, t):
         for seg in self.d:
             seg.skew_x(t)
-
-        minpt = Point(*map(min, zip(*(tuple(seg.min()) for seg in self.d))))
-        maxpt = Point(*map(max, zip(*(tuple(seg.max()) for seg in self.d))))
-
-        self.rect(minpt.x, minpt.y, maxpt.x - minpt.x, maxpt.y - minpt.y)
+        return self
 
     def skew_y(self, t):
         for seg in self.d:
             seg.skew_y(t)
-
-        minpt = Point(*map(min, zip(*(tuple(seg.min()) for seg in self.d))))
-        maxpt = Point(*map(max, zip(*(tuple(seg.max()) for seg in self.d))))
-
-        self.rect(minpt.x, minpt.y, maxpt.x - minpt.x, maxpt.y - minpt.y)
+        return self
 
 
 # Absolute move
-class M:
+class _M:
     def __init__(self, d):
-        self.d = d
+        self.d = Point(*d)
 
     def __repr__(self):
         return 'M{0:s}'.format(_format(self.d.x, self.d.y))
@@ -340,9 +360,9 @@ class M:
         return self.d
 
 # Relative line
-class l:
+class _l:
     def __init__(self, d):
-        self.d = d
+        self.d = Point(*d)
 
     def __repr__(self):
         return 'l{0:s}'.format(_format(self.d.x, self.d.y))
@@ -374,11 +394,11 @@ class l:
         return self.d
 
 # Relative cubic Bézier
-class c:
+class _c:
     def __init__(self, d1, d2, d):
-        self.d1 = d1
-        self.d2 = d2
-        self.d = d
+        self.d1 = Point(*d1)
+        self.d2 = Point(*d2)
+        self.d = Point(*d)
 
     def __repr__(self):
         return 'c{0:s}'.format(_format(self.d1.x, self.d1.y, self.d2.x, self.d2.y, self.d.x, self.d.y))
@@ -420,10 +440,10 @@ class c:
         return max(self.d1.x, self.d2.x, self.d.x), max(self.d1.y, self.d2.y, self.d.y)
 
 # Relative quadratic Bézier
-class q:
+class _q:
     def __init__(self, d1, d):
-        self.d1 = d1
-        self.d = d
+        self.d1 = Point(*d1)
+        self.d = Point(*d)
 
     def __repr__(self):
         return 'q{0:s}'.format(_format(self.d1.x, self.d1.y, self.d.x, self.d.y))
@@ -460,7 +480,7 @@ class q:
         return max(self.d1.x, self.d.x), max(self.d1.y, self.d.y)
 
 # z
-class z:
+class _z:
     def __init__(self):
         pass
 

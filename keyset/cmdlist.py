@@ -4,14 +4,14 @@ import sys
 from inspect import signature
 
 from .utils.error import error, info
-from . import core
 from .core import fontgen
+from . import core
 
 from colorama import Style
 
 
 COMMANDS = {
-    'load kle': dict(args='{<file>|<url>}', fun=core.KleLayout.load,
+    'load kle': dict(args='{<file>|<url>}', fun=core.KleFile.load,
         desc='load a keyboard layout editor layout'),
     'load font': dict(args='{<name>|<file>}', fun=core.Font.load,
         desc='load an XML font file (use name for built in fonts)'),
@@ -19,7 +19,7 @@ COMMANDS = {
         desc='load an XML icon or novelty file'),
     'load profile': dict(args='{<name>|<file>}', fun=core.Profile.load,
         desc='load an keycap profile configuration file'),
-    'generate layout': dict(args='', fun=lambda *_: None,
+    'generate layout': dict(args='', fun=core.Layout.layout,
         desc='generate a layout diagram'),
     'generate texture': dict(args='', fun=lambda *_: None,
         desc='generate a texture file (for renders, etc.)'),

@@ -4,7 +4,7 @@ import sys
 from os import path
 from argparse import ArgumentParser, ArgumentError
 
-from .. import __version__, cmdlist
+from .. import __version__
 from .error import Verbosity, error, warning
 
 
@@ -107,12 +107,14 @@ class Config():
             type=str, nargs='*', metavar='<cmdlist>', help='command list file')
 
         # Parse the args
-        args = dict(vars(parser.parse_args(argv)).items())
+        args = { k: v for k, v in vars(parser.parse_args(argv)).items() if v is not None }
 
         if args.get('help', False):
 
             parser.print_help(sys.stderr)
             print(file=sys.stderr)
+
+            from .. import cmdlist
             print(cmdlist.help_msg(), file=sys.stderr)
 
             sys.exit(0)

@@ -34,7 +34,7 @@ y-offset = 0.12
 default = 'scoop'
 
 [homing.scoop]
-depth = 0.15
+depth = 1.5
 
 [homing.bar]
 width = 3.85
