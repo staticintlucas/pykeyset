@@ -102,8 +102,8 @@ class Profile:
             w = top.getkey('width', type=Number) / 19.05
             h = top.getkey('height', type=Number) / 19.05
             r = top.getkey('radius', type=Number) / 19.05
-            offset = top.getkey('y-offset', type=Number, default=0) / 19.05
-            self.top = RoundRect(0.5 - (w / 2), 0.5 - (h / 2) + offset, w, h, r)
+            top_offset = top.getkey('y-offset', type=Number, default=0) / 19.05
+            self.top = RoundRect(0.5 - (w / 2), 0.5 - (h / 2) + top_offset, w, h, r)
 
         except KeyError as e:
             error(f"no key '{e.args[0]}' in section [{e.args[1]}] in profile '{self.name}'")
@@ -128,7 +128,7 @@ class Profile:
 
                 w = section.getkey('width', Number, default_w) / 19.05
                 h = section.getkey('height', Number, default_h) / 19.05
-                offset = section.getkey('y-offset', Number, default_offset)
+                offset = section.getkey('y-offset', Number, default_offset) / 19.05 + top_offset
 
                 for key, value in { 'width': w, 'height': h }.items():
                     if value is None:

@@ -35,6 +35,7 @@ class Config():
         self.is_script = configuration.pop('is_script', False)
         self.verbosity = configuration.pop('verbosity',
             Verbosity.NORMAL if self.is_script else Verbosity.QUIET)
+        self.showalignment = configuration.pop('showalignment', False)
 
         # This stores the cmdlists and commands to execute if instantiated from argv, otherwise
         # Config does not need to store that information
@@ -101,6 +102,8 @@ class Config():
         #     action='store_true', help='print profiling information')
         parser.add_argument('-d', '--dpi',
             type=int, metavar='<dpi>', help='the DPI for the output (default: 96 [i.e. 1u = 72])')
+        parser.add_argument('--show-alignment',
+            action='store_true', dest='showalignment', help='draw rectangles to which text is aligned')
         parser.add_argument('-c',
             type=str, metavar='"<command>"', action='append', dest='commands', help='execute a command')
         parser.add_argument('cmdlist',
@@ -137,6 +140,7 @@ class Config():
         self.color = args.get('color', self.color)
         self.profile = args.get('profile', self.profile)
         self.dpi = args.get('dpi', self.dpi)
+        self.showalignment = args.get('showalignment', self.showalignment)
 
         return self
 

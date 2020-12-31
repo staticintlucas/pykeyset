@@ -205,8 +205,13 @@ class KleFile:
 
         bgcol = Color(props.c)
         if '\n' in props.t:
+            colors = props.t.split('\n')
+            if colors[0]:
+                defaultcolor = colors[0]
+            else:
+                defaultcolor = '#000000'
             fgcol = kle_to_ord(props.t.split('\n'), props.a)
-            fgcol = [Color(fg) if fg else Color(0, 0, 0) for fg in fgcol]
+            fgcol = [Color(fg) if fg else Color(defaultcolor) for fg in fgcol]
         else:
             fgcol = 12 * [Color(props.t)]
 

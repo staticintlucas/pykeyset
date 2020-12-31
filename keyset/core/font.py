@@ -6,9 +6,10 @@ from xml.etree import ElementTree as et
 # from .. import fonts
 from ..utils.error import error, warning
 from ..utils.types import Point, Dist, Rect, Size
-from ..utils import path
+from ..utils import path, config
 from .. import res
 from .glyph import Glyph, Kern
+from .kle import KeyType
 
 
 class Font:
@@ -140,7 +141,9 @@ class Font:
 
     def drawtext(self, ctx, key, g, unit):
 
-        for legend, size, color in zip(key.legend, key.legsize, key.fgcol):
+        for i, (legend, size, color) in enumerate(zip(key.legend, key.legsize, key.fgcol)):
+
+            x, y = i % 3, i // 3
 
             if len(legend) == 0:
                 continue
@@ -155,6 +158,21 @@ class Font:
                 textscale = ctx.profile.textsize.alpha / self.capheight
                 textrect = Rect(*ctx.profile.textrect.alpha)
 
+            if key.type == KeyType.NONE:
+                r = ctx.profile.bottom
+                textrect = ctx.profile.bottom
+
+            if config.config.showalignment:
+                et.SubElement(g, 'rect', {
+                    'x': str(textrect.x * unit),
+                    'y': str(textrect.y * unit),
+                    'width': str(textrect.w * unit),
+                    'height': str(textrect.h * unit),
+                    'fill': 'none',
+                    'stroke': '#f00',
+                    'stroke-width': str(unit / config.config.dpi / 0.75 / 3)
+                })
+
             if key.size == 'iso':
                 textrect.x += 0.25
                 textrect.w += 0.25
@@ -165,34 +183,97 @@ class Font:
                 textrect.w += (key.size.w - 1)
                 textrect.h += (key.size.h - 1)
 
-            result = path.Path()
-            position = Point(0, 0)
+            result = self.rendertext(ctx, legend)
 
-            for char in legend:
-                if char in self.glyphs:
-                    glyph = self.glyphs[char]
-                else:
-                    glyph = self._replacement
-
-                textpath = glyph.path.copy()
-                textpath.translate(position)
-                position.x += glyph.advance
-                result.append(textpath)
+            print(legend, self.capheight, result.rect())
 
             result.scale(Dist(textscale, textscale))
 
             rect = result.rect()
             if rect.w > textrect.w:
-                warning(f"squishing legend '{legend}' to {100 * textrect.w / rect.w:.3f}% of " \
-                    "it's width to fit")
+                warning(f"squishing legend '{legend}' to {100 * textrect.w / rect.w:.3f}% of its " \
+                    "natural width to fit")
                 result.scale(Dist(textrect.w / rect.w, 1))
                 rect = result.rect()
+            rect.h = self.capheight * textscale
 
-            result.translate(Dist(textrect.x - rect.x, textrect.y)).scale(Dist(unit, unit))
+            pos = Dist(
+                textrect.x - rect.x + (x / 2) * (textrect.w - rect.w),
+                textrect.y + rect.h + (y / 2) * (textrect.h - rect.h),
+            )
+
+            result.translate(pos)
+            result.scale(Dist(unit, unit))
 
             et.SubElement(g, 'path', {
                 'd': str(result),
+                'fill': str(color),
+                'stroke': 'none',
             })
+
+
+    def rendertext(self, ctx, legend):
+
+        result = path.Path()
+        position = Point(0, 0)
+
+        glyphs = []
+        remainder = legend
+        while len(remainder) > 0:
+
+            # Parse {name} sequences in the text
+            if remainder[0] == '{':
+                end = remainder.find("}")
+
+                # If there is no matching closing } or there is another { before it
+                if end < 1 or '{' in remainder[1:end]:
+                    if '{' in self.glyphs:
+                        glyphs.append(self.glyphs['{'])
+                    else:
+                        warning("no glyph for character '{{', using replacement glyph instead")
+                        glyphs.append(self._replacement)
+                    remainder = remainder[1:]
+
+                else:
+                    name = remainder[1:end]
+
+                    # Try to find an icon with this name
+                    for icons in ctx.icons[::-1]:
+                        if name in icons:
+                            glyphs.append(icons[name])
+                            remainder = remainder[end+1:]
+                            break
+
+                    else:
+                        # Else try to find a character with this name
+                        if name in self.glyphs:
+                            glyphs.append(self.glyphs[name])
+                            remainder = remainder[end+1:]
+
+                        # Or finally just print the characters literally
+                        else:
+                            if '{' in self.glyphs:
+                                glyphs.append(self.glyphs['{'])
+                            else:
+                                warning("no glyph for character '{{', using replacement glyph instead")
+                                glyphs.append(self._replacement)
+                            remainder = remainder[1:]
+
+            else:
+                if remainder[0] in self.glyphs:
+                    glyphs.append(self.glyphs[remainder[0]])
+                else:
+                    warning(f"no glyph for character '{remainder[0]}', using replacement glyph instead")
+                    glyphs.append(self._replacement)
+                remainder = remainder[1:]
+
+        for glyph in glyphs:
+            textpath = glyph.path.copy()
+            textpath.translate(position)
+            position.x += glyph.advance
+            result.append(textpath)
+
+        return result
 
 
     @property

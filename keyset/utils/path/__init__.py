@@ -146,19 +146,13 @@ class Path:
                 if isinstance(seg, _M):
                     pt = Point(*seg.d)
                     start = Point(*pt)
-                    minpt.x = min(minpt.x, pt.x)
-                    minpt.y = min(minpt.y, pt.y)
-                    maxpt.x = max(maxpt.x, pt.x)
-                    maxpt.y = max(maxpt.y, pt.y)
                 elif isinstance(seg, _z):
                     pt = Point(*start)
                 else:
-                    minpt.x = min(minpt.x, pt.x + seg.min().x)
-                    minpt.y = min(minpt.y, pt.y + seg.min().y)
-                    maxpt.x = max(maxpt.x, pt.x + seg.max().x)
-                    maxpt.y = max(maxpt.y, pt.y + seg.max().y)
                     pt.x += seg.d.x
                     pt.y += seg.d.y
+                minpt = Point(min(minpt.x, pt.x), min(minpt.y, pt.y))
+                maxpt = Point(max(maxpt.x, pt.x), max(maxpt.y, pt.y))
         return Rect(minpt.x, minpt.y, maxpt.x - minpt.x, maxpt.y - minpt.y)
 
 
@@ -308,7 +302,7 @@ class Path:
                 elif t.startswith('translate('):
                     val = [float(v) for v in t[10:-1].split(',')]
                     d = Dist(val[0], val[1])
-                    self.scale(d)
+                    self.translate(d)
 
                 elif t.startswith('rotate('):
                     val = float(t[7:-1])
@@ -392,12 +386,6 @@ class _M:
         t = radians(t)
         self.d.y += self.d.x * sin(t)
 
-    def min(self):
-        return self.d
-
-    def max(self):
-        return self.d
-
 # Relative line
 class _l:
     def __init__(self, d):
@@ -425,12 +413,6 @@ class _l:
     def skew_y(self, t):
         t = radians(t)
         self.d.y += self.d.x * sin(t)
-
-    def min(self):
-        return self.d
-
-    def max(self):
-        return self.d
 
 # Relative cubic Bézier
 class _c:
@@ -472,12 +454,6 @@ class _c:
         self.d2.y += self.d2.x * sin(t)
         self.d.y += self.d.x * sin(t)
 
-    def min(self):
-        return Point(min(self.d1.x, self.d2.x, self.d.x), min(self.d1.y, self.d2.y, self.d.y))
-
-    def max(self):
-        return Point(max(self.d1.x, self.d2.x, self.d.x), max(self.d1.y, self.d2.y, self.d.y))
-
 # Relative quadratic Bézier
 class _q:
     def __init__(self, d1, d):
@@ -512,12 +488,6 @@ class _q:
         self.d1.y += self.d1.x * sin(t)
         self.d.y += self.d.x * sin(t)
 
-    def min(self):
-        return Point(min(self.d1.x, self.d.x), min(self.d1.y, self.d.y))
-
-    def max(self):
-        return Point(max(self.d1.x, self.d.x), max(self.d1.y, self.d.y))
-
 # z
 class _z:
     def __init__(self):
@@ -540,12 +510,6 @@ class _z:
 
     def skew_y(self, t):
         pass
-
-    def min(self):
-        return Point(inf, inf)
-
-    def max(self):
-        return Point(-inf, -inf)
 
 # Format a list of coords as efficiently as possible
 def _format(*args):
