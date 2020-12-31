@@ -5,6 +5,7 @@ from xml.etree import ElementTree as et
 
 # from .. import fonts
 from ..utils.error import error, warning
+from ..utils.types import Point, Dist, Rect, Size
 from ..utils import path
 from .. import res
 from .glyph import Glyph, Kern
@@ -99,7 +100,7 @@ class Font:
                 gp.transform(global_xform)
 
             if 'horiz-adv-x' in glyph.attrib:
-                advance = glyph.get('horiz-adv-x')
+                advance = float(glyph.get('horiz-adv-x'))
             elif def_advance is not None:
                 advance = def_advance
             else:
@@ -135,3 +136,92 @@ class Font:
             self.kerning.add(u[0], u[1], k)
 
         ctx.font = self
+
+
+    def drawtext(self, ctx, key, g, unit):
+
+        for legend, size, color in zip(key.legend, key.legsize, key.fgcol):
+
+            if len(legend) == 0:
+                continue
+
+            if size < 4:
+                textscale = ctx.profile.textsize.mod / self.capheight
+                textrect = Rect(*ctx.profile.textrect.mod)
+            elif size == 4:
+                textscale = ctx.profile.textsize.symbol / self.capheight
+                textrect = Rect(*ctx.profile.textrect.symbol)
+            else:
+                textscale = ctx.profile.textsize.alpha / self.capheight
+                textrect = Rect(*ctx.profile.textrect.alpha)
+
+            if key.size == 'iso':
+                textrect.x += 0.25
+                textrect.w += 0.25
+                textrect.h += 1
+            elif key.size == 'step':
+                textrect.w += 0.25
+            else:
+                textrect.w += (key.size.w - 1)
+                textrect.h += (key.size.h - 1)
+
+            result = path.Path()
+            position = Point(0, 0)
+
+            for char in legend:
+                if char in self.glyphs:
+                    glyph = self.glyphs[char]
+                else:
+                    glyph = self._replacement
+
+                textpath = glyph.path.copy()
+                textpath.translate(position)
+                position.x += glyph.advance
+                result.append(textpath)
+
+            result.scale(Dist(textscale, textscale))
+
+            rect = result.rect()
+            if rect.w > textrect.w:
+                warning(f"squishing legend '{legend}' to {100 * textrect.w / rect.w:.3f}% of " \
+                    "it's width to fit")
+                result.scale(Dist(textrect.w / rect.w, 1))
+                rect = result.rect()
+
+            result.translate(Dist(textrect.x - rect.x, textrect.y)).scale(Dist(unit, unit))
+
+            et.SubElement(g, 'path', {
+                'd': str(result),
+            })
+
+
+    @property
+    def _replacement(self):
+        g = Glyph(path.Path()
+            .M(Point(146, 0))
+            .a(Size(73, 73), 0, 0, 1, Dist(-73, -73))
+            .l(Dist(0, -580))
+            .a(Size(73, 73), 0, 0, 1, Dist(73, -73))
+            .l(Dist(374, 0))
+            .a(Size(73, 73), 0, 0, 1, Dist(73, 73))
+            .l(Dist(0, 580))
+            .a(Size(73, 73), 0, 0, 1, Dist(-73, 73))
+            .z()
+            .M(Point(283, -110))
+            .a(Size(50, 50), 0, 0, 0, Dist(100, 0))
+            .a(Size(50, 50), 0, 0, 0, Dist(-100, 0))
+            .z()
+            .M(Point(293, -236))
+            .a(Size(40, 40), 0, 0, 0, Dist(80, 0))
+            .a(Size(120, 108), 0, 0, 1, Dist(60, -94))
+            .a(Size(200, 180), 0, 0, 0, Dist(100, -156))
+            .a(Size(200, 180), 0, 0, 0, Dist(-400, 0))
+            .a(Size(40, 40), 0, 0, 0, Dist(80, 0))
+            .a(Size(120, 108), 0, 0, 1, Dist(240, 0))
+            .a(Size(120, 108), 0, 0, 1, Dist(-60, 94))
+            .a(Size(200, 180), 0, 0, 0, Dist(-100, 156))
+            .z(), 0.638 * self.emsize)
+
+        g.path.scale(Dist(self.emsize / 1000, self.emsize / 1000))
+
+        return g

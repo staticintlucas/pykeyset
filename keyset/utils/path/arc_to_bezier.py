@@ -30,20 +30,28 @@ def arc_to_bezier(r, xar, laf, sf, d):
 
     c = _get_center(r, laf, sf, d)
 
-    phi0 = atan2(0 - c.y, 0 - c.x)
-    dphi = atan2(d.y - c.y, d.x - c.x) - phi0
+    phi0 = atan2((0 - c.y) / r.y, (0 - c.x) / r.x)
+    dphi = atan2((d.y - c.y) / r.y, (d.x - c.x) / r.x) - phi0
 
     if laf:
-        if abs(dphi) < pi:
-            dphi += copysign(2 * pi, dphi)
+        if sf:
+            if dphi < pi:
+                dphi += 2 * pi
+        else:
+            if dphi > -pi:
+                dphi -= 2 * pi
     else:
-        if abs(dphi) > pi:
-            dphi -= copysign(2 * pi, dphi)
+        if sf:
+            if dphi < 0:
+                dphi += 2 * pi
+        else:
+            if dphi > 0:
+                dphi -= 2 * pi
 
     if not laf and not sf: assert(0 >= dphi >= -pi)
     if not laf and sf: assert(0 <= dphi <= pi)
-    if laf and not sf: assert(pi >= dphi >= -2 * pi)
-    if laf and sf: assert(-pi <= dphi <= 2 * pi)
+    if laf and not sf: assert(-pi >= dphi >= -(2 * pi))
+    if laf and sf: assert(pi <= dphi <= 2 * pi)
 
     segments = ceil(abs(dphi / (pi / 2)) - TOL)
     dphi /= segments

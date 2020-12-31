@@ -1,7 +1,8 @@
 # coding: utf-8
 
 import re
-from math import cos, sin, radians, degrees, inf
+from math import cos, sin, radians, inf
+from copy import deepcopy
 
 from ..error import error
 from ..types import Point, Dist, Rect
@@ -15,7 +16,6 @@ class Path:
             if len(t) > 0 and not t.isspace() and not t == ',')
 
         self.point = Point(0, 0)
-        self.start = Point(0, 0)
         self.d = []
 
         for t in token:
@@ -124,11 +124,41 @@ class Path:
     def __repr__(self):
         return ''.join(str(d) for d in self.d)
 
+    def append(self, other):
+        self.d.extend(deepcopy(other.d))
+        self.point = Point(*other.point)
+        return self
+
+    def copy(self):
+        return deepcopy(self)
 
     def rect(self):
         """Return the bounding box of the path"""
-        minpt = Point(*map(min, zip(*(tuple(seg.min()) for seg in self.d))))
-        maxpt = Point(*map(max, zip(*(tuple(seg.max()) for seg in self.d))))
+        minpt = Point(inf, inf)
+        maxpt = Point(-inf, -inf)
+
+        if len(self.d) == 0:
+            return Rect(0, 0, 0, 0)
+        else:
+            pt = Point(0, 0)
+            start = Point(*pt)
+            for seg in self.d:
+                if isinstance(seg, _M):
+                    pt = Point(*seg.d)
+                    start = Point(*pt)
+                    minpt.x = min(minpt.x, pt.x)
+                    minpt.y = min(minpt.y, pt.y)
+                    maxpt.x = max(maxpt.x, pt.x)
+                    maxpt.y = max(maxpt.y, pt.y)
+                elif isinstance(seg, _z):
+                    pt = Point(*start)
+                else:
+                    minpt.x = min(minpt.x, pt.x + seg.min().x)
+                    minpt.y = min(minpt.y, pt.y + seg.min().y)
+                    maxpt.x = max(maxpt.x, pt.x + seg.max().x)
+                    maxpt.y = max(maxpt.y, pt.y + seg.max().y)
+                    pt.x += seg.d.x
+                    pt.y += seg.d.y
         return Rect(minpt.x, minpt.y, maxpt.x - minpt.x, maxpt.y - minpt.y)
 
 
@@ -215,8 +245,9 @@ class Path:
     def z(self):
         """SVG z path command"""
         self.d.append(_z())
-        if isinstance(self.d[0], _M):
-            self.point = Point(*self.d[0].d)
+        lastm = next((s for s in self.d[::-1] if isinstance(s, _M)), None)
+        if lastm is not None:
+            self.point = Point(*lastm.d)
         else:
             self.point = Point(0, 0)
         return self
@@ -225,7 +256,6 @@ class Path:
         """SVG M path command"""
         self.d.append(_M(d))
         self.point = Point(*d)
-        self.start = self.point
         return self
 
     def L(self, d):
@@ -301,26 +331,35 @@ class Path:
     def scale(self, s):
         for seg in self.d:
             seg.scale(s)
+        self.point.x *= s.x
+        self.point.y *= s.y
         return self
 
     def translate(self, d):
         for seg in self.d:
             seg.translate(d)
+        self.point.x += d.x
+        self.point.y += d.y
         return self
 
     def rotate(self, t):
         for seg in self.d:
             seg.rotate(t)
+        c, s = cos(radians(t)), sin(radians(t))
+        x, y = self.point
+        self.point = Point(x * c - y * s, x * s + y * c)
         return self
 
     def skew_x(self, t):
         for seg in self.d:
             seg.skew_x(t)
+        self.point.x -= self.point.y * sin(radians(t))
         return self
 
     def skew_y(self, t):
         for seg in self.d:
             seg.skew_y(t)
+        self.point.y += self.point.x * sin(radians(t))
         return self
 
 
@@ -434,10 +473,10 @@ class _c:
         self.d.y += self.d.x * sin(t)
 
     def min(self):
-        return min(self.d1.x, self.d2.x, self.d.x), min(self.d1.y, self.d2.y, self.d.y)
+        return Point(min(self.d1.x, self.d2.x, self.d.x), min(self.d1.y, self.d2.y, self.d.y))
 
     def max(self):
-        return max(self.d1.x, self.d2.x, self.d.x), max(self.d1.y, self.d2.y, self.d.y)
+        return Point(max(self.d1.x, self.d2.x, self.d.x), max(self.d1.y, self.d2.y, self.d.y))
 
 # Relative quadratic Bézier
 class _q:
@@ -474,10 +513,10 @@ class _q:
         self.d.y += self.d.x * sin(t)
 
     def min(self):
-        return min(self.d1.x, self.d.x), min(self.d1.y, self.d.y)
+        return Point(min(self.d1.x, self.d.x), min(self.d1.y, self.d.y))
 
     def max(self):
-        return max(self.d1.x, self.d.x), max(self.d1.y, self.d.y)
+        return Point(max(self.d1.x, self.d.x), max(self.d1.y, self.d.y))
 
 # z
 class _z:
@@ -503,10 +542,10 @@ class _z:
         pass
 
     def min(self):
-        return inf, inf
+        return Point(inf, inf)
 
     def max(self):
-        return -inf, -inf
+        return Point(-inf, -inf)
 
 # Format a list of coords as efficiently as possible
 def _format(*args):
