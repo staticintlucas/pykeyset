@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools >= 36.2.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["setuptools >= 40.8.0", "wheel"]
+build-backend = "setuptools.build_meta:__legacy__" # Required for versioneer to work properly
 
 [tool.black]
 line-length = 100

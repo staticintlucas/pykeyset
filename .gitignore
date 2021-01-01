@@ -1,8 +1,7 @@
 # Ignore hidden files
 .*
-!/.gitignore
-!/.gitattributes
-!/.github
+!/.git*
+!/.pre-commit*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
