@@ -4,3 +4,5 @@ from . import version
 __version__ = version.get_versions()['version']
 
 from .utils.config import config
+
+__all__ = ['config']
