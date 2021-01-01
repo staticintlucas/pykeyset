@@ -1,11 +1,10 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 
 import sys
-from os import path
-from argparse import ArgumentParser, ArgumentError
+from argparse import ArgumentParser
 
 from .. import __version__
-from .error import Verbosity, error, warning
+from .error import Verbosity, warning
 
 
 __all__ = ["config"]

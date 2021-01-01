@@ -1,4 +1,4 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 
 from urllib import request
 from urllib.parse import urlparse
@@ -187,7 +187,7 @@ class KleFile:
         ctx.kle = self
 
     def _parsekey(self, string, props):
-        legend = [html.unescape(l) for l in kle_to_ord(string.split("\n"), props.a)]
+        legend = [html.unescape(leg) for leg in kle_to_ord(string.split("\n"), props.a)]
 
         pos = Point(props.x, props.y)
         size = Size(props.w, props.h)
@@ -253,7 +253,7 @@ class _Props:
         self.y2 = self.defaults["y2"]
         self.w2 = self.defaults["w2"]
         self.h2 = self.defaults["h2"]
-        self.l = self.defaults["l"]  # stepped
+        self.l = self.defaults["l"]  # stepped  # noqa: E741
         self.n = self.defaults["n"]  # homing
         self.d = self.defaults["d"]  # invisible
         # Persistent modifiers
@@ -298,7 +298,7 @@ class _Props:
         self.y2 = props.get("y2", 0)
         self.w2 = props.get("w2", self.w)
         self.h2 = props.get("h2", self.h)
-        self.l = props.get("l", False)
+        self.l = props.get("l", False)  # noqa: E741
         self.n = props.get("n", False)
         self.d = props.get("d", False)
 
@@ -309,7 +309,7 @@ class _Props:
         self.f = props.get("f", self.f)
 
         for p in props:
-            if not p in self.defaults().keys():
+            if p not in self.defaults.keys():
                 warning(f"ignoring unsupported KLE property '{p}' in '{props[p]}'")
 
     def newline(self):
@@ -330,6 +330,6 @@ class _Props:
         self.y2 = 0
         self.w2 = self.w
         self.h2 = self.h
-        self.l = False
+        self.l = False  # noqa: E741
         self.n = False
         self.d = False

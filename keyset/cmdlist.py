@@ -1,13 +1,9 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 
-import sys
 from inspect import signature
 
 from .utils.error import error, info
-from .core import fontgen
 from . import core
-
-from colorama import Style
 
 
 COMMANDS = {

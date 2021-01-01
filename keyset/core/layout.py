@@ -1,13 +1,10 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 
-from enum import Enum
 from xml.etree import ElementTree as et
 
-from ..utils.types import Point, Dist, Size, RoundRect, Color
-from ..utils.error import error, warning
-from ..utils.path import Path
+from ..utils.types import Size
+from ..utils.error import error
 from ..utils import config
-from .profile import ProfileType
 from .kle import KeyType
 
 
@@ -22,11 +19,11 @@ class Layout:
     def layout(cls, ctx):
 
         if ctx.kle is None:
-            error(f"no KLE layout is loaded")
+            error("no KLE layout is loaded")
         elif ctx.font is None:
-            error(f"no font is loaded")
+            error("no font is loaded")
         elif ctx.profile is None:
-            error(f"no profile is loaded")
+            error("no profile is loaded")
 
         self = cls()
 

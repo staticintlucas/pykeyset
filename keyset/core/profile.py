@@ -1,14 +1,13 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 
 import os.path
 from enum import Enum
 from numbers import Number
 from xml.etree import ElementTree as et
 
-from ..utils.types import Point, Dist, Size, Rect, RoundRect, Color
-from ..utils.error import error, warning
+from ..utils.types import Point, Dist, Size, Rect, RoundRect
+from ..utils.error import error
 from ..utils.path import Path
-from ..utils import config
 from ..utils import tomlparser
 from .. import res
 from .kle import KeyType
@@ -275,9 +274,9 @@ class Profile:
             curve = depth / 100
             gradtype = GradientType.SCOOP if keytype == KeyType.SCOOP else GradientType.KEY
 
-            # Calculate the radius of the arc for horizontal and vertical (for spherical) curved keytop
-            # edges using standard formula for segments of an arc using w/h as the widths and curve as
-            # the height
+            # Calculate the radius of the arc for horizontal and vertical (for spherical) curved
+            # keytop edges using standard formula for segments of an arc using w/h as the widths
+            # and curve as the height
             hr = (curve ** 2 + (w ** 2 / 4)) / (2 * curve)
             vr = (curve ** 2 + (h ** 2 / 4)) / (2 * curve)
 
@@ -402,9 +401,9 @@ class Profile:
 
         else:
 
-            # Calculate the radius of the arc for horizontal and vertical (for spherical) curved keytop
-            # edges using standard formula for segments of an arc using w/h as the widths and curve as
-            # the height
+            # Calculate the radius of the arc for horizontal and vertical (for spherical) curved
+            # keytop edges using standard formula for segments of an arc using w/h as the widths
+            # and curve as the height
             top_r, btm_r, lefttop_r, leftbtm_r, right_r = (
                 (curve ** 2 + (d ** 2 / 4)) / (2 * curve)
                 for d in (w_top, w_btm, h_lefttop, h_leftbtm, h_right)

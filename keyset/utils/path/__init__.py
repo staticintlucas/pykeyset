@@ -1,4 +1,4 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 
 import re
 from math import cos, sin, radians, inf
@@ -169,7 +169,8 @@ class Path:
         """SVG m path command"""
         return self.M(self.abs(d))
 
-    def l(self, d):
+    # flake8 doesn't like the lowercase l, even though the rest are fine, so disable E741 & E743
+    def l(self, d):  # noqa: E741, E743
         """SVG l path command"""
         self.d.append(_l(d))
         self.point.x += d.x

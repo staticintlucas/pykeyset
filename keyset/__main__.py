@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# coding: utf-8
+# -*- coding: utf-8 -*-
 
 import sys
 import traceback
@@ -41,7 +41,7 @@ def _start():
         pass
 
     # Any other exception is an internal error so we print the full traceback
-    except:
+    except Exception:
         trace = traceback.format_exc()
         error("Internal error:\n{:s}".format(trace), file=sys.stderr, no_raise=True, wrap=False)
 

@@ -1,9 +1,7 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 
 import toml
 from collections.abc import Mapping, MutableMapping
-
-from .error import error
 
 
 def load(file):
@@ -14,7 +12,7 @@ def loads(string):
     return toml.loads(string, TomlNode)
 
 
-_unset = lambda: None
+_unset = lambda: None  # noqa: E731
 
 
 class TomlNode(MutableMapping):

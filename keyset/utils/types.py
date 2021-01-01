@@ -1,4 +1,4 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 
 from .error import warning
 
@@ -43,7 +43,7 @@ class Color(ColorTuple):
 
     def highlight(self, lum=0.15):
         h, l, s = colorsys.rgb_to_hls(*self)
-        l += lum if l < 0.5 else -lum
+        l += lum if l < 0.5 else -lum  # flake8 doesn't like the letter l  # noqa: E741
         return Color(*colorsys.hls_to_rgb(h, l, s))
 
     def __repr__(self):

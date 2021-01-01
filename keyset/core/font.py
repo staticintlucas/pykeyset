@@ -1,4 +1,4 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 
 import os.path
 from xml.etree import ElementTree as et
@@ -56,26 +56,26 @@ class Font:
             error(f"cannot load font from '{self.file}'. {e.msg.capitalize()}")
 
         for a in ("em-size", "cap-height", "x-height"):
-            if not a in root.attrib:
+            if a not in root.attrib:
                 error(f"no global '{a}' attribute for font '{self.file}'")
 
         self.emsize = float(root.get("em-size"))
         self.capheight = float(root.get("cap-height"))
         self.xheight = float(root.get("x-height"))
 
-        if not "slope" in root.attrib:
+        if "slope" not in root.attrib:
             warning(
                 f"no global 'slope' attribute for font '{self.file}'. " "Using default value (0)"
             )
         self.slope = float(root.get("slope", 0))
-        if not "line-height" in root.attrib:
+        if "line-height" not in root.attrib:
             warning(
                 f"no global 'line-height' attribute for font '{self.file}'. "
                 "Using default value (equal to em-size)"
             )
         self.lineheight = float(root.get("line-height", self.emsize))
 
-        if not "horiz-adv-x" in root.attrib:
+        if "horiz-adv-x" not in root.attrib:
             warning(
                 f"no global 'horiz-adv-x' attribute for font '{self.file}'. "
                 "this attribute must for each individual glyph instead"
@@ -87,7 +87,7 @@ class Font:
 
         for glyph in root.findall("glyph"):
             for a in ("char", "path"):
-                if not a in glyph.attrib:
+                if a not in glyph.attrib:
                     warning(
                         f"no '{a}' attribute for 'glyph' in '{self.file}'. Ignoring " "this glyph"
                     )
@@ -120,7 +120,7 @@ class Font:
 
         for kern in root.findall("kern"):
             for a in ("u", "k"):
-                if not a in kern.attrib:
+                if a not in kern.attrib:
                     warning(
                         f"no '{a}' attribute for 'kern' in '{self.file}'. Ignoring "
                         "this kerning value"
@@ -325,7 +325,8 @@ class Font:
             .a(Size(200, 180), 0, 0, 0, Dist(-100, 156))
             .z()
             .scale(Dist(self.emsize / 1000, self.emsize / 1000)),
-            # This has an advance of 638, divide by its em-size (1000) and multiply by the used font's em-size
+            # This has an advance of 638, divide by its em-size (1000) and multiply by the used
+            # font's em-size
             0.638 * self.emsize,
         )
 

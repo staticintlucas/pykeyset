@@ -1,4 +1,4 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 
 import tempfile
 from xml.etree import ElementTree as et
@@ -19,14 +19,14 @@ def fontgen(output, input):
     try:
         font = fontforge.open(input, 0x10)  # 0x10 = hidewindow
     except Exception as e:
-        error(f"FontForge couldn't open font file '{input}'")
+        error(f"FontForge couldn't open font file '{input}': {e}")
 
     with tempfile.NamedTemporaryFile(suffix=".svg") as tmp:
 
         font.generate(tmp.name)
         tmp.seek(0)
 
-        info(f"reading FontForge output")
+        info("reading FontForge output")
 
         try:
             root = et.parse(tmp).getroot()
@@ -136,10 +136,10 @@ def fontgen(output, input):
             error(f"cannot write font to '{output}'. {e.strerror}")
 
 
-_NODEFAULT = lambda: None
+_unset = lambda: None  # noqa: E731
 
 
-def _et_get_child(node, name, default=_NODEFAULT):
+def _et_get_child(node, name, default=_unset):
 
     res = node.findall(f"default:{name}", {"default": "http://www.w3.org/2000/svg"})
 
@@ -154,7 +154,7 @@ def _et_get_child(node, name, default=_NODEFAULT):
     return res[-1]
 
 
-def _et_get_attr(node, name, default=_NODEFAULT):
+def _et_get_attr(node, name, default=_unset):
 
     tag = node.tag
     if tag.startswith("{"):
@@ -162,7 +162,7 @@ def _et_get_attr(node, name, default=_NODEFAULT):
 
     if name in node.attrib:
         return node.get(name)
-    elif default is _NODEFAULT:
+    elif default is _unset:
         error(f"no '{name}' attribute found for '{tag}' in FontForge SVG output")
     else:
         warning(

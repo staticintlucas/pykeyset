@@ -1,7 +1,7 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 
 from math import radians, cos, sin, tan, atan2, pi
-from math import sqrt, ceil, isclose, copysign
+from math import sqrt, ceil, isclose
 
 from ...utils.types import Dist, Point
 
