@@ -58,6 +58,7 @@ def fontgen(output, input):
         missing = (
             font.findall("default:missing-glyph", namespace)[::-1]
             + font.findall("default:glyph[@glyph-name='.notdef']", namespace)[::-1]
+            + font.findall("default:glyph[@glyph-name='\uFFFD']", namespace)[::-1]
         )
         missing = [g for g in missing if "d" in g.attrib]
 

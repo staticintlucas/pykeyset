@@ -113,7 +113,7 @@ class Font:
                 )
                 continue
 
-            self.glyphs[char] = Glyph(gp, advance)
+            self.glyphs[char] = Glyph(char, gp, advance)
 
         if len(self.glyphs) == 0:
             error(f"no valid glyphs found in font '{self.file}'")
@@ -197,6 +197,8 @@ class Font:
                 textrect.h += key.size.h - 1
 
             result = self.rendertext(ctx, legend)
+            if result is None:
+                continue
 
             print(legend, self.capheight, result.rect())
 
@@ -231,10 +233,6 @@ class Font:
             )
 
     def rendertext(self, ctx, legend):
-
-        result = path.Path()
-        position = Point(0, 0)
-
         glyphs = []
         remainder = legend
         while len(remainder) > 0:
@@ -289,7 +287,15 @@ class Font:
                     glyphs.append(self._replacement)
                 remainder = remainder[1:]
 
-        for glyph in glyphs:
+        if len(glyphs) == 0:
+            return path.Path()
+
+        result = glyphs[0].path.copy()
+        position = Point(glyphs[0].advance, 0)
+
+        for glyph, prev in zip(glyphs[1:], glyphs):
+            position.x -= self.kerning.get(prev.name, glyph.name)
+
             textpath = glyph.path.copy()
             textpath.translate(position)
             position.x += glyph.advance
@@ -300,6 +306,7 @@ class Font:
     @property
     def _replacement(self):
         g = Glyph(
+            "\uFFFD",
             path.Path()
             .M(Point(146, 0))
             .a(Size(73, 73), 0, 0, 1, Dist(-73, -73))
