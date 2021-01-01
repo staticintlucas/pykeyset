@@ -21,7 +21,7 @@ def _start():
     try:
         args = sys.argv[1:]
         if len(args) == 0:
-            args = ['--help']
+            args = ["--help"]
         config.load_argv(args)
         result = main()
 
@@ -43,11 +43,11 @@ def _start():
     # Any other exception is an internal error so we print the full traceback
     except:
         trace = traceback.format_exc()
-        error('Internal error:\n{:s}'.format(trace), file=sys.stderr, no_raise=True, wrap=False)
+        error("Internal error:\n{:s}".format(trace), file=sys.stderr, no_raise=True, wrap=False)
 
     else:
         end = perf_counter()
-        done(f'Completed in {end - start:.3f} s')
+        done(f"Completed in {end - start:.3f} s")
 
     sys.exit(result)
 
@@ -59,7 +59,7 @@ def main():
     cmdlists = config._private._get_commands()
 
     if len(cmdlists) == 0:
-        warning('no commands to execute')
+        warning("no commands to execute")
 
     for name, cmds in cmdlists.items():
         cmdlist.execute(name, cmds)
@@ -68,5 +68,5 @@ def main():
 
 
 # For compatibility to let this run as a standalone script
-if __name__ == '__main__':
+if __name__ == "__main__":
     _start()

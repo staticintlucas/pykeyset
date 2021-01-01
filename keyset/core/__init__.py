@@ -5,8 +5,8 @@ from .profile import Profile
 from .kle import KleFile
 from .layout import Layout
 
-class Context():
 
+class Context:
     def __init__(self, name):
 
         self.name = name
@@ -17,4 +17,4 @@ class Context():
         self.layout = None
 
 
-__all__ = ['Context', 'Font', 'Profile', 'KleFile', 'Layout']
+__all__ = ["Context", "Font", "Profile", "KleFile", "Layout"]

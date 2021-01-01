@@ -9,23 +9,23 @@ from .error import error
 def load(file):
     return toml.load(file, TomlNode)
 
+
 def loads(string):
     return toml.loads(string, TomlNode)
+
 
 _unset = lambda: None
 
 
 class TomlNode(MutableMapping):
-
     def __init__(self, tree={}):
 
         self.dict = dict(tree)
-        self.section = ''
+        self.section = ""
 
         for k, v in self.dict:
             if isinstance(v, dict):
                 self[k] = TomlNode(v)
-
 
     def __getitem__(self, key):
         if key in self.dict:
@@ -33,14 +33,12 @@ class TomlNode(MutableMapping):
         else:
             raise KeyError(key, self.section) from None
 
-
     def __setitem__(self, key, val):
 
         if isinstance(val, Mapping):
             val = TomlNode(val)
-            val.section = f'{self.section}.{key}' if self.section else key
+            val.section = f"{self.section}.{key}" if self.section else key
         self.dict[key] = val
-
 
     def __delitem__(self, key):
         if key in self.dict:
@@ -48,18 +46,14 @@ class TomlNode(MutableMapping):
         else:
             raise KeyError(key, self.section) from None
 
-
     def __iter__(self):
         yield from self.dict.__iter__()
-
 
     def __len__(self):
         return len(self.dict)
 
-
     def __contains__(self, key):
         return key in self.dict
-
 
     def getkey(self, key, type=None, default=_unset):
         if key not in self.dict or isinstance(self[key], TomlNode):
@@ -73,7 +67,6 @@ class TomlNode(MutableMapping):
             val = self[key]
 
         return val
-
 
     def getsection(self, key):
         if key not in self.dict:

@@ -8,110 +8,113 @@ from ..error import error
 from ..types import Point, Dist, Rect
 from .arc_to_bezier import arc_to_bezier
 
+
 class Path:
+    def __init__(self, d=""):
 
-    def __init__(self, d=''):
-
-        token = iter(t for t in re.split(r'(-?\d+\.?\d*|[A-Za-z])', d) \
-            if len(t) > 0 and not t.isspace() and not t == ',')
+        token = iter(
+            t
+            for t in re.split(r"(-?\d+\.?\d*|[A-Za-z])", d)
+            if len(t) > 0 and not t.isspace() and not t == ","
+        )
 
         self.point = Point(0, 0)
         self.d = []
 
         for t in token:
             try:
-                if t.startswith('m'):
+                if t.startswith("m"):
                     d = Point(float(next(token)), float(next(token)))
                     self.m(d)
 
-                elif t.startswith('M'):
+                elif t.startswith("M"):
                     d = Point(float(next(token)), float(next(token)))
                     self.M(d)
 
-                elif t.startswith('l'):
+                elif t.startswith("l"):
                     d = Point(float(next(token)), float(next(token)))
                     self.l(d)
 
-                elif t.startswith('L'):
+                elif t.startswith("L"):
                     d = Point(float(next(token)), float(next(token)))
                     self.L(d)
 
-                elif t.startswith('h'):
+                elif t.startswith("h"):
                     x = float(next(token))
                     self.h(x)
 
-                elif t.startswith('H'):
+                elif t.startswith("H"):
                     x = float(next(token))
                     self.H(x)
 
-                elif t.startswith('v'):
+                elif t.startswith("v"):
                     y = float(next(token))
                     self.v(y)
 
-                elif t.startswith('V'):
+                elif t.startswith("V"):
                     y = float(next(token))
                     self.V(y)
 
-                elif t.startswith('c'):
+                elif t.startswith("c"):
                     d1 = Point(float(next(token)), float(next(token)))
                     d2 = Point(float(next(token)), float(next(token)))
                     d = Point(float(next(token)), float(next(token)))
                     self.c(d1, d2, d)
 
-                elif t.startswith('C'):
+                elif t.startswith("C"):
                     d1 = Point(float(next(token)), float(next(token)))
                     d2 = Point(float(next(token)), float(next(token)))
                     d = Point(float(next(token)), float(next(token)))
                     self.C(d1, d2, d)
 
-                elif t.startswith('s'):
+                elif t.startswith("s"):
                     d2 = Point(float(next(token)), float(next(token)))
                     d = Point(float(next(token)), float(next(token)))
                     self.s(d2, d)
 
-                elif t.startswith('S'):
+                elif t.startswith("S"):
                     d2 = Point(float(next(token)), float(next(token)))
                     d = Point(float(next(token)), float(next(token)))
                     self.s(d2, d)
 
-                elif t.startswith('q'):
+                elif t.startswith("q"):
                     d1 = Point(float(next(token)), float(next(token)))
                     d = Point(float(next(token)), float(next(token)))
                     self.q(d1, d)
 
-                elif t.startswith('Q'):
+                elif t.startswith("Q"):
                     d1 = Point(float(next(token)), float(next(token)))
                     d = Point(float(next(token)), float(next(token)))
                     self.Q(d1, d)
 
-                elif t.startswith('t'):
+                elif t.startswith("t"):
                     d = Point(float(next(token)), float(next(token)))
                     self.t(d)
 
-                elif t.startswith('T'):
+                elif t.startswith("T"):
                     d = Point(float(next(token)), float(next(token)))
                     self.T(d)
 
-                elif t.startswith('a'):
+                elif t.startswith("a"):
                     r = Dist(abs(float(next(token))), abs(float(next(token))))
                     xar = float(next(token))
-                    laf = float(next(token)) > 0.5 # Use 0.5 as a threshold between True and False
+                    laf = float(next(token)) > 0.5  # Use 0.5 as a threshold between True and False
                     sf = float(next(token)) > 0.5
                     d = Point(float(next(token)), float(next(token)))
                     self.a(r, xar, laf, sf, d)
 
-                elif t.startswith('A'):
+                elif t.startswith("A"):
                     r = Dist(abs(float(next(token))), abs(float(next(token))))
                     xar = float(next(token))
-                    laf = float(next(token)) > 0.5 # Use 0.5 as a threshold between True and False
+                    laf = float(next(token)) > 0.5  # Use 0.5 as a threshold between True and False
                     sf = float(next(token)) > 0.5
                     d = Point(float(next(token)), float(next(token)))
                     self.A(r, xar, laf, sf, d)
 
-                elif t.startswith('z'):
+                elif t.startswith("z"):
                     self.z()
 
-                elif t.startswith('Z'):
+                elif t.startswith("Z"):
                     self.Z()
 
                 else:
@@ -120,9 +123,8 @@ class Path:
             except (StopIteration, ValueError):
                 error("invalid path")
 
-
     def __repr__(self):
-        return ''.join(str(d) for d in self.d)
+        return "".join(str(d) for d in self.d)
 
     def append(self, other):
         self.d.extend(deepcopy(other.d))
@@ -155,7 +157,6 @@ class Path:
                 maxpt = Point(max(maxpt.x, pt.x), max(maxpt.y, pt.y))
         return Rect(minpt.x, minpt.y, maxpt.x - minpt.x, maxpt.y - minpt.y)
 
-
     def rel(self, d):
         """Convert an absolute position d to a relative distance"""
         return Point(d.x - self.point.x, d.y - self.point.y)
@@ -163,7 +164,6 @@ class Path:
     def abs(self, d):
         """Convert a relative distance d to an absolute position"""
         return Point(d.x + self.point.x, d.y + self.point.y)
-
 
     def m(self, d):
         """SVG m path command"""
@@ -288,31 +288,30 @@ class Path:
         """SVG Z path command"""
         return self.z()
 
-
     def transform(self, trns):
         trns = re.sub(r",\s+", ",", trns).split()[::-1]
 
         for t in trns:
             try:
-                if t.startswith('scale('):
-                    val = [float(v) for v in t[6:-1].split(',')]
+                if t.startswith("scale("):
+                    val = [float(v) for v in t[6:-1].split(",")]
                     s = Dist(val[0], val[1] if len(val) > 1 else val[0])
                     self.scale(s)
 
-                elif t.startswith('translate('):
-                    val = [float(v) for v in t[10:-1].split(',')]
+                elif t.startswith("translate("):
+                    val = [float(v) for v in t[10:-1].split(",")]
                     d = Dist(val[0], val[1])
                     self.translate(d)
 
-                elif t.startswith('rotate('):
+                elif t.startswith("rotate("):
                     val = float(t[7:-1])
                     self.rotate(val)
 
-                elif t.startswith('skewX('):
+                elif t.startswith("skewX("):
                     val = float(t[6:-1])
                     self.skew_x(val)
 
-                elif t.startswith('skewY('):
+                elif t.startswith("skewY("):
                     val = float(t[6:-1])
                     self.skew_y(val)
 
@@ -363,7 +362,7 @@ class _M:
         self.d = Point(*d)
 
     def __repr__(self):
-        return 'M{0:s}'.format(_format(self.d.x, self.d.y))
+        return "M{0:s}".format(_format(self.d.x, self.d.y))
 
     def scale(self, s):
         self.d.x *= s.x
@@ -386,20 +385,21 @@ class _M:
         t = radians(t)
         self.d.y += self.d.x * sin(t)
 
+
 # Relative line
 class _l:
     def __init__(self, d):
         self.d = Point(*d)
 
     def __repr__(self):
-        return 'l{0:s}'.format(_format(self.d.x, self.d.y))
+        return "l{0:s}".format(_format(self.d.x, self.d.y))
 
     def scale(self, s):
         self.d.x *= s.x
         self.d.y *= s.y
 
     def translate(self, d):
-        pass # Do nothing since this is a relative distance
+        pass  # Do nothing since this is a relative distance
 
     def rotate(self, t):
         t = radians(t)
@@ -414,6 +414,7 @@ class _l:
         t = radians(t)
         self.d.y += self.d.x * sin(t)
 
+
 # Relative cubic Bézier
 class _c:
     def __init__(self, d1, d2, d):
@@ -422,7 +423,9 @@ class _c:
         self.d = Point(*d)
 
     def __repr__(self):
-        return 'c{0:s}'.format(_format(self.d1.x, self.d1.y, self.d2.x, self.d2.y, self.d.x, self.d.y))
+        return "c{0:s}".format(
+            _format(self.d1.x, self.d1.y, self.d2.x, self.d2.y, self.d.x, self.d.y)
+        )
 
     def scale(self, s):
         self.d1.x *= s.x
@@ -433,7 +436,7 @@ class _c:
         self.d.y *= s.y
 
     def translate(self, d):
-        pass # Do nothing since this is a relative distance
+        pass  # Do nothing since this is a relative distance
 
     def rotate(self, t):
         t = radians(t)
@@ -454,6 +457,7 @@ class _c:
         self.d2.y += self.d2.x * sin(t)
         self.d.y += self.d.x * sin(t)
 
+
 # Relative quadratic Bézier
 class _q:
     def __init__(self, d1, d):
@@ -461,7 +465,7 @@ class _q:
         self.d = Point(*d)
 
     def __repr__(self):
-        return 'q{0:s}'.format(_format(self.d1.x, self.d1.y, self.d.x, self.d.y))
+        return "q{0:s}".format(_format(self.d1.x, self.d1.y, self.d.x, self.d.y))
 
     def scale(self, s):
         self.d1.x *= s.x
@@ -470,7 +474,7 @@ class _q:
         self.d.y *= s.y
 
     def translate(self, d):
-        pass # Do nothing since this is a relative distance
+        pass  # Do nothing since this is a relative distance
 
     def rotate(self, t):
         t = radians(t)
@@ -488,13 +492,14 @@ class _q:
         self.d1.y += self.d1.x * sin(t)
         self.d.y += self.d.x * sin(t)
 
+
 # z
 class _z:
     def __init__(self):
         pass
 
     def __repr__(self):
-        return 'z'
+        return "z"
 
     def scale(self, s):
         pass
@@ -511,6 +516,7 @@ class _z:
     def skew_y(self, t):
         pass
 
+
 # Format a list of coords as efficiently as possible
 def _format(*args):
-    return ''.join(f'{float(n): .3f}'.rstrip('0').rstrip('.') for n in args).lstrip()
+    return "".join(f"{float(n): .3f}".rstrip("0").rstrip(".") for n in args).lstrip()

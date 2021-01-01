@@ -48,10 +48,14 @@ def arc_to_bezier(r, xar, laf, sf, d):
             if dphi > 0:
                 dphi -= 2 * pi
 
-    if not laf and not sf: assert(0 >= dphi >= -pi)
-    if not laf and sf: assert(0 <= dphi <= pi)
-    if laf and not sf: assert(-pi >= dphi >= -(2 * pi))
-    if laf and sf: assert(pi <= dphi <= 2 * pi)
+    if not laf and not sf:
+        assert 0 >= dphi >= -pi
+    if not laf and sf:
+        assert 0 <= dphi <= pi
+    if laf and not sf:
+        assert -pi >= dphi >= -(2 * pi)
+    if laf and sf:
+        assert pi <= dphi <= 2 * pi
 
     segments = ceil(abs(dphi / (pi / 2)) - TOL)
     dphi /= segments
@@ -74,7 +78,9 @@ def _get_center(r, laf, sf, d):
 
     sign = 1 if laf == sf else -1
 
-    v = ((r.x * r.y) ** 2 - (r.x * d.y) ** 2 - (r.y * d.x) ** 2) / ((r.x * d.y) ** 2 + (r.y * d.x) ** 2)
+    v = ((r.x * r.y) ** 2 - (r.x * d.y) ** 2 - (r.y * d.x) ** 2) / (
+        (r.x * d.y) ** 2 + (r.y * d.x) ** 2
+    )
 
     if isclose(v, 0):
         co = 0
