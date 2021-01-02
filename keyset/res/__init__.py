@@ -8,13 +8,19 @@ if sys.version_info[:2] >= (3, 7):
 else:
     import importlib_resources as ilr  # pylint: disable=import-error
 
-from . import fonts, profiles
+from . import fonts, icons, profiles
 
 
 fonts = {
     path.splitext(res)[0]: ilr.path(fonts, res)
     for res in ilr.contents(fonts)
     if ilr.is_resource(fonts, res) and res.endswith(".xml")
+}
+
+icons = {
+    path.splitext(res)[0]: ilr.path(icons, res)
+    for res in ilr.contents(icons)
+    if ilr.is_resource(icons, res) and res.endswith(".xml")
 }
 
 profiles = {

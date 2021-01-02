@@ -8,28 +8,44 @@ from . import core
 
 COMMANDS = {
     "load kle": dict(
-        args="{<file>|<url>}", fun=core.KleFile.load, desc="load a keyboard layout editor layout"
+        args="{<file>|<url>}",
+        fun=core.KleFile.load,
+        desc="load a Keyboard Layout Editor URL or JSON file",
     ),
     "load font": dict(
         args="{<name>|<file>}",
         fun=core.Font.load,
-        desc="load an XML font file (use name for built in fonts)",
+        desc="load an XML font file",
     ),
-    "load icon": dict(args="<file>", fun=lambda *_: None, desc="load an XML icon or novelty file"),
+    "load icons": dict(
+        args="<file>",
+        fun=core.Icons.load,
+        desc="load an XML icon or novelty file (use name for built in icons)",
+    ),
     "load profile": dict(
         args="{<name>|<file>}",
         fun=core.Profile.load,
         desc="load an keycap profile configuration file",
     ),
-    "generate layout": dict(args="", fun=core.Layout.layout, desc="generate a layout diagram"),
+    "generate layout": dict(
+        args="",
+        fun=core.Layout.layout,
+        desc="generate a layout diagram from the loaded assets",
+    ),
     "generate texture": dict(
-        args="", fun=lambda *_: None, desc="generate a texture file (for renders, etc.)"
+        args="",
+        fun=lambda *_: None,
+        desc="generate a texture file (for renders, etc.)",
     ),
     "save svg": dict(
-        args="[<file>]", fun=lambda *_: None, desc="export the generated graphic as an SVG file"
+        args="[<file>]",
+        fun=lambda *_: None,
+        desc="export the generated graphic as an SVG file",
     ),
     "save png": dict(
-        args="[<file>]", fun=lambda *_: None, desc="export the generated graphic as a PNG image"
+        args="[<file>]",
+        fun=lambda *_: None,
+        desc="export the generated graphic as a PNG image",
     ),
     "save ai": dict(
         args="[<file>]",
@@ -52,8 +68,8 @@ def execute(name, commands):
 
     for line in commands:
 
-        line = " ".join(line.split())
-        cmd = next((c for c, _ in COMMANDS.items() if line.startswith(c)), None)
+        line = " ".join(line.split()) + " "
+        cmd = next((c for c in COMMANDS if line.startswith(c + " ")), None)
 
         if cmd is None:
             error(f"invalid command '{line}'")

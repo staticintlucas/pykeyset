@@ -5,11 +5,17 @@ from xml.etree import ElementTree as et
 
 # from .. import fonts
 from ..utils.error import error, warning
-from ..utils.types import Point, Dist, Rect, Size
-from ..utils import path, config
+from ..utils.types import Point, Dist, Size
+from ..utils.path import Path
 from .. import res
-from .glyph import Glyph, Kern
-from .kle import KeyType
+
+
+class Glyph:
+    def __init__(self, name, path, advance):
+
+        self.name = name
+        self.path = path
+        self.advance = advance
 
 
 class Font:
@@ -18,8 +24,8 @@ class Font:
         self.file = None
 
         # Glyph objects
-        self.glyphs = []
-        self.replacement = None
+        self.glyphs = {}
+        self.replacementchar = None
 
         # Font metrics
         self.emsize = 1000
@@ -27,14 +33,13 @@ class Font:
         self.xheight = 500
         self.slope = 0
         self.lineheight = 1
-        self.kerning = Kern()
+        self.kerning = {}
 
     @classmethod
     def load(cls, ctx, fontfile):
 
         self = cls()
         self.file = fontfile
-        self.glyphs = {}
 
         try:
             if not os.path.isfile(self.file):
@@ -64,9 +69,7 @@ class Font:
         self.xheight = float(root.get("x-height"))
 
         if "slope" not in root.attrib:
-            warning(
-                f"no global 'slope' attribute for font '{self.file}'. " "Using default value (0)"
-            )
+            warning(f"no global 'slope' attribute for font '{self.file}'. Using default value (0)")
         self.slope = float(root.get("slope", 0))
         if "line-height" not in root.attrib:
             warning(
@@ -88,13 +91,11 @@ class Font:
         for glyph in root.findall("glyph"):
             for a in ("char", "path"):
                 if a not in glyph.attrib:
-                    warning(
-                        f"no '{a}' attribute for 'glyph' in '{self.file}'. Ignoring " "this glyph"
-                    )
+                    warning(f"no '{a}' attribute for 'glyph' in '{self.file}'. Ignoring this glyph")
                     continue
 
             char = glyph.get("char")
-            gp = path.Path(glyph.get("path"))
+            gp = Path(glyph.get("path"))
 
             if "transform" in glyph.attrib:
                 gp.transform(glyph.get("transform"))
@@ -144,170 +145,38 @@ class Font:
                 )
                 continue
 
-            self.kerning.add(u[0], u[1], k)
+            for c1 in u[0]:
+                for c2 in u[1]:
+                    self.kerning[f"{c1}{c2}"] = k
 
         ctx.font = self
 
-    def drawtext(self, ctx, key, g, unit):
+    def getglyph(self, ctx, legend, size):
 
-        for i, (legend, size, color) in enumerate(zip(key.legend, key.legsize, key.fgcol)):
+        scale = size / self.capheight
 
-            x, y = i % 3, i // 3
+        if legend not in self.glyphs:
+            return None, 0
 
-            if len(legend) == 0:
-                continue
+        glyph = self.glyphs[legend]
+        path = glyph.path.copy()
+        path.scale(Dist(scale, scale))
 
-            if size < 4:
-                textscale = ctx.profile.textsize.mod / self.capheight
-                textrect = Rect(*ctx.profile.textrect.mod)
-            elif size == 4:
-                textscale = ctx.profile.textsize.symbol / self.capheight
-                textrect = Rect(*ctx.profile.textrect.symbol)
-            else:
-                textscale = ctx.profile.textsize.alpha / self.capheight
-                textrect = Rect(*ctx.profile.textrect.alpha)
+        return path, glyph.advance * scale
 
-            if key.type == KeyType.NONE:
-                r = ctx.profile.bottom
-                textrect = Rect(r.x, r.y, r.w, r.h)
+    def getkerning(self, c1, c2, size):
+        if not c1 or not c2:
+            return 0
+        else:
+            return self.kerning.get(f"{c1}{c2}", 0) * size / self.capheight
 
-            if config.config.showalignment:
-                et.SubElement(
-                    g,
-                    "rect",
-                    {
-                        "x": str(textrect.x * unit),
-                        "y": str(textrect.y * unit),
-                        "width": str(textrect.w * unit),
-                        "height": str(textrect.h * unit),
-                        "fill": "none",
-                        "stroke": "#f00",
-                        "stroke-width": str(unit / config.config.dpi / 0.75 / 3),
-                    },
-                )
+    def replacement(self, size):
 
-            if key.size == "iso":
-                textrect.x += 0.25
-                textrect.w += 0.25
-                textrect.h += 1
-            elif key.size == "step":
-                textrect.w += 0.25
-            else:
-                textrect.w += key.size.w - 1
-                textrect.h += key.size.h - 1
+        # Scale to match the loaded font's emsize, then to match the given size
+        scale = (self.emsize / 1000) * (size / self.capheight)
 
-            result = self.rendertext(ctx, legend)
-            if result is None:
-                continue
-
-            print(legend, self.capheight, result.rect())
-
-            result.scale(Dist(textscale, textscale))
-
-            rect = result.rect()
-            if rect.w > textrect.w:
-                warning(
-                    f"squishing legend '{legend}' to {100 * textrect.w / rect.w:.3f}% of its "
-                    "natural width to fit"
-                )
-                result.scale(Dist(textrect.w / rect.w, 1))
-                rect = result.rect()
-            rect.h = self.capheight * textscale
-
-            pos = Dist(
-                textrect.x - rect.x + (x / 2) * (textrect.w - rect.w),
-                textrect.y + rect.h + (y / 2) * (textrect.h - rect.h),
-            )
-
-            result.translate(pos)
-            result.scale(Dist(unit, unit))
-
-            et.SubElement(
-                g,
-                "path",
-                {
-                    "d": str(result),
-                    "fill": str(color),
-                    "stroke": "none",
-                },
-            )
-
-    def rendertext(self, ctx, legend):
-        glyphs = []
-        remainder = legend
-        while len(remainder) > 0:
-
-            # Parse {name} sequences in the text
-            if remainder[0] == "{":
-                end = remainder.find("}")
-
-                # If there is no matching closing } or there is another { before it
-                if end < 1 or "{" in remainder[1:end]:
-                    if "{" in self.glyphs:
-                        glyphs.append(self.glyphs["{"])
-                    else:
-                        warning("no glyph for character '{{', using replacement glyph instead")
-                        glyphs.append(self._replacement)
-                    remainder = remainder[1:]
-
-                else:
-                    name = remainder[1:end]
-
-                    # Try to find an icon with this name
-                    for icons in ctx.icons[::-1]:
-                        if name in icons:
-                            glyphs.append(icons[name])
-                            remainder = remainder[end + 1 :]
-                            break
-
-                    else:
-                        # Else try to find a character with this name
-                        if name in self.glyphs:
-                            glyphs.append(self.glyphs[name])
-                            remainder = remainder[end + 1 :]
-
-                        # Or finally just print the characters literally
-                        else:
-                            if "{" in self.glyphs:
-                                glyphs.append(self.glyphs["{"])
-                            else:
-                                warning(
-                                    "no glyph for character '{', using replacement glyph instead"
-                                )
-                                glyphs.append(self._replacement)
-                            remainder = remainder[1:]
-
-            else:
-                if remainder[0] in self.glyphs:
-                    glyphs.append(self.glyphs[remainder[0]])
-                else:
-                    warning(
-                        f"no glyph for character '{remainder[0]}', using replacement glyph instead"
-                    )
-                    glyphs.append(self._replacement)
-                remainder = remainder[1:]
-
-        if len(glyphs) == 0:
-            return path.Path()
-
-        result = glyphs[0].path.copy()
-        position = Point(glyphs[0].advance, 0)
-
-        for glyph, prev in zip(glyphs[1:], glyphs):
-            position.x -= self.kerning.get(prev.name, glyph.name)
-
-            textpath = glyph.path.copy()
-            textpath.translate(position)
-            position.x += glyph.advance
-            result.append(textpath)
-
-        return result
-
-    @property
-    def _replacement(self):
-        g = Glyph(
-            "\uFFFD",
-            path.Path()
+        return (
+            Path()
             .M(Point(146, 0))
             .a(Size(73, 73), 0, 0, 1, Dist(-73, -73))
             .l(Dist(0, -580))
@@ -331,10 +200,7 @@ class Font:
             .a(Size(120, 108), 0, 0, 1, Dist(-60, 94))
             .a(Size(200, 180), 0, 0, 0, Dist(-100, 156))
             .z()
-            .scale(Dist(self.emsize / 1000, self.emsize / 1000)),
-            # This has an advance of 638, divide by its em-size (1000) and multiply by the used
-            # font's em-size
-            0.638 * self.emsize,
+            .scale(Dist(scale, scale)),
+            # This has an advance of 638
+            638 * scale,
         )
-
-        return g

@@ -1,4 +1,5 @@
 include versioneer.py
 include keyset/version.py
 recursive-include keyset/res/fonts *.xml
+recursive-include keyset/res/icons *.xml
 recursive-include keyset/res/profiles *.toml

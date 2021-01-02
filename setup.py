@@ -43,6 +43,7 @@ setup(
     package_data={
         "": [
             "res/fonts/*.xml",
+            "res/icons/*.xml",
             "res/profiles/*.toml",
         ],
     },

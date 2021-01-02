@@ -219,6 +219,38 @@ class Profile:
             self._drawkeybottom(ctx, g, key.size, key.bgcol, unit)
             self._drawkeytop(ctx, g, key.type, key.size, key.bgcol, unit)
 
+    def getlegendrect(self, key, size):
+
+        if size < 4:
+            rect = Rect(*self.textrect.mod)
+        elif size == 4:
+            rect = Rect(*self.textrect.symbol)
+        else:
+            rect = Rect(*self.textrect.alpha)
+
+        if key.type == KeyType.NONE:
+            rect = Rect(self.bottom.x, self.bottom.y, self.bottom.w, self.bottom.h)
+
+        if key.size == "iso":
+            rect.x += 0.25
+            rect.w += 0.25
+            rect.h += 1
+        elif key.size == "step":
+            rect.w += 0.25
+        else:
+            rect.w += key.size.w - 1
+            rect.h += key.size.h - 1
+
+        return rect
+
+    def getlegendsize(self, size):
+        if size < 4:
+            return self.textsize.mod * (size / 3)
+        elif size == 4:
+            return self.textsize.symbol
+        else:
+            return self.textsize.alpha * (size / 5)
+
     def _drawkeybottom(self, ctx, g, size, color, unit):
         rect = self.bottom
         et.SubElement(
@@ -271,7 +303,7 @@ class Profile:
 
         else:
 
-            curve = depth / 100
+            curve = depth / 50
             gradtype = GradientType.SCOOP if keytype == KeyType.SCOOP else GradientType.KEY
 
             # Calculate the radius of the arc for horizontal and vertical (for spherical) curved

@@ -4,6 +4,7 @@ from .font import Font
 from .profile import Profile
 from .kle import KleFile
 from .layout import Layout
+from .icons import Icons
 
 
 class Context:
@@ -17,4 +18,4 @@ class Context:
         self.layout = None
 
 
-__all__ = ["Context", "Font", "Profile", "KleFile", "Layout"]
+__all__ = ["Context", "Font", "Profile", "KleFile", "Layout", "Icons"]
