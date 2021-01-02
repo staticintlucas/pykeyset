@@ -104,8 +104,7 @@ class Config:
             default=None,
             help="disable colored text output",
         )
-        # parser.add_argument('--profile',
-        #     action='store_true', help='print profiling information')
+        parser.add_argument("--profile", action="store_true", help="print profiling information")
         parser.add_argument(
             "-d",
             "--dpi",

@@ -4,6 +4,8 @@
 import sys
 import traceback
 from time import perf_counter
+import cProfile
+import pstats
 
 from .utils.config import config
 from .utils.error import error, warning, done, KeysetError
@@ -23,7 +25,19 @@ def _start():
         if len(args) == 0:
             args = ["--help"]
         config.load_argv(args)
-        result = main()
+
+        if config.profile:
+            # Profile the execution of the main function
+            with cProfile.Profile() as p:
+                result = main()
+
+            # Write out statistics
+            with open("pykeyset_profile.txt", "w") as f:
+                stats = pstats.Stats(p, stream=f)
+                stats.strip_dirs().sort_stats("tottime").print_stats()
+
+        else:
+            result = main()
 
     # Raised by argparse to exit after printing --help and --version; reraise to exit as expected
     except SystemExit:
@@ -43,7 +57,7 @@ def _start():
     # Any other exception is an internal error so we print the full traceback
     except Exception:
         trace = traceback.format_exc()
-        error("Internal error:\n{:s}".format(trace), file=sys.stderr, no_raise=True, wrap=False)
+        error("Internal error:\n{:s}".format(trace), no_raise=True, wrap=False)
 
     else:
         end = perf_counter()
