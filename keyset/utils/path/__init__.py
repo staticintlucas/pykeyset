@@ -4,7 +4,7 @@ import re
 from math import cos, sin, radians, inf
 from copy import deepcopy
 
-from ..error import error
+from ..error import error, warning
 from ..types import Point, Dist, Rect
 from .arc_to_bezier import arc_to_bezier
 
@@ -20,6 +20,8 @@ class Path:
 
         self.point = Point(0, 0)
         self.d = []
+        self._bbox = None
+        self.bboxoverride = False
 
         for t in token:
             try:
@@ -127,47 +129,45 @@ class Path:
         return "".join(str(d) for d in self.d)
 
     def append(self, other):
+        if not other.d:
+            return self
+
+        if other._bbox is None:
+            other._recalculatebbox()
+            if other._bbox is None:
+                error(
+                    "bounding box of path is None even though path is not empty. This should not "
+                    "happen"
+                )
+        self._updatebbox(Point(other._bbox.x, other._bbox.y))
+        self._updatebbox(Point(other._bbox.x + other._bbox.w, other._bbox.y + other._bbox.h))
         self.d.extend(deepcopy(other.d))
         self.point = Point(*other.point)
         return self
 
+    def setboundingbox(self, bbox):
+        self._bbox = bbox
+        self.bboxoverride = True
+
     def copy(self):
         return deepcopy(self)
 
-    def rect(self):
+    @property
+    def boundingbox(self):
         """Return the bounding box of the path"""
-        minpt = Point(inf, inf)
-        maxpt = Point(-inf, -inf)
+        return self._bbox if self._bbox is not None else Rect(0, 0, 0, 0)
 
-        if len(self.d) == 0:
-            return Rect(0, 0, 0, 0)
-        else:
-            pt = Point(0, 0)
-            start = Point(*pt)
-            for seg in self.d:
-                if isinstance(seg, _M):
-                    pt = Point(*seg.d)
-                    start = Point(*pt)
-                elif isinstance(seg, _z):
-                    pt = Point(*start)
-                else:
-                    pt.x += seg.d.x
-                    pt.y += seg.d.y
-                minpt = Point(min(minpt.x, pt.x), min(minpt.y, pt.y))
-                maxpt = Point(max(maxpt.x, pt.x), max(maxpt.y, pt.y))
-        return Rect(minpt.x, minpt.y, maxpt.x - minpt.x, maxpt.y - minpt.y)
-
-    def rel(self, d):
+    def _rel(self, d):
         """Convert an absolute position d to a relative distance"""
         return Point(d.x - self.point.x, d.y - self.point.y)
 
-    def abs(self, d):
+    def _abs(self, d):
         """Convert a relative distance d to an absolute position"""
         return Point(d.x + self.point.x, d.y + self.point.y)
 
     def m(self, d):
         """SVG m path command"""
-        return self.M(self.abs(d))
+        return self.M(self._abs(d))
 
     # flake8 doesn't like the lowercase l, even though the rest are fine, so disable E741 & E743
     def l(self, d):  # noqa: E741, E743
@@ -175,18 +175,21 @@ class Path:
         self.d.append(_l(d))
         self.point.x += d.x
         self.point.y += d.y
+        self._updatebbox(self.point)
         return self
 
     def h(self, x):
         """SVG h path command"""
         self.d.append(_l(Point(x, 0)))
         self.point.x += x
+        self._updatebbox(self.point)
         return self
 
     def v(self, y):
         """SVG v path command"""
         self.d.append(_l(Point(0, y)))
         self.point.y += y
+        self._updatebbox(self.point)
         return self
 
     def c(self, d1, d2, d):
@@ -194,6 +197,7 @@ class Path:
         self.d.append(_c(d1, d2, d))
         self.point.x += d.x
         self.point.y += d.y
+        self._updatebbox(self.point)
         return self
 
     def s(self, d2, d):
@@ -207,6 +211,7 @@ class Path:
             self.d.append(_q(d2, d))
         self.point.x += d.x
         self.point.y += d.y
+        self._updatebbox(self.point)
         return self
 
     def q(self, d1, d):
@@ -214,6 +219,7 @@ class Path:
         self.d.append(_q(d1, d))
         self.point.x += d.x
         self.point.y += d.y
+        self._updatebbox(self.point)
         return self
 
     def t(self, d):
@@ -227,14 +233,13 @@ class Path:
             self.d.append(_l(d))
         self.point.x += d.x
         self.point.y += d.y
+        self._updatebbox(self.point)
         return self
 
     def a(self, r, xar, laf, sf, d):
         """SVG a path command"""
         for d1, d2, d in arc_to_bezier(r, xar, laf, sf, d):
-            self.d.append(_c(d1, d2, d))
-        self.point.x += d.x
-        self.point.y += d.y
+            self.c(d1, d2, d)
         return self
 
     def z(self):
@@ -245,17 +250,19 @@ class Path:
             self.point = Point(*lastm.d)
         else:
             self.point = Point(0, 0)
+        self._updatebbox(self.point)
         return self
 
     def M(self, d):
         """SVG M path command"""
         self.d.append(_M(d))
         self.point = Point(*d)
+        self._updatebbox(self.point)
         return self
 
     def L(self, d):
         """SVG L path command"""
-        return self.l(self.rel(d))
+        return self.l(self._rel(d))
 
     def H(self, x):
         """SVG H path command"""
@@ -267,23 +274,23 @@ class Path:
 
     def C(self, d1, d2, d):
         """SVG C path command"""
-        return self.c(self.rel(d1), self.rel(d2), self.rel(d))
+        return self.c(self._rel(d1), self._rel(d2), self._rel(d))
 
     def S(self, d2, d):
         """SVG S path command"""
-        return self.s(self.rel(d2), self.rel(d))
+        return self.s(self._rel(d2), self._rel(d))
 
     def Q(self, d1, d):
         """SVG Q path command"""
-        return self.q(self.rel(d1), self.rel(d))
+        return self.q(self._rel(d1), self._rel(d))
 
     def T(self, d):
         """SVG T path command"""
-        return self.t(self.rel(d))
+        return self.t(self._rel(d))
 
     def A(self, r, xar, laf, sf, d):
         """SVG A path command"""
-        return self.a(r, xar, laf, sf, self.rel(d))
+        return self.a(r, xar, laf, sf, self._rel(d))
 
     def Z(self):
         """SVG Z path command"""
@@ -327,6 +334,10 @@ class Path:
             seg.scale(s)
         self.point.x *= s.x
         self.point.y *= s.y
+        self._bbox.x *= s.x
+        self._bbox.y *= s.y
+        self._bbox.w *= s.x
+        self._bbox.h *= s.y
         return self
 
     def translate(self, d):
@@ -334,6 +345,8 @@ class Path:
             seg.translate(d)
         self.point.x += d.x
         self.point.y += d.y
+        self._bbox.x += d.x
+        self._bbox.y += d.y
         return self
 
     def rotate(self, t):
@@ -342,19 +355,55 @@ class Path:
         c, s = cos(radians(t)), sin(radians(t))
         x, y = self.point
         self.point = Point(x * c - y * s, x * s + y * c)
+        self._recalculatebbox()
         return self
 
     def skew_x(self, t):
         for seg in self.d:
             seg.skew_x(t)
         self.point.x -= self.point.y * sin(radians(t))
+        self._recalculatebbox()
         return self
 
     def skew_y(self, t):
         for seg in self.d:
             seg.skew_y(t)
         self.point.y += self.point.x * sin(radians(t))
+        self._recalculatebbox()
         return self
+
+    def _recalculatebbox(self):
+        if self.bboxoverride:
+            warning("cannot recalculate bounding box that has been previously overridden")
+        elif len(self.d) == 0:
+            self._bbox = None
+        else:
+            minpt = Point(inf, inf)
+            maxpt = Point(-inf, -inf)
+
+            pt = Point(0, 0)
+            start = Point(*pt)
+            for seg in self.d:
+                if isinstance(seg, _M):
+                    pt = Point(*seg.d)
+                    start = Point(*pt)
+                elif isinstance(seg, _z):
+                    pt = Point(*start)
+                else:
+                    pt.x += seg.d.x
+                    pt.y += seg.d.y
+                minpt = Point(min(minpt.x, pt.x), min(minpt.y, pt.y))
+                maxpt = Point(max(maxpt.x, pt.x), max(maxpt.y, pt.y))
+            self._bbox = Rect(minpt.x, minpt.y, maxpt.x - minpt.x, maxpt.y - minpt.y)
+
+    def _updatebbox(self, point):
+        if self._bbox is None:
+            self._bbox = Rect(point.x, point.y, 0, 0)
+        else:
+            x, y, w, h = self._bbox
+            x2, y2 = x + w, y + h
+            x, y, x2, y2 = min(x, point.x), min(y, point.y), max(x2, point.x), max(y2, point.y)
+            self._bbox = Rect(x, y, x2 - x, y2 - y)
 
 
 # Absolute move

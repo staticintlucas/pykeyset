@@ -32,7 +32,7 @@ class Font:
         self.capheight = 800
         self.xheight = 500
         self.slope = 0
-        self.lineheight = 1
+        # self.lineheight = 1  # TODO enable this when I enable multiline legend support
         self.kerning = {}
 
     @classmethod
@@ -71,12 +71,13 @@ class Font:
         if "slope" not in root.attrib:
             warning(f"no global 'slope' attribute for font '{self.file}'. Using default value (0)")
         self.slope = float(root.get("slope", 0))
-        if "line-height" not in root.attrib:
-            warning(
-                f"no global 'line-height' attribute for font '{self.file}'. "
-                "Using default value (equal to em-size)"
-            )
-        self.lineheight = float(root.get("line-height", self.emsize))
+        # TODO enable this when I enable multiline legend support
+        # if "line-height" not in root.attrib:
+        #     warning(
+        #         f"no global 'line-height' attribute for font '{self.file}'. "
+        #         "Using default value (equal to em-size)"
+        #     )
+        # self.lineheight = float(root.get("line-height", self.emsize))
 
         if "horiz-adv-x" not in root.attrib:
             warning(
@@ -89,10 +90,14 @@ class Font:
         global_xform = root.get("transform", None)
 
         for glyph in root.findall("glyph"):
+
+            skip = False
             for a in ("char", "path"):
                 if a not in glyph.attrib:
                     warning(f"no '{a}' attribute for 'glyph' in '{self.file}'. Ignoring this glyph")
-                    continue
+                    skip = True
+            if skip:
+                continue
 
             char = glyph.get("char")
             gp = Path(glyph.get("path"))
@@ -120,13 +125,17 @@ class Font:
             error(f"no valid glyphs found in font '{self.file}'")
 
         for kern in root.findall("kern"):
+
+            skip = False
             for a in ("u", "k"):
                 if a not in kern.attrib:
                     warning(
                         f"no '{a}' attribute for 'kern' in '{self.file}'. Ignoring "
                         "this kerning value"
                     )
-                    continue
+                    skip = True
+            if skip:
+                continue
 
             u = kern.get("u")
             if len(u) != 2:

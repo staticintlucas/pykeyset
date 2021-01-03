@@ -6,12 +6,12 @@ from collections import namedtuple
 
 # from .. import fonts
 from ..utils.error import error, warning
-from ..utils.types import Dist
+from ..utils.types import Dist, Rect
 from ..utils import path
 from .. import res
 
 
-Icon = namedtuple("Icon", ("name", "path", "width", "height"))
+Icon = namedtuple("Icon", ("name", "path"))
 
 
 class Icons:
@@ -57,10 +57,14 @@ class Icons:
         global_xform = root.get("transform", None)
 
         for icon in root.findall("icon"):
+
+            skip = False
             for a in ("name", "path"):
                 if a not in icon.attrib:
-                    warning(f"no '{a}' attribute for 'icon' in '{self.file}'. Ignoring this icon")
-                    continue
+                    warning(f"no '{a}' attribute for icon in '{self.file}'. Ignoring this icon")
+                    skip = True
+            if skip:
+                continue
 
             name = icon.get("name")
             gp = path.Path(icon.get("path"))
@@ -71,10 +75,19 @@ class Icons:
             if global_xform is not None:
                 gp.transform(global_xform)
 
-            width = float(icon.get("width", 0))
-            height = float(icon.get("height", 0))
+            if "bbox" in icon.attrib:
+                try:
+                    x, y, w, h = (float(i) for i in icon.attrib["bbox"].split(" "))
+                except ValueError:
+                    warning(
+                        f"invalid 'bbox' attribute for icon '{name}' in '{self.file}'. Ignoring "
+                        "this "
+                        "icon"
+                    )
+                    continue
+                gp.setboundingbox(Rect(x, y, w, h))
 
-            self.icons[name] = Icon(name, gp, width, height)
+            self.icons[name] = Icon(name, gp)
 
         if len(self.icons) == 0:
             error(f"no valid icons found in '{self.file}'")
@@ -92,8 +105,9 @@ class Icons:
         path = icon.path.copy()
 
         path.scale(Dist(scale, scale))
-        width, height = icon.width / self.unitsize, icon.height / self.unitsize
+        bbox = path.boundingbox
 
-        path.translate(Dist(0, (height - size) * (1 - valign / 2) - height))
+        path.translate(Dist(-bbox.x, -bbox.y - size))
+        path.translate(Dist(0, (size - bbox.h) * (valign / 2)))
 
-        return path, width
+        return path, bbox.w

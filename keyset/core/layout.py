@@ -97,7 +97,7 @@ class Layout:
 
             for leg, prev in zip(legend, prevlegend):
 
-                for icons in ctx.icons:
+                for icons in reversed(ctx.icons):
                     path, advance = icons.geticon(ctx, leg, size, valign)
                     if path is not None:
                         break
@@ -136,7 +136,7 @@ class Layout:
                     position.x += advance
                     result.append(path)
 
-            legendsize = result.rect()
+            legendsize = result.boundingbox
 
             if legendsize.w > rect.w:
                 warning(
@@ -145,7 +145,7 @@ class Layout:
                 )
                 pos = Point(legendsize.x, legendsize.y)
                 result.scale(Dist(rect.w / legendsize.w, 1))
-                legendsize = result.rect()
+                legendsize = result.boundingbox
             legendsize.h = size
 
             pos = Dist(
