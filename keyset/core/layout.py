@@ -156,6 +156,22 @@ class Layout:
             result.translate(pos)
             result.scale(Dist(self.unit, self.unit))
 
+            if config.config.showalignment:
+                legendsize = result.boundingbox
+                et.SubElement(
+                    g,
+                    "rect",
+                    {
+                        "x": _format(legendsize.x),
+                        "y": _format(legendsize.y),
+                        "width": _format(legendsize.w),
+                        "height": _format(legendsize.h),
+                        "fill": "none",
+                        "stroke": "#f00",
+                        "stroke-width": _format(self.unit / config.config.dpi / 0.75 / 3),
+                    },
+                )
+
             et.SubElement(
                 g,
                 "path",
@@ -185,20 +201,20 @@ class Layout:
                     ),
                     "fill": "none",
                     "stroke": "#f00",
-                    "stroke-width": str(self.unit / config.config.dpi / 0.75 / 3),
+                    "stroke-width": _format(self.unit / config.config.dpi / 0.75 / 3),
                 },
             )
         else:
             result = et.Element(
                 "rect",
                 {
-                    "x": str(rect.x * self.unit),
-                    "y": str(rect.y * self.unit),
-                    "width": str(rect.w * self.unit),
-                    "height": str(rect.h * self.unit),
+                    "x": _format(rect.x * self.unit),
+                    "y": _format(rect.y * self.unit),
+                    "width": _format(rect.w * self.unit),
+                    "height": _format(rect.h * self.unit),
                     "fill": "none",
                     "stroke": "#f00",
-                    "stroke-width": str(self.unit / config.config.dpi / 0.75 / 3),
+                    "stroke-width": _format(self.unit / config.config.dpi / 0.75 / 3),
                 },
             )
 

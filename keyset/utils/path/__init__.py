@@ -155,7 +155,7 @@ class Path:
     @property
     def boundingbox(self):
         """Return the bounding box of the path"""
-        return self._bbox if self._bbox is not None else Rect(0, 0, 0, 0)
+        return Rect(*self._bbox) if self._bbox is not None else Rect(0, 0, 0, 0)
 
     def _rel(self, d):
         """Convert an absolute position d to a relative distance"""
@@ -334,10 +334,17 @@ class Path:
             seg.scale(s)
         self.point.x *= s.x
         self.point.y *= s.y
-        self._bbox.x *= s.x
-        self._bbox.y *= s.y
-        self._bbox.w *= s.x
-        self._bbox.h *= s.y
+        if self._bbox is not None:
+            self._bbox.x *= s.x
+            self._bbox.w *= s.x
+            self._bbox.y *= s.y
+            self._bbox.h *= s.y
+            if self._bbox.w < 0:
+                self._bbox.w = -self._bbox.w
+                self._bbox.x = self._bbox.x + self._bbox.w
+            if self._bbox.h < 0:
+                self._bbox.h = -self._bbox.h
+                self._bbox.y = self._bbox.y - self._bbox.h
         return self
 
     def translate(self, d):
@@ -345,8 +352,9 @@ class Path:
             seg.translate(d)
         self.point.x += d.x
         self.point.y += d.y
-        self._bbox.x += d.x
-        self._bbox.y += d.y
+        if self._bbox is not None:
+            self._bbox.x += d.x
+            self._bbox.y += d.y
         return self
 
     def rotate(self, t):

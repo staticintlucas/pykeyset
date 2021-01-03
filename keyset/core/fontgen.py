@@ -80,13 +80,13 @@ def fontgen(output, input):
             if not all(a in glyph.attrib for a in ("unicode", "d")):
                 continue
 
-            attrib = {
-                "char": glyph.get("unicode"),
-                "path": glyph.get("d"),
-                "transform": "scale(1, -1)",
-            }
+            attrib = {}
+            attrib["char"] = glyph.get("unicode")
             if "horiz-adv-x" in glyph.attrib:
                 attrib["horiz-adv-x"] = glyph.get("horiz-adv-x")
+            attrib["transform"] = "scale(1, -1)"
+            # Add path last so that recent versions or etree that preserve ordering add it last
+            attrib["path"] = glyph.get("d")
 
             ksfont.append(et.Element("glyph", attrib))
 
