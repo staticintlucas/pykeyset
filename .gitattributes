@@ -1,2 +1,1 @@
-keyset/someotherfile.py export-subst
-keyset/version.py export-subst
+pykeyset/version.py export-subst

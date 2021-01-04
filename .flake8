@@ -9,4 +9,4 @@ exclude =
     *.egg-info,
     venv,
     versioneer.py,
-    keyset/version.py
+    pykeyset/version.py

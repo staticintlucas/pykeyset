@@ -1,4 +1,4 @@
-exclude: '^versioneer\.py$|^keyset/__init__\.py$|^keyset/version\.py$'
+exclude: '^versioneer\.py$|^pykeyset/__init__\.py$|^pykeyset/version\.py$'
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks

@@ -37,7 +37,7 @@ setup(
     python_requires=">=3.6",
     entry_points={
         "console_scripts": [
-            "pykeyset=keyset.__main__:_start",
+            "pykeyset=pykeyset.__main__:_start",
         ],
     },
     package_data={
