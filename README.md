@@ -4,13 +4,11 @@ A Python-based tool to create pretty keyset layout diagrams using correct fonts 
 
 ## Warning
 
-<b>
-This project is currently in the early stages of development.
+<b>This project is currently in the early stages of development.
 It currently supports exactly what I need for TA Origins, and not much else.
 You may run into various bugs and crashes as there are currently no unit tests at all 😄.
 In future I hope to stabilise this project and add more extensive support for different
-profiles, fonts, file formats, etc.
-</b>
+profiles, fonts, file formats, etc.</b>
 
 If you want to help improve this project please feel free to contribute
 by opening bug reports, feature requests, etc; or contributing to the code directly with a pull request.
