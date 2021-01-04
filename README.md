@@ -6,7 +6,7 @@ A Python-based tool to create pretty keyset layout diagrams using correct fonts 
 
 <b>This project is currently in the early stages of development.
 It currently supports exactly what I need for TA Origins, and not much else.
-You may run into various bugs and crashes as there are currently no unit tests at all 😄.
+You may run into various bugs and crashes as there are currently only a few unit tests 😄.
 In future I hope to stabilise this project and add more extensive support for different
 profiles, fonts, file formats, etc.</b>
 
@@ -42,17 +42,23 @@ Currently you *can* use `pykeyset` directly as a Python module,
 but as it is still in early development the API will probably change a lot.
 In future there will hopefully be a more stable API, so you don't need to mess around with *.cmdlist* files.
 
-## Building
+## Installation
 
-To install this package locally, run:
+`pykeyset` is available on [PyPI]. To install with `pip` run:
 
-    pip install <path to this package>
+    pip install pykeyset
+
+Or to install the latest source directly from GitHub, run:
+
+    git clone https://github.com/staticintlucas/pykeyset.git pykeyset
+    cd pykeyset
+    pip install .
 
 To build this package, the easiest way is to use [`build`].
 To install `build` and build `pykeyset`, run:
 
     pip install build
-    python3 -m build --sdist --wheel
+    python -m build --sdist --wheel
 
 ## Contributing
 
@@ -65,6 +71,7 @@ install the [`pre-commit`] hook in [`.pre-commit-config.yaml`].
 
 The builtin *`cherry`* font is based on [Open Cherry] by Dakota Felder
 
+[pypi]: https://pypi.org/project/pykeyset/
 [`build`]: https://pypa-build.readthedocs.io/en/latest/installation.html
 [open cherry]: https://github.com/dakotafelder/open-cherry
 [`black`]: https://github.com/psf/black

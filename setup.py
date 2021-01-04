@@ -14,7 +14,9 @@ setup(
     version=versioneer.get_version(),
     author="Lucas Jansen",
     author_email="7199136+staticintlucas@users.noreply.github.com",
-    description="Generate keyset layout and font files",
+    description=(
+        "A Python-based tool to create pretty keyset layout diagrams using correct fonts and icons."
+    ),
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/staticintlucas/pykeyset",
