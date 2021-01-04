@@ -66,7 +66,7 @@ class Layout:
 
         self.root.insert(0, ctx.profile.defs)
 
-        et.ElementTree(self.root).write(".a.svg")
+        ctx.layout = self
 
     def drawlegend(self, ctx, key, g):
 

@@ -32,30 +32,30 @@ COMMANDS = {
         fun=core.Layout.layout,
         desc="generate a layout diagram from the loaded assets",
     ),
-    "generate texture": dict(
-        args="",
-        fun=lambda *_: None,
-        desc="generate a texture file (for renders, etc.)",
-    ),
+    # "generate texture": dict(
+    #     args="",
+    #     fun=lambda *_: None,
+    #     desc="generate a texture file (for renders, etc.)",
+    # ),
     "save svg": dict(
         args="[<file>]",
-        fun=lambda *_: None,
+        fun=core.save.as_svg,
         desc="export the generated graphic as an SVG file",
     ),
-    "save png": dict(
-        args="[<file>]",
-        fun=lambda *_: None,
-        desc="export the generated graphic as a PNG image",
-    ),
-    "save ai": dict(
-        args="[<file>]",
-        fun=lambda *_: None,
-        desc="export the generated graphic as an Illustrator file",
-    ),
+    # "save png": dict(
+    #     args="[<file>]",
+    #     fun=lambda *_: None,
+    #     desc="export the generated graphic as a PNG image",
+    # ),
+    # "save ai": dict(
+    #     args="[<file>]",
+    #     fun=lambda *_: None,
+    #     desc="export the generated graphic as an Illustrator file",
+    # ),
     "newfont": dict(
         args="<file> <src>",
         fun=lambda ctx, outp, inp: core.fontgen.fontgen(outp, inp),
-        desc="create a new ksfont file from a source font",
+        desc="create a new XML font file from a source font",
     ),
 }
 
