@@ -34,7 +34,7 @@ To execute the command list run:
 
 The output in *`example.svg`* is:
 
-![example.svg](example.png)
+![example.svg](example/example.png)
 
 ## Python API
 

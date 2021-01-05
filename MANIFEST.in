@@ -1,5 +1,0 @@
-include versioneer.py
-include pykeyset/version.py
-recursive-include pykeyset/res/fonts *.xml
-recursive-include pykeyset/res/icons *.xml
-recursive-include pykeyset/res/profiles *.toml

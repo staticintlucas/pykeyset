@@ -1,5 +1,3 @@
-exclude: '^versioneer\.py$|^pykeyset/__init__\.py$|^pykeyset/version\.py$'
-
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v3.4.0
@@ -18,3 +16,10 @@ repos:
     rev: 3.8.4
     hooks:
     - id: flake8
+
+exclude: |
+  (?x)(
+    ^dist/|
+    ^venv/|
+    ^example/example.svg$
+  )
