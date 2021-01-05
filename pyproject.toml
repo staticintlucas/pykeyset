@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pykeyset"
-version = "0.0.0"
+version = "0.0.0"  # Placeholder for poetry-dynamic-versioning
 description = """\
     A Python-based tool to create pretty keyset layout diagrams using correct fonts and icons."""
 license = "MIT"
@@ -31,8 +31,23 @@ importlib-resources = { version="^4.0", python="<3.7" }
 pytest = "^5.2"
 pre-commit = "^2.1.1"
 
+[tool.poetry-dynamic-versioning]
+enable = true
+vcs = "git"
+format-jinja = """\
+    v{{ base }}\
+    {% if stage is not none %}\
+        -{{ stage }}{{ revision }}\
+    {% endif %}\
+    {% if distance > 0 or dirty %}\
+        +{{ distance }}.g{{ commit }}\
+    {% endif %}\
+    {% if dirty %}\
+        .dirty\
+    {% endif %}"""
+
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.black]
