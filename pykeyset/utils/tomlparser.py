@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import toml
 from collections.abc import Mapping, MutableMapping
+
+import toml
 
 
 def load(file):

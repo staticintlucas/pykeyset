@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import cProfile
+import pstats
 import sys
 import traceback
 from time import perf_counter
-import cProfile
-import pstats
 
-from .utils.config import config
-from .utils.error import error, warning, done, KeysetError
 from . import cmdlist
+from .utils.config import config
+from .utils.error import KeysetError, done, error, warning
 
 
 def _start():

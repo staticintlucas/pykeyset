@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import os.path
-from xml.etree import ElementTree as et
 from collections import namedtuple
+from xml.etree import ElementTree as et
 
-# from .. import fonts
+from .. import res
+from ..utils import path
 from ..utils.error import error, warning
 from ..utils.types import Dist, Rect
-from ..utils import path
-from .. import res
-
 
 Icon = namedtuple("Icon", ("name", "path"))
 

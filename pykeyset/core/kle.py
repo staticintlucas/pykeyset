@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
 
+import html
+import json
+from enum import Enum
+from math import isclose
 from urllib import request
 from urllib.parse import urlparse
-import json
-import html
-from math import isclose
-from enum import Enum
-
-from ..utils.error import error, warning, info
-from ..utils.types import Point, Size, Color
 
 from recordclass import recordclass
 
+from ..utils.error import error, info, warning
+from ..utils.types import Color, Point, Size
 
 Key = recordclass("Key", ("pos", "size", "type", "legend", "legsize", "bgcol", "fgcol"))
 KeyType = Enum("KeyType", ["NONE", "NORM", "DEFHOME", "SCOOP", "BAR", "BUMP", "SPACE"])

@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import sys
 import io
+import sys
 from shutil import get_terminal_size
 
-from colorama import colorama_text, Fore, Style
 from ansiwrap import fill
+from colorama import Fore, Style, colorama_text
 
 
 class Verbosity:

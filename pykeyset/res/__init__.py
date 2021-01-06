@@ -4,12 +4,11 @@ import sys
 from os import path
 
 if sys.version_info[:2] >= (3, 7):
-    import importlib.resources as ilr  # pylint: disable=import-error
+    import importlib.resources as ilr
 else:
-    import importlib_resources as ilr  # pylint: disable=import-error
+    import importlib_resources as ilr
 
 from . import fonts, icons, profiles
-
 
 fonts = {
     path.splitext(res)[0]: ilr.path(fonts, res)

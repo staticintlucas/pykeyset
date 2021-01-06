@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from math import radians, cos, sin, tan, atan2, pi
-from math import sqrt, ceil, isclose
+from math import atan2, ceil, cos, isclose, pi, radians, sin, sqrt, tan
 
 from ...utils.types import Dist, Point
-
 
 TOL = 1e-6
 

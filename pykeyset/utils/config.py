@@ -6,7 +6,6 @@ from argparse import ArgumentParser
 from .. import __version__
 from .error import Verbosity, warning
 
-
 __all__ = ["config"]
 
 

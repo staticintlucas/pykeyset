@@ -3,11 +3,10 @@
 import os.path
 from xml.etree import ElementTree as et
 
-# from .. import fonts
-from ..utils.error import error, warning
-from ..utils.types import Point, Dist, Size
-from ..utils.path import Path
 from .. import res
+from ..utils.error import error, warning
+from ..utils.path import Path
+from ..utils.types import Dist, Point, Size
 
 
 class Glyph:

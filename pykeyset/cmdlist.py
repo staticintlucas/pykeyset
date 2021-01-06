@@ -2,9 +2,8 @@
 
 from inspect import signature
 
-from .utils.error import error, info
 from . import core
-
+from .utils.error import error, info
 
 COMMANDS = {
     "load kle": dict(

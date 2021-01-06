@@ -5,16 +5,15 @@ from enum import Enum
 from numbers import Number
 from xml.etree import ElementTree as et
 
-from ..utils.types import Point, Dist, Size, Rect, RoundRect
+from recordclass import recordclass
+from toml import TomlDecodeError
+
+from .. import res
+from ..utils import tomlparser
 from ..utils.error import error
 from ..utils.path import Path
-from ..utils import tomlparser
-from .. import res
+from ..utils.types import Dist, Point, Rect, RoundRect, Size
 from .kle import KeyType
-
-from toml import TomlDecodeError
-from recordclass import recordclass
-
 
 ProfileType = Enum("ProfileType", ("CYLINDRICAL", "SPHERICAL", "FLAT"))
 GradientType = Enum("GradientType", ("KEY", "SCOOP", "SPACE"))

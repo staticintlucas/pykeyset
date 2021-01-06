@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from .error import warning
+import colorsys
+from collections import namedtuple
 
 from recordclass import recordclass
-from collections import namedtuple
-import colorsys
 
 Point = recordclass("Point", ("x", "y"))
 Dist = recordclass("Dist", ("x", "y"))
@@ -19,6 +18,8 @@ ColorTuple = namedtuple("ColorTuple", ("r", "g", "b"))
 class Color(ColorTuple):
     def __new__(cls, *color):
         if len(color) == 3:
+            if not all(0.0 <= c <= 1.0 for c in color):
+                raise ValueError("Color channels must be between 0.0 and 1.0")
             return super().__new__(cls, *color)
         elif len(color) == 1:
             col = color[0].lstrip("#")
@@ -29,11 +30,9 @@ class Color(ColorTuple):
                     cls, *(int(c, 16) / 255 for c in (col[0:2], col[2:4], col[4:6]))
                 )
             else:
-                warning(f"invalid color '{color}'. Defaulting to '#000000'")
-                return super().__new__(cls, 0, 0, 0)
+                raise ValueError(f"Invalid hex color code '{color}'")
         else:
-            warning(f"invalid color '{color}'. Defaulting to '#000000'")
-            return super().__new__(cls, 0, 0, 0)
+            raise ValueError("Expected a hex color code or r, g, and b values")
 
     def lighter(self, al=0.15):
         return Color(*(al + (1 - al) * c for c in self))

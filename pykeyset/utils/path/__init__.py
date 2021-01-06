@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import re
-from math import cos, sin, radians, inf
 from copy import deepcopy
+from math import cos, inf, radians, sin
 
 from ..error import error, warning
-from ..types import Point, Dist, Rect
+from ..types import Dist, Point, Rect
 from .arc_to_bezier import arc_to_bezier
 
 

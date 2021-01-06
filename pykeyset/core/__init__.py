@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
+from . import save
 from .font import Font
-from .profile import Profile
+from .icons import Icons
 from .kle import KleFile
 from .layout import Layout
-from .icons import Icons
-from . import save
+from .profile import Profile
 
 
 class Context:

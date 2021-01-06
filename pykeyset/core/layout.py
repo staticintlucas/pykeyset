@@ -2,10 +2,10 @@
 
 from xml.etree import ElementTree as et
 
-from ..utils.types import Size, Point, Dist
+from ..utils import config
 from ..utils.error import error, warning
 from ..utils.path import Path
-from ..utils import config
+from ..utils.types import Dist, Point, Size
 from .kle import KeyType
 
 

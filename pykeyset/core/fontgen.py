@@ -3,7 +3,7 @@
 import tempfile
 from xml.etree import ElementTree as et
 
-from ..utils.error import error, warning, info
+from ..utils.error import error, info, warning
 
 
 def fontgen(output, input):
