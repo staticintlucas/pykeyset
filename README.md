@@ -10,8 +10,8 @@ You may run into various bugs and crashes as there are currently only a few unit
 In future I hope to stabilise this project and add more extensive support for different
 profiles, fonts, file formats, etc.</b>
 
-If you want to help improve this project please feel free to contribute
-by opening bug reports, feature requests, etc; or contributing to the code directly with a pull request.
+Feel free to help this project improve by opening bug reports, feature requests, etc;
+or contributing directly to the code by opening a pull request.
 
 ## Example usage
 
@@ -39,8 +39,9 @@ The output in *`example.svg`* is:
 ## Python API
 
 Currently you *can* use `pykeyset` directly as a Python module,
-but as it is still in early development the API will probably change a lot.
-In future there will hopefully be a more stable API, so you don't need to mess around with *.cmdlist* files.
+but as it is still in early development the API will probably change a lot until a 0.1 release.
+After that there will be a more stable API, so you don't need to mess around with *.cmdlist* files
+if you're familiar with Python.
 
 ## Installation
 
@@ -54,27 +55,30 @@ Or to install the latest source directly from GitHub, run:
     cd pykeyset
     pip install .
 
-To build this package, the easiest way is to use [`build`].
-To install `build` and build `pykeyset`, run:
+This project uses [Poetry] as it's dependency manager and build system.
+To install this package locally for development, run:
 
-    pip install build
-    python -m build --sdist --wheel
+    poetry install
+
+To build the source distribution and wheel run:
+
+    poetry build
 
 ## Contributing
 
-`pykeyset` uses [`black`] for formatting, and all code must pass [`flake8`]'s checks.
+`pykeyset` uses [Black] for formatting, and all code must pass [Flake8]'s checks.
 These are checked by GitHub on all pull requests.
 To run these tools automatically when committing,
-install the [`pre-commit`] hook in [`.pre-commit-config.yaml`].
+install the [pre-commit] hook in [`.pre-commit-config.yaml`].
 
 ## Credits
 
 The builtin *`cherry`* font is based on [Open Cherry] by Dakota Felder
 
 [pypi]: https://pypi.org/project/pykeyset/
-[`build`]: https://pypa-build.readthedocs.io/en/latest/installation.html
+[Poetry]: https://python-poetry.org/
 [open cherry]: https://github.com/dakotafelder/open-cherry
-[`black`]: https://github.com/psf/black
-[`flake8`]: https://flake8.pycqa.org/en/latest/
-[`pre-commit`]: https://pre-commit.com/
+[black]: https://github.com/psf/black
+[flake8]: https://flake8.pycqa.org/en/latest/
+[pre-commit]: https://pre-commit.com/
 [`.pre-commit-config.yaml`]: .pre-commit-config.yaml
