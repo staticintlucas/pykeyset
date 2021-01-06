@@ -1,0 +1,41 @@
+name: Tests
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ~3.8
+      - name: Install pre-commit
+        run: pip install -U pre-commit
+      - name: Run pre-commit
+        run: pre-commit run -a
+
+  test:
+    name: Test
+    needs: Lint
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ['3.6', '3.7', '3.8', '3.9'] # , 'pypy-3.6'
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Poetry
+        run: pip install -U poetry
+      - name: Install repo
+        run: python -m poetry install
+      - name: Run tests
+        run: python -m poetry run pytest -q tests
