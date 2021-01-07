@@ -1,0 +1,22 @@
+name: Build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ~3.8
+      - name: Install Poetry
+        run: |
+          pip install -U pip
+          pip install -U poetry
+          poetry config virtualenvs.in-project true
+      - name: Build repo
+        run: poetry build
