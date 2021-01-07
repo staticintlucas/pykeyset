@@ -24,7 +24,7 @@ jobs:
     runs-on: ${{ matrix.os }}-latest
     strategy:
       matrix:
-        os: [ubuntu, macos, windows]
+        os: [Ubuntu, MacOS, Windows]
         python-version: ['3.6', '3.7', '3.8', '3.9'] # , 'pypy-3.6'
     steps:
       - name: Checkout repo
@@ -53,5 +53,6 @@ jobs:
         run: poetry run pytest -q tests --cov=pykeyset --cov-report=xml
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
+        if: matrix.os == 'Ubuntu' && matrix.python-version == '3.9'
         with:
           fail_ci_if_error: true
