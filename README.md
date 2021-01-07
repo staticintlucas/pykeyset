@@ -1,6 +1,14 @@
-# `pykeyset`
+# [`pykeyset`][pykeyset]
 
 A Python-based tool to create pretty keyset layout diagrams using correct fonts and icons.
+
+[![Build Status](https://img.shields.io/github/workflow/status/staticintlucas/pykeyset/Build?style=flat-square)][actions]
+[![Test Status](https://img.shields.io/github/workflow/status/staticintlucas/pykeyset/Tests?label=tests&style=flat-square)][actions]<!--
+[![Test coverage](https://img.shields.io/codecov/c/github/staticintlucas/pykeyset?style=flat-square)][coverage]-->
+[![Python Version](https://img.shields.io/pypi/pyversions/pykeyset?style=flat-square)][pypi]
+[![Code style](https://img.shields.io/badge/code_style-black-black?style=flat-square)][black]
+[![PyPI](https://img.shields.io/pypi/v/pykeyset?style=flat-square)][pypi]
+[![License](https://img.shields.io/github/license/staticintlucas/pykeyset?style=flat-square)][license]
 
 ## Warning
 
@@ -75,10 +83,14 @@ install the [pre-commit] hook in [`.pre-commit-config.yaml`].
 
 The builtin *`cherry`* font is based on [Open Cherry] by Dakota Felder
 
+[pykeyset]: https://github.com/staticintlucas/pykeyset
+[actions]: https://github.com/staticintlucas/pykeyset/actions
+[coverage]: https://codecov.io/gh/staticintlucas/pykeyset
+[license]: LICENSE
 [pypi]: https://pypi.org/project/pykeyset/
+[black]: https://github.com/psf/black
 [Poetry]: https://python-poetry.org/
 [open cherry]: https://github.com/dakotafelder/open-cherry
-[black]: https://github.com/psf/black
 [flake8]: https://flake8.pycqa.org/en/latest/
 [pre-commit]: https://pre-commit.com/
 [`.pre-commit-config.yaml`]: .pre-commit-config.yaml
