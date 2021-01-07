@@ -62,6 +62,11 @@ def arc_to_bezier(r, xar, laf, sf, d):
         curves.append(_create_arc(r, phi0, dphi))
         phi0 += dphi
 
+    if xar != 0:
+        for curve in curves:
+            for d in curve:
+                d.x, d.y = d.x * cos(xar) - d.y * sin(xar), d.x * sin(xar) + d.y * cos(xar)
+
     return curves
 
 

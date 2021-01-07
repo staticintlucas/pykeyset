@@ -29,6 +29,7 @@ importlib-resources = { version="^4.0", python="<3.7" }
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
+pytest-cov = "^2.9.0"
 pre-commit = "^2.1.1"
 
 [tool.poetry-dynamic-versioning]

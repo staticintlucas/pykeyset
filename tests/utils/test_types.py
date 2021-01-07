@@ -59,3 +59,18 @@ def test_darker():
     assert isclose(color.r, 0.64)
     assert isclose(color.g, 0.48)
     assert isclose(color.b, 0.16)
+
+
+def test_hightlight():
+
+    color = Color(0.6, 0.6, 0.6).highlight(0.2)
+
+    assert isclose(color.r, 0.4)
+    assert isclose(color.g, 0.4)
+    assert isclose(color.b, 0.4)
+
+    color = Color(0.4, 0.4, 0.4).highlight(0.2)
+
+    assert isclose(color.r, 0.6)
+    assert isclose(color.g, 0.6)
+    assert isclose(color.b, 0.6)

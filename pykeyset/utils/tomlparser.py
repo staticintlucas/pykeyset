@@ -22,7 +22,7 @@ class TomlNode(MutableMapping):
         self.dict = dict(tree)
         self.section = ""
 
-        for k, v in self.dict:
+        for k, v in self.dict.items():
             if isinstance(v, dict):
                 self[k] = TomlNode(v)
 
