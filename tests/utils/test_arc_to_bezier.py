@@ -22,6 +22,7 @@ A = 4 / 3 * tan(radians(90) / 4)
         (Dist(1.42, 1.42), 0, False, True, Point(0, -2), [Point(0, -2)]),
         (Dist(1.42, 1.42), 0, False, False, Point(0, 2), [Point(0, 2)]),
         (Dist(1, 1), 0, False, False, Point(4, 0), [Point(2, 2), Point(2, -2)]),
+        (Dist(0, 0), 0, False, False, Point(1, 0), [Point(1, 0)]),
     ],
 )
 def test_arc_to_bezier(r, xar, laf, sf, d, results):

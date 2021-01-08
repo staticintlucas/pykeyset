@@ -21,10 +21,13 @@ def arc_to_bezier(r, xar, laf, sf, d):
     d = Point(d.x * cos(xar) + d.y * sin(xar), -d.x * sin(xar) + d.y * cos(xar))
 
     # Ensure our radii are large enough
-    lamb = sqrt((d.x / r.x / 2) ** 2 + (d.y / r.y / 2) ** 2)
-    if lamb > 1:
-        r.x *= lamb
-        r.y *= lamb
+    if isclose(r.x, 0, abs_tol=TOL) or isclose(r.y, 0, abs_tol=TOL):
+        return [(Point(d.x / 3, d.y / 3), Point(2 * d.x / 3, 2 * d.y / 3), Point(d.x, d.y))]
+    else:
+        lamb = sqrt((d.x / r.x / 2) ** 2 + (d.y / r.y / 2) ** 2)
+        if lamb > 1:
+            r.x *= lamb
+            r.y *= lamb
 
     c = _get_center(r, laf, sf, d)
 

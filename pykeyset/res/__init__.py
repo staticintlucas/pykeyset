@@ -4,9 +4,9 @@ import sys
 from os import path
 
 if sys.version_info[:2] >= (3, 7):
-    import importlib.resources as ilr
+    import importlib.resources as ilr  # pragma: no cover
 else:
-    import importlib_resources as ilr
+    import importlib_resources as ilr  # pragma: no cover
 
 from . import fonts, icons, profiles
 

@@ -2,7 +2,7 @@
 
 import re
 from copy import deepcopy
-from math import cos, inf, radians, sin
+from math import cos, inf, radians, sin, tan
 
 from ..error import error, warning
 from ..types import Dist, Point, Rect
@@ -15,7 +15,7 @@ class Path:
         token = iter(
             t
             for t in re.split(r"(-?\d+\.?\d*|[A-Za-z])", d)
-            if len(t) > 0 and not t.isspace() and not t == ","
+            if len(t.strip()) > 0 and t.strip() != ","
         )
 
         self.point = Point(0, 0)
@@ -77,7 +77,7 @@ class Path:
                 elif t.startswith("S"):
                     d2 = Point(float(next(token)), float(next(token)))
                     d = Point(float(next(token)), float(next(token)))
-                    self.s(d2, d)
+                    self.S(d2, d)
 
                 elif t.startswith("q"):
                     d1 = Point(float(next(token)), float(next(token)))
@@ -138,7 +138,7 @@ class Path:
                 error(
                     "bounding box of path is None even though path is not empty. This should not "
                     "happen"
-                )
+                )  # pragma: no cover
         self._updatebbox(Point(other._bbox.x, other._bbox.y))
         self._updatebbox(Point(other._bbox.x + other._bbox.w, other._bbox.y + other._bbox.h))
         self.d.extend(deepcopy(other.d))
@@ -341,7 +341,7 @@ class Path:
             self._bbox.h *= s.y
             if self._bbox.w < 0:
                 self._bbox.w = -self._bbox.w
-                self._bbox.x = self._bbox.x + self._bbox.w
+                self._bbox.x = self._bbox.x - self._bbox.w
             if self._bbox.h < 0:
                 self._bbox.h = -self._bbox.h
                 self._bbox.y = self._bbox.y - self._bbox.h
@@ -437,11 +437,11 @@ class _M:
 
     def skew_x(self, t):
         t = radians(t)
-        self.d.x -= self.d.y * sin(t)
+        self.d.x -= self.d.y * tan(t)
 
     def skew_y(self, t):
         t = radians(t)
-        self.d.y += self.d.x * sin(t)
+        self.d.y += self.d.x * tan(t)
 
 
 # Relative line
@@ -466,11 +466,11 @@ class _l:
 
     def skew_x(self, t):
         t = radians(t)
-        self.d.x -= self.d.y * sin(t)
+        self.d.x -= self.d.y * tan(t)
 
     def skew_y(self, t):
         t = radians(t)
-        self.d.y += self.d.x * sin(t)
+        self.d.y += self.d.x * tan(t)
 
 
 # Relative cubic Bézier
@@ -505,15 +505,15 @@ class _c:
 
     def skew_x(self, t):
         t = radians(t)
-        self.d1.x -= self.d1.y * sin(t)
-        self.d2.x -= self.d2.y * sin(t)
-        self.d.x -= self.d.y * sin(t)
+        self.d1.x -= self.d1.y * tan(t)
+        self.d2.x -= self.d2.y * tan(t)
+        self.d.x -= self.d.y * tan(t)
 
     def skew_y(self, t):
         t = radians(t)
-        self.d1.y += self.d1.x * sin(t)
-        self.d2.y += self.d2.x * sin(t)
-        self.d.y += self.d.x * sin(t)
+        self.d1.y += self.d1.x * tan(t)
+        self.d2.y += self.d2.x * tan(t)
+        self.d.y += self.d.x * tan(t)
 
 
 # Relative quadratic Bézier
@@ -542,13 +542,13 @@ class _q:
 
     def skew_x(self, t):
         t = radians(t)
-        self.d1.x -= self.d1.y * sin(t)
-        self.d.x -= self.d.y * sin(t)
+        self.d1.x -= self.d1.y * tan(t)
+        self.d.x -= self.d.y * tan(t)
 
     def skew_y(self, t):
         t = radians(t)
-        self.d1.y += self.d1.x * sin(t)
-        self.d.y += self.d.x * sin(t)
+        self.d1.y += self.d1.x * tan(t)
+        self.d.y += self.d.x * tan(t)
 
 
 # z
