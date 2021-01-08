@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 import pytest
 
 from pykeyset.utils import config
@@ -91,7 +92,7 @@ def test_get_commands(reset_config, tmp_path):
     f2 = d / cmdlist2
     f2.write_text("")  # Empty file should be ignored
 
-    config.config.load_argv(["-c", "load font cherry", "-c" "load profile kat", str(f1), str(f2)])
+    config.config.load_argv(["-c", "load font cherry", "-c", "load profile kat", str(f1), str(f2)])
 
     expected = {
         "-c ...": ["load font cherry", "load profile kat"],
