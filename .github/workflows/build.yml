@@ -15,7 +15,5 @@ jobs:
           python-version: ~3.8
       - name: Install Poetry
         uses: Gr1N/setup-poetry@v4
-        env:
-          POETRY_VIRTUALENVS_IN_PROJECT: true
       - name: Build repo
         run: poetry build

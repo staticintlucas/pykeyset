@@ -40,15 +40,15 @@ jobs:
           echo "::set-output name=version::$(python -c 'import platform; print(platform.python_version())')"
       - name: Install Poetry
         uses: Gr1N/setup-poetry@v4
-        env:
-          POETRY_VIRTUALENVS_IN_PROJECT: "true"
       - name: Set up cache
         uses: actions/cache@v2
         with:
           path: .venv
           key: venv-2-${{ runner.os }}-${{ steps.python-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
       - name: Install repo
-        run: poetry install
+        run: |
+          poetry config virtualenvs.in-project true
+          poetry install
       - name: Run tests
         run: poetry run pytest -q tests --cov=pykeyset --cov-report=xml
       - name: Upload coverage to Codecov
