@@ -36,7 +36,7 @@ jobs:
       - name: Get Python version
         id: python-version
         run: |
-          echo ::set-output name=version::$(python -c "import platform; print(platform.python_version())")
+          echo "::set-output name=version::$(python -c 'import platform; print(platform.python_version())')"
       - name: Install Poetry
         run: |
           pip install -U pip
