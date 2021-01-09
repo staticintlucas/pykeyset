@@ -23,13 +23,14 @@ def error(*args, **kwargs):
 
     from .config import config as conf
 
-    print_errors = conf.is_script or conf.verbosity >= Verbosity.VERBOSE
+    print_errors = conf.verbosity >= Verbosity.VERBOSE
     no_raise = kwargs.pop("no_raise", False)
 
+    msg = as_string(
+        *args, **{k: v for k, v in kwargs.items() if k not in ("color", "file", "wrap")}
+    )
+
     if print_errors:
-        msg = as_string(
-            *args, **{k: v for k, v in kwargs.items() if k not in ("color", "file", "wrap")}
-        )
 
         if "color" not in kwargs:
             kwargs["color"] = conf.color
@@ -45,9 +46,7 @@ def warning(*args, **kwargs):
 
     from .config import config as conf
 
-    print_warnings = (
-        conf.is_script and conf.verbosity >= Verbosity.NORMAL
-    ) or conf.verbosity >= Verbosity.VERBOSE
+    print_warnings = conf.verbosity >= Verbosity.NORMAL
 
     if print_warnings:
         msg = as_string(
@@ -83,7 +82,7 @@ def done(*args, **kwargs):
 
     from .config import config as conf
 
-    print_done = conf.is_script and conf.verbosity >= Verbosity.NORMAL
+    print_done = conf.verbosity >= Verbosity.NORMAL
 
     if print_done:
         msg = as_string(

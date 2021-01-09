@@ -6,8 +6,7 @@ import pathlib
 
 import pytest
 
-from pykeyset.__main__ import main
-from pykeyset.utils.config import config
+from pykeyset.__main__ import run
 
 
 @contextlib.contextmanager
@@ -39,5 +38,4 @@ def test_cmdlist(tmp_path):
     f.write_text(contents)
 
     with cwd(d):
-        config.load_argv([cmdlist])
-        main()
+        run(cmdlists=[cmdlist])

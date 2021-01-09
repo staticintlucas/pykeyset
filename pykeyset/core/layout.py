@@ -70,7 +70,7 @@ class Layout:
 
     def drawlegend(self, ctx, key, g):
 
-        if config.config.showalignment:
+        if config.config.showalign:
             for size in set(key.legsize):
                 rect = ctx.profile.getlegendrect(key, size)
                 g.append(self.drawlegendrect(key, rect))
@@ -156,7 +156,7 @@ class Layout:
             result.translate(pos)
             result.scale(Dist(self.unit, self.unit))
 
-            if config.config.showalignment:
+            if config.config.showalign:
                 legendsize = result.boundingbox
                 et.SubElement(
                     g,

@@ -17,7 +17,7 @@ classifiers = [
 ]
 
 [tool.poetry.scripts]
-pykeyset = "pykeyset.__main__:_start"
+pykeyset = "pykeyset.__main__:app"
 
 [tool.poetry.dependencies]
 python = "^3.6"
@@ -26,6 +26,7 @@ ansiwrap = "^0.8.2"
 toml = "^0.10.1"
 recordclass = "^0.14.0"
 importlib-resources = { version="^4.0", python="<3.7" }
+typer = {version = "^0.3.0", extras = ["all"]}
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
