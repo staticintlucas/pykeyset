@@ -38,10 +38,9 @@ jobs:
         run: |
           echo "::set-output name=version::$(python -c 'import platform; print(platform.python_version())')"
       - name: Install Poetry
-        run: |
-          pip install -U pip
-          pip install -U poetry
-          poetry config virtualenvs.in-project true
+        uses: Gr1N/setup-poetry@v4
+        env:
+          POETRY_VIRTUALENVS_IN_PROJECT: "true"
       - name: Set up cache
         uses: actions/cache@v2
         with:
