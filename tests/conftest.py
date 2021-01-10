@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
+
 import pytest
+
+from pykeyset.utils.config import reset_config
 
 
 def pytest_addoption(parser):
@@ -18,3 +21,9 @@ def pytest_collection_modifyitems(config, items):
     for item in items:
         if "slow" in item.keywords:
             item.add_marker(skip_slow)
+
+
+@pytest.fixture(autouse=True)
+def reset_config_fixture():
+    # Reset the global configuration for each test
+    reset_config()

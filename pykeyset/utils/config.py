@@ -1,39 +1,66 @@
 # -*- coding: utf-8 -*-
 
-import sys
-from logging import NOTSET
-from typing import NamedTuple, Optional
+from typing import Any, NamedTuple, Optional
 
-__all__ = ["set_config", "config"]
+from . import Severity, Verbosity
+
+__all__ = ["config", "set_config", "reset_config"]
 
 
-def set_config(
-    showalign: Optional[bool] = False,
-    dpi: Optional[int] = 96,
-    profile: Optional[bool] = False,
-    color: Optional[bool] = sys.stderr.isatty(),
-    verbosity: Optional[int] = NOTSET,
-):
+class _Config(NamedTuple):
+    showalign: bool
+    dpi: int
+    profile: bool
+    color: Optional[bool]
+    verbosity: Verbosity
+    exceptlevel: Severity
+
+
+_config = None
+
+
+def config() -> _Config:
+    """Returns the global configuration object."""
+
+    global _config
+
+    if _config is None:
+        reset_config()  # pragma: no cover
+
+    return _config
+
+
+def set_config(**kwargs: Any) -> None:
     """Set the global configuration object."""
 
-    class Config(NamedTuple):
-        showalign: bool
-        dpi: int
-        profile: bool
-        color: bool
-        verbosity: int
+    global _config
 
-    global config
+    if _config is None:
+        reset_config()  # pragma: no cover
 
-    config = Config(
-        showalign=showalign,
-        dpi=dpi,
-        profile=profile,
-        color=color,
-        verbosity=verbosity,
+    _config = _Config(
+        showalign=kwargs.pop("showalign", _config.showalign),
+        dpi=kwargs.pop("dpi", _config.dpi),
+        profile=kwargs.pop("profile", _config.profile),
+        color=kwargs.pop("color", _config.color),
+        verbosity=kwargs.pop("verbosity", _config.verbosity),
+        exceptlevel=kwargs.pop("exceptlevel", _config.exceptlevel),
     )
 
+    if len(kwargs) > 0:
+        raise ValueError(f"unknown config option {[kwargs.keys()][0]} in call to set_config")
 
-config = None
 
-set_config()  # No args to set default values
+def reset_config() -> None:
+    """Reset the global configuration object to it's default values."""
+
+    global _config
+
+    _config = _Config(
+        showalign=False,
+        dpi=96,
+        profile=False,
+        color=None,
+        verbosity=Verbosity.NONE,
+        exceptlevel=Severity.FATAL,
+    )

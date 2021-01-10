@@ -2,7 +2,7 @@
 
 from xml.etree import ElementTree as et
 
-from ..utils import config
+from ..utils.config import config
 from ..utils.error import error, warning
 from ..utils.path import Path
 from ..utils.types import Dist, Point, Size
@@ -29,8 +29,8 @@ class Layout:
         self = cls()
 
         svg_size = Size(
-            ctx.kle.size.w * 0.75 * config.config.dpi,  # 1u = 0.75in
-            ctx.kle.size.h * 0.75 * config.config.dpi,
+            ctx.kle.size.w * 0.75 * config().dpi,  # 1u = 0.75in
+            ctx.kle.size.h * 0.75 * config().dpi,
         )
         viewbox = Size(
             ctx.kle.size.w * self.unit,
@@ -70,7 +70,7 @@ class Layout:
 
     def drawlegend(self, ctx, key, g):
 
-        if config.config.showalign:
+        if config().showalign:
             for size in set(key.legsize):
                 rect = ctx.profile.getlegendrect(key, size)
                 g.append(self.drawlegendrect(key, rect))
@@ -156,7 +156,7 @@ class Layout:
             result.translate(pos)
             result.scale(Dist(self.unit, self.unit))
 
-            if config.config.showalign:
+            if config().showalign:
                 legendsize = result.boundingbox
                 et.SubElement(
                     g,
@@ -168,7 +168,7 @@ class Layout:
                         "height": _format(legendsize.h),
                         "fill": "none",
                         "stroke": "#f00",
-                        "stroke-width": _format(self.unit / config.config.dpi / 0.75 / 3),
+                        "stroke-width": _format(self.unit / config().dpi / 0.75 / 3),
                     },
                 )
 
@@ -201,7 +201,7 @@ class Layout:
                     ),
                     "fill": "none",
                     "stroke": "#f00",
-                    "stroke-width": _format(self.unit / config.config.dpi / 0.75 / 3),
+                    "stroke-width": _format(self.unit / config().dpi / 0.75 / 3),
                 },
             )
         else:
@@ -214,7 +214,7 @@ class Layout:
                     "height": _format(rect.h * self.unit),
                     "fill": "none",
                     "stroke": "#f00",
-                    "stroke-width": _format(self.unit / config.config.dpi / 0.75 / 3),
+                    "stroke-width": _format(self.unit / config().dpi / 0.75 / 3),
                 },
             )
 

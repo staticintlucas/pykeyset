@@ -11,8 +11,9 @@ from typing import List, Optional
 import typer
 
 from . import __version__, cmdlist
+from .utils import Verbosity
 from .utils.config import set_config
-from .utils.error import Verbosity, done, error, warning
+from .utils.error import error, warning
 
 profiler = None
 PROFILE_FILE = "pykeyset_profile.txt"
@@ -39,7 +40,8 @@ def callback(
     ),
     dpi: int = typer.Option(
         96,
-        "-d, --dpi",
+        "-d",
+        "--dpi",
         metavar="<number>",
         help="Set the DPI used when generating output graphics.",
     ),
@@ -50,20 +52,22 @@ def callback(
         help=f"Profile program execution. Saved to {PROFILE_FILE}.",
     ),
     color: Optional[bool] = typer.Option(
-        sys.stderr.isatty(),
+        None,
         "--color/--no-color",
         show_default=False,
         help="Enable / disable colored text output.  [default: auto]",
     ),
     verbose: Optional[bool] = typer.Option(
         False,
-        "-v, --verbose",
+        "-v",
+        "--verbose",
         show_default=False,
         help="Show all debug and information output messages.",
     ),
     quiet: Optional[bool] = typer.Option(
         False,
-        "-q, --quiet",
+        "-q",
+        "--quiet",
         show_default=False,
         help="Show only fatal error messages in program output.",
     ),
@@ -113,11 +117,11 @@ def result_callback(exit_code, **kwargs):
 
     if exit_code == 0:
         endtime = perf_counter()
-        done(f"Completed in {endtime - starttime:.3f} s")
+        typer.secho(f"Completed in {endtime - starttime:.3f} s", fg=typer.colors.GREEN, bold=True)
 
 
 app = typer.Typer(
-    context_settings={"help_option_names": ["-h", "--help"], "max_content_width": 800},
+    context_settings={"max_content_width": 800},
     add_completion=False,
     options_metavar="[options]",
     callback=callback,

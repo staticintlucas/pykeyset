@@ -22,11 +22,11 @@ pykeyset = "pykeyset.__main__:app"
 [tool.poetry.dependencies]
 python = "^3.6"
 colorama = "^0.4.3"
-ansiwrap = "^0.8.2"
 toml = "^0.10.1"
 recordclass = "^0.14.0"
 importlib-resources = { version="^4.0", python="<3.7" }
 typer = {version = "^0.3.0", extras = ["all"]}
+enum-tools = "^0.6.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
@@ -50,7 +50,7 @@ format-jinja = """\
 
 [tool.black]
 line-length = 100
-target-version = ["py36", "py37", "py38"]
+target-version = ["py36", "py37", "py38"]  # TODO add 3.9 when black gets support
 
 [tool.isort]
 profile = "black"
