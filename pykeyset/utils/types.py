@@ -1,49 +1,110 @@
 # -*- coding: utf-8 -*-
 
 import colorsys
-from collections import namedtuple
-
-from recordclass import recordclass
-
-Point = recordclass("Point", ("x", "y"))
-Dist = recordclass("Dist", ("x", "y"))
-Size = recordclass("Size", ("w", "h"))
-
-Rect = recordclass("Rect", ("x", "y", "w", "h"))
-RoundRect = recordclass("Rect", ("x", "y", "w", "h", "r"))
-
-ColorTuple = namedtuple("ColorTuple", ("r", "g", "b"))
+import math
+from typing import NamedTuple
 
 
-class Color(ColorTuple):
-    def __new__(cls, *color):
-        if len(color) == 3:
-            if not all(0.0 <= c <= 1.0 for c in color):
-                raise ValueError("Color channels must be between 0.0 and 1.0")
-            return super().__new__(cls, *color)
-        elif len(color) == 1:
-            col = color[0].lstrip("#")
-            if len(col) == 3:
-                return super().__new__(cls, *[int(c, 16) / 15 for c in col])
-            elif len(col) == 6:
-                return super().__new__(
-                    cls, *(int(c, 16) / 255 for c in (col[0:2], col[2:4], col[4:6]))
-                )
+class Vector(NamedTuple):
+    x: float
+    y: float
+
+    @property
+    def magnitude(self) -> float:
+        return math.sqrt(self.x * self.x + self.y * self.y)
+
+    @property
+    def angle(self) -> float:
+        return math.atan2(self.y, self.x)
+
+
+class Rect(NamedTuple):
+    x: float
+    y: float
+    w: float
+    h: float
+
+    @property
+    def width(self) -> float:
+        return self.w
+
+    @property
+    def height(self) -> float:
+        return self.h
+
+    @property
+    def position(self) -> Vector:
+        return Vector(self.x, self.y)
+
+    @property
+    def size(self) -> Vector:
+        return Vector(self.w, self.h)
+
+
+class RoundRect(Rect):
+    r: float
+
+    def __new__(cls, x: float, y: float, w: float, h: float, r: float):
+        self = super().__new__(cls, x, y, w, h)
+        self.r = r
+        return self
+
+    @property
+    def radius(self) -> float:
+        return self.r
+
+    def as_rect(self) -> Rect:
+        return Rect(self.x, self.y, self.w, self.h)
+
+
+class Color(
+    # Note: We need to use this call to NamedTuple to make sure Color is a sub-subclass of
+    # NamedTuple otherwise it won't let us override __new__ to validate input
+    NamedTuple("Color", [("r", float), ("g", float), ("b", float)])
+):
+    def __new__(cls, r: float, g: float, b: float):
+
+        for key, val in zip("rgb", (r, g, b)):
+            if not 0.0 <= val <= 1.0:
+                raise ValueError(f"invalid value for '{key}' for Color(): '{val}'")
+
+        return super().__new__(cls, r, g, b)
+
+    @staticmethod
+    def from_hex(color: str) -> "Color":
+        col = color.lstrip("#")
+
+        try:
+            if len(col) == 6:
+                rgb = [int(col[i : i + 2], 16) / 255 for i in range(0, len(col), 2)]
+            elif len(col) == 3:
+                rgb = [int(c, 16) / 15 for c in col]
             else:
-                raise ValueError(f"Invalid hex color code '{color}'")
-        else:
-            raise ValueError("Expected a hex color code or r, g, and b values")
+                raise ValueError()
+        except ValueError:
+            raise ValueError(f"invalid literal for Color(): '{color}'") from None
 
-    def lighter(self, al=0.15):
-        return Color(*(al + (1 - al) * c for c in self))
+        return Color(*rgb)
 
-    def darker(self, al=0.15):
-        return Color(*((1 - al) * c for c in self))
+    def to_hex(self) -> str:
+        return "#" + "".join(f"{int(c * 256):02x}" for c in (self.r, self.g, self.b))
 
-    def highlight(self, lum=0.15):
+    def lighter(self, val: float = 0.15) -> "Color":
+        if not 0.0 <= val <= 1.0:
+            raise ValueError(f"invalid value for 'val' in call to Color.lighter(): '{val}'")
+
+        return Color(*(val + (1 - val) * c for c in self))
+
+    def darker(self, val: float = 0.15) -> "Color":
+        if not 0.0 <= val <= 1.0:
+            raise ValueError(f"invalid value for 'val' in call to Color.lighter(): '{val}'")
+
+        return Color(*((1 - val) * c for c in self))
+
+    def highlight(self, lum: float = 0.15) -> "Color":
+        if not 0.0 <= lum <= 0.5:
+            raise ValueError(f"invalid value for 'val' in call to Color.lighter(): '{lum}'")
+
         h, l, s = colorsys.rgb_to_hls(*self)
         l += lum if l < 0.5 else -lum  # flake8 doesn't like the letter l  # noqa: E741
         return Color(*colorsys.hls_to_rgb(h, l, s))
-
-    def __repr__(self):
-        return f"#{int(self.r * 256):02x}{int(self.g * 256):02x}{int(self.b * 256):02x}"

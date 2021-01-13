@@ -6,7 +6,7 @@ from xml.etree import ElementTree as et
 from .. import res
 from ..utils.error import error, warning
 from ..utils.path import Path
-from ..utils.types import Dist, Point, Size
+from ..utils.types import Vector
 
 
 class Glyph:
@@ -168,7 +168,7 @@ class Font:
 
         glyph = self.glyphs[legend]
         path = glyph.path.copy()
-        path.scale(Dist(scale, scale))
+        path.scale(Vector(scale, scale))
 
         return path, glyph.advance * scale
 
@@ -185,30 +185,30 @@ class Font:
 
         return (
             Path()
-            .M(Point(146, 0))
-            .a(Size(73, 73), 0, 0, 1, Dist(-73, -73))
-            .l(Dist(0, -580))
-            .a(Size(73, 73), 0, 0, 1, Dist(73, -73))
-            .l(Dist(374, 0))
-            .a(Size(73, 73), 0, 0, 1, Dist(73, 73))
-            .l(Dist(0, 580))
-            .a(Size(73, 73), 0, 0, 1, Dist(-73, 73))
+            .M(Vector(146, 0))
+            .a(Vector(73, 73), 0, 0, 1, Vector(-73, -73))
+            .l(Vector(0, -580))
+            .a(Vector(73, 73), 0, 0, 1, Vector(73, -73))
+            .l(Vector(374, 0))
+            .a(Vector(73, 73), 0, 0, 1, Vector(73, 73))
+            .l(Vector(0, 580))
+            .a(Vector(73, 73), 0, 0, 1, Vector(-73, 73))
             .z()
-            .M(Point(283, -110))
-            .a(Size(50, 50), 0, 0, 0, Dist(100, 0))
-            .a(Size(50, 50), 0, 0, 0, Dist(-100, 0))
+            .M(Vector(283, -110))
+            .a(Vector(50, 50), 0, 0, 0, Vector(100, 0))
+            .a(Vector(50, 50), 0, 0, 0, Vector(-100, 0))
             .z()
-            .M(Point(293, -236))
-            .a(Size(40, 40), 0, 0, 0, Dist(80, 0))
-            .a(Size(120, 108), 0, 0, 1, Dist(60, -94))
-            .a(Size(200, 180), 0, 0, 0, Dist(100, -156))
-            .a(Size(200, 180), 0, 0, 0, Dist(-400, 0))
-            .a(Size(40, 40), 0, 0, 0, Dist(80, 0))
-            .a(Size(120, 108), 0, 0, 1, Dist(240, 0))
-            .a(Size(120, 108), 0, 0, 1, Dist(-60, 94))
-            .a(Size(200, 180), 0, 0, 0, Dist(-100, 156))
+            .M(Vector(293, -236))
+            .a(Vector(40, 40), 0, 0, 0, Vector(80, 0))
+            .a(Vector(120, 108), 0, 0, 1, Vector(60, -94))
+            .a(Vector(200, 180), 0, 0, 0, Vector(100, -156))
+            .a(Vector(200, 180), 0, 0, 0, Vector(-400, 0))
+            .a(Vector(40, 40), 0, 0, 0, Vector(80, 0))
+            .a(Vector(120, 108), 0, 0, 1, Vector(240, 0))
+            .a(Vector(120, 108), 0, 0, 1, Vector(-60, 94))
+            .a(Vector(200, 180), 0, 0, 0, Vector(-100, 156))
             .z()
-            .scale(Dist(scale, scale)),
+            .scale(Vector(scale, scale)),
             # This has an advance of 638
             638 * scale,
         )

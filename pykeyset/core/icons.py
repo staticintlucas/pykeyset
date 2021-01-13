@@ -7,7 +7,7 @@ from xml.etree import ElementTree as et
 from .. import res
 from ..utils import path
 from ..utils.error import error, warning
-from ..utils.types import Dist, Rect
+from ..utils.types import Rect, Vector
 
 Icon = namedtuple("Icon", ("name", "path"))
 
@@ -102,10 +102,10 @@ class Icons:
         icon = self.icons[name]
         path = icon.path.copy()
 
-        path.scale(Dist(scale, scale))
+        path.scale(Vector(scale, scale))
         bbox = path.boundingbox
 
-        path.translate(Dist(-bbox.x, -bbox.y - size))
-        path.translate(Dist(0, (size - bbox.h) * (valign / 2)))
+        path.translate(Vector(-bbox.x, -bbox.y - size))
+        path.translate(Vector(0, (size - bbox.h) * (valign / 2)))
 
         return path, bbox.w

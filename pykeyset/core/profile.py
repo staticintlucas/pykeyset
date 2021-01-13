@@ -12,7 +12,7 @@ from .. import res
 from ..utils import tomlparser
 from ..utils.error import error
 from ..utils.path import Path
-from ..utils.types import Dist, Point, Rect, RoundRect, Size
+from ..utils.types import Rect, RoundRect, Vector
 from .kle import KeyType
 
 ProfileType = Enum("ProfileType", ("CYLINDRICAL", "SPHERICAL", "FLAT"))
@@ -210,8 +210,8 @@ class Profile:
             self._drawisotop(ctx, g, key.bgcol, unit)
 
         elif key.size == "step":
-            self._drawkeybottom(ctx, g, Size(1.75, 1), key.bgcol, unit)
-            self._drawkeytop(ctx, g, key.type, Size(1.25, 1), key.bgcol, unit)
+            self._drawkeybottom(ctx, g, Vector(1.75, 1), key.bgcol, unit)
+            self._drawkeytop(ctx, g, key.type, Vector(1.25, 1), key.bgcol, unit)
             self._drawstep(ctx, g, key.bgcol, unit)
 
         else:
@@ -231,14 +231,11 @@ class Profile:
             rect = Rect(self.bottom.x, self.bottom.y, self.bottom.w, self.bottom.h)
 
         if key.size == "iso":
-            rect.x += 0.25
-            rect.w += 0.25
-            rect.h += 1
+            rect = rect._replace(x=rect.x + 0.25, w=rect.w + 0.25, h=rect.h + 1)
         elif key.size == "step":
-            rect.w += 0.25
+            rect = rect._replace(w=rect.w + 0.25)
         else:
-            rect.w += key.size.w - 1
-            rect.h += key.size.h - 1
+            rect = rect._replace(w=rect.w + key.size.x - 1, h=rect.h + key.size.y - 1)
 
         return rect
 
@@ -261,8 +258,8 @@ class Profile:
                 "stroke-width": "10",
                 "x": _format(rect.x * unit),
                 "y": _format(rect.y * unit),
-                "width": _format((rect.w + size.w - 1) * unit),
-                "height": _format((rect.h + size.h - 1) * unit),
+                "width": _format((rect.w + size.x - 1) * unit),
+                "height": _format((rect.h + size.y - 1) * unit),
                 "rx": _format(rect.r * unit),
                 "ry": _format(rect.r * unit),
             },
@@ -272,8 +269,8 @@ class Profile:
 
         rect = self.top
 
-        w = rect.w + size.w - 1 - 2 * rect.r
-        h = rect.h + size.h - 1 - 2 * rect.r
+        w = rect.w + size.x - 1 - 2 * rect.r
+        h = rect.h + size.y - 1 - 2 * rect.r
 
         if keytype == KeyType.SCOOP:
             try:
@@ -314,49 +311,49 @@ class Profile:
             if keytype == KeyType.SPACE:
                 path = (
                     Path()
-                    .M(Point(rect.x, rect.y + rect.r))
-                    .a(Size(rect.r, rect.r), 0, False, True, Dist(rect.r, -rect.r))
+                    .M(Vector(rect.x, rect.y + rect.r))
+                    .a(Vector(rect.r, rect.r), 0, False, True, Vector(rect.r, -rect.r))
                     .h(w)
-                    .a(Size(rect.r, rect.r), 0, False, True, Dist(rect.r, rect.r))
-                    .a(Size(vr, vr), 0, False, False, Dist(0, h))
-                    .a(Size(rect.r, rect.r), 0, False, True, Dist(-rect.r, rect.r))
+                    .a(Vector(rect.r, rect.r), 0, False, True, Vector(rect.r, rect.r))
+                    .a(Vector(vr, vr), 0, False, False, Vector(0, h))
+                    .a(Vector(rect.r, rect.r), 0, False, True, Vector(-rect.r, rect.r))
                     .h(-w)
-                    .a(Size(rect.r, rect.r), 0, False, True, Dist(-rect.r, -rect.r))
-                    .a(Size(vr, vr), 0, False, False, Dist(0, -h))
+                    .a(Vector(rect.r, rect.r), 0, False, True, Vector(-rect.r, -rect.r))
+                    .a(Vector(vr, vr), 0, False, False, Vector(0, -h))
                     .z()
-                    .scale(Dist(unit, unit))
+                    .scale(Vector(unit, unit))
                 )
                 gradtype = GradientType.SPACE
 
             elif self.type == ProfileType.CYLINDRICAL:
                 path = (
                     Path()
-                    .M(Point(rect.x, rect.y + rect.r))
-                    .a(Size(rect.r, rect.r), 0, False, True, Dist(rect.r, -rect.r))
+                    .M(Vector(rect.x, rect.y + rect.r))
+                    .a(Vector(rect.r, rect.r), 0, False, True, Vector(rect.r, -rect.r))
                     .h(w)
-                    .a(Size(rect.r, rect.r), 0, False, True, Dist(rect.r, rect.r))
+                    .a(Vector(rect.r, rect.r), 0, False, True, Vector(rect.r, rect.r))
                     .v(h)
-                    .a(Size(rect.r, rect.r), 0, False, True, Dist(-rect.r, rect.r))
-                    .a(Size(hr, hr), 0, False, True, Dist(-w, 0))
-                    .a(Size(rect.r, rect.r), 0, False, True, Dist(-rect.r, -rect.r))
+                    .a(Vector(rect.r, rect.r), 0, False, True, Vector(-rect.r, rect.r))
+                    .a(Vector(hr, hr), 0, False, True, Vector(-w, 0))
+                    .a(Vector(rect.r, rect.r), 0, False, True, Vector(-rect.r, -rect.r))
                     .z()
-                    .scale(Dist(unit, unit))
+                    .scale(Vector(unit, unit))
                 )
 
             else:  # ProfileType.SPHERICAL
                 path = (
                     Path()
-                    .M(Point(rect.x, rect.y + rect.r))
-                    .a(Size(rect.r, rect.r), 0, False, True, Dist(rect.r, -rect.r))
-                    .a(Size(hr, hr), 0, False, True, Dist(w, 0))
-                    .a(Size(rect.r, rect.r), 0, False, True, Dist(rect.r, rect.r))
-                    .a(Size(vr, vr), 0, False, True, Dist(0, h))
-                    .a(Size(rect.r, rect.r), 0, False, True, Dist(-rect.r, rect.r))
-                    .a(Size(hr, hr), 0, False, True, Dist(-w, 0))
-                    .a(Size(rect.r, rect.r), 0, False, True, Dist(-rect.r, -rect.r))
-                    .a(Size(vr, vr), 0, False, True, Dist(0, -h))
+                    .M(Vector(rect.x, rect.y + rect.r))
+                    .a(Vector(rect.r, rect.r), 0, False, True, Vector(rect.r, -rect.r))
+                    .a(Vector(hr, hr), 0, False, True, Vector(w, 0))
+                    .a(Vector(rect.r, rect.r), 0, False, True, Vector(rect.r, rect.r))
+                    .a(Vector(vr, vr), 0, False, True, Vector(0, h))
+                    .a(Vector(rect.r, rect.r), 0, False, True, Vector(-rect.r, rect.r))
+                    .a(Vector(hr, hr), 0, False, True, Vector(-w, 0))
+                    .a(Vector(rect.r, rect.r), 0, False, True, Vector(-rect.r, -rect.r))
+                    .a(Vector(vr, vr), 0, False, True, Vector(0, -h))
                     .z()
-                    .scale(Dist(unit, unit))
+                    .scale(Vector(unit, unit))
                 )
 
             et.SubElement(
@@ -381,21 +378,21 @@ class Profile:
                 "stroke-width": "10",
                 "d": str(
                     Path()
-                    .M(Point(rect.x, rect.y + rect.r))
-                    .a(Size(rect.r, rect.r), 0, False, True, Dist(rect.r, -rect.r))
+                    .M(Vector(rect.x, rect.y + rect.r))
+                    .a(Vector(rect.r, rect.r), 0, False, True, Vector(rect.r, -rect.r))
                     .h(0.5 + rect.w - 2 * rect.r)
-                    .a(Size(rect.r, rect.r), 0, False, True, Dist(rect.r, rect.r))
+                    .a(Vector(rect.r, rect.r), 0, False, True, Vector(rect.r, rect.r))
                     .v(1 + rect.h - 2 * rect.r)
-                    .a(Size(rect.r, rect.r), 0, False, True, Dist(-rect.r, rect.r))
+                    .a(Vector(rect.r, rect.r), 0, False, True, Vector(-rect.r, rect.r))
                     .h(-(0.25 + rect.w - 2 * rect.r))
-                    .a(Size(rect.r, rect.r), 0, False, True, Dist(-rect.r, -rect.r))
+                    .a(Vector(rect.r, rect.r), 0, False, True, Vector(-rect.r, -rect.r))
                     .v(-(1 - 2 * rect.r))
-                    .a(Size(rect.r, rect.r), 0, False, False, Dist(-rect.r, -rect.r))
+                    .a(Vector(rect.r, rect.r), 0, False, False, Vector(-rect.r, -rect.r))
                     .h(-(0.25 - 2 * rect.r))
-                    .a(Size(rect.r, rect.r), 0, False, True, Dist(-rect.r, -rect.r))
+                    .a(Vector(rect.r, rect.r), 0, False, True, Vector(-rect.r, -rect.r))
                     .v(-(rect.h - 2 * rect.r))
                     .z()
-                    .scale(Dist(unit, unit))
+                    .scale(Vector(unit, unit))
                 ),
             },
         )
@@ -413,21 +410,21 @@ class Profile:
         if self.type == ProfileType.FLAT:
             path = (
                 Path()
-                .M(Point(rect.x, rect.y + rect.r))
-                .a(Size(rect.r, rect.r), 0, False, True, Dist(rect.r, -rect.r))
+                .M(Vector(rect.x, rect.y + rect.r))
+                .a(Vector(rect.r, rect.r), 0, False, True, Vector(rect.r, -rect.r))
                 .h(w_top)
-                .a(Size(rect.r, rect.r), 0, False, True, Dist(rect.r, rect.r))
+                .a(Vector(rect.r, rect.r), 0, False, True, Vector(rect.r, rect.r))
                 .v(h_right)
-                .a(Size(rect.r, rect.r), 0, False, True, Dist(-rect.r, rect.r))
+                .a(Vector(rect.r, rect.r), 0, False, True, Vector(-rect.r, rect.r))
                 .h(-w_btm)
-                .a(Size(rect.r, rect.r), 0, False, True, Dist(-rect.r, -rect.r))
+                .a(Vector(rect.r, rect.r), 0, False, True, Vector(-rect.r, -rect.r))
                 .v(-(1 - 2 * rect.r))
-                .a(Size(rect.r, rect.r), 0, False, False, Dist(-rect.r, -rect.r))
+                .a(Vector(rect.r, rect.r), 0, False, False, Vector(-rect.r, -rect.r))
                 .h(-(0.25 - 2 * rect.r))
-                .a(Size(rect.r, rect.r), 0, False, True, Dist(-rect.r, -rect.r))
+                .a(Vector(rect.r, rect.r), 0, False, True, Vector(-rect.r, -rect.r))
                 .v(-h_lefttop)
                 .z()
-                .scale(Dist(unit, unit))
+                .scale(Vector(unit, unit))
             )
 
         else:
@@ -443,41 +440,41 @@ class Profile:
             if self.type == ProfileType.CYLINDRICAL:
                 path = (
                     Path()
-                    .M(Point(rect.x, rect.y + rect.r))
-                    .a(Size(rect.r, rect.r), 0, False, True, Dist(rect.r, -rect.r))
+                    .M(Vector(rect.x, rect.y + rect.r))
+                    .a(Vector(rect.r, rect.r), 0, False, True, Vector(rect.r, -rect.r))
                     .h(w_top)
-                    .a(Size(rect.r, rect.r), 0, False, True, Dist(rect.r, rect.r))
+                    .a(Vector(rect.r, rect.r), 0, False, True, Vector(rect.r, rect.r))
                     .v(h_right)
-                    .a(Size(rect.r, rect.r), 0, False, True, Dist(-rect.r, rect.r))
-                    .a(Size(btm_r, btm_r), 0, False, True, Dist(-w_btm, 0))
-                    .a(Size(rect.r, rect.r), 0, False, True, Dist(-rect.r, -rect.r))
+                    .a(Vector(rect.r, rect.r), 0, False, True, Vector(-rect.r, rect.r))
+                    .a(Vector(btm_r, btm_r), 0, False, True, Vector(-w_btm, 0))
+                    .a(Vector(rect.r, rect.r), 0, False, True, Vector(-rect.r, -rect.r))
                     .v(-(h_leftbtm))
-                    .a(Size(rect.r, rect.r), 0, False, False, Dist(-rect.r, -rect.r))
-                    .l(Dist(-(0.25 - 2 * rect.r), -curve / 3))
-                    .a(Size(rect.r, rect.r), 0, False, True, Dist(-rect.r, -rect.r))
+                    .a(Vector(rect.r, rect.r), 0, False, False, Vector(-rect.r, -rect.r))
+                    .l(Vector(-(0.25 - 2 * rect.r), -curve / 3))
+                    .a(Vector(rect.r, rect.r), 0, False, True, Vector(-rect.r, -rect.r))
                     .v(-(h_lefttop))
                     .z()
-                    .scale(Dist(unit, unit))
+                    .scale(Vector(unit, unit))
                 )
 
             else:  # ProfileType.SPHERICAL
                 path = (
                     Path()
-                    .M(Point(rect.x, rect.y + rect.r))
-                    .a(Size(rect.r, rect.r), 0, False, True, Dist(rect.r, -rect.r))
-                    .a(Size(top_r, top_r), 0, False, True, Dist(w_top, 0))
-                    .a(Size(rect.r, rect.r), 0, False, True, Dist(rect.r, rect.r))
-                    .a(Size(right_r, right_r), 0, False, True, Dist(0, h_right))
-                    .a(Size(rect.r, rect.r), 0, False, True, Dist(-rect.r, rect.r))
-                    .a(Size(btm_r, btm_r), 0, False, True, Dist(-w_btm, 0))
-                    .a(Size(rect.r, rect.r), 0, False, True, Dist(-rect.r, -rect.r))
-                    .a(Size(leftbtm_r, leftbtm_r), 0, False, True, Dist(0, -h_leftbtm))
-                    .a(Size(rect.r, rect.r), 0, False, False, Dist(-rect.r, -rect.r))
-                    .l(Dist(-(0.25 - 2 * rect.r), -curve / 3))
-                    .a(Size(rect.r, rect.r), 0, False, True, Dist(-rect.r, -rect.r))
-                    .a(Size(lefttop_r, lefttop_r), 0, False, True, Dist(0, -h_lefttop))
+                    .M(Vector(rect.x, rect.y + rect.r))
+                    .a(Vector(rect.r, rect.r), 0, False, True, Vector(rect.r, -rect.r))
+                    .a(Vector(top_r, top_r), 0, False, True, Vector(w_top, 0))
+                    .a(Vector(rect.r, rect.r), 0, False, True, Vector(rect.r, rect.r))
+                    .a(Vector(right_r, right_r), 0, False, True, Vector(0, h_right))
+                    .a(Vector(rect.r, rect.r), 0, False, True, Vector(-rect.r, rect.r))
+                    .a(Vector(btm_r, btm_r), 0, False, True, Vector(-w_btm, 0))
+                    .a(Vector(rect.r, rect.r), 0, False, True, Vector(-rect.r, -rect.r))
+                    .a(Vector(leftbtm_r, leftbtm_r), 0, False, True, Vector(0, -h_leftbtm))
+                    .a(Vector(rect.r, rect.r), 0, False, False, Vector(-rect.r, -rect.r))
+                    .l(Vector(-(0.25 - 2 * rect.r), -curve / 3))
+                    .a(Vector(rect.r, rect.r), 0, False, True, Vector(-rect.r, -rect.r))
+                    .a(Vector(lefttop_r, lefttop_r), 0, False, True, Vector(0, -h_lefttop))
                     .z()
-                    .scale(Dist(unit, unit))
+                    .scale(Vector(unit, unit))
                 )
 
         et.SubElement(
@@ -512,17 +509,17 @@ class Profile:
                 "stroke-width": "10",
                 "d": str(
                     Path()
-                    .M(Point(rect.x, rect.y + rect.r))
-                    .a(Size(rect.r, rect.r), 0, False, False, Dist(-rect.r, -rect.r))
+                    .M(Vector(rect.x, rect.y + rect.r))
+                    .a(Vector(rect.r, rect.r), 0, False, False, Vector(-rect.r, -rect.r))
                     .h(rect.w)
-                    .a(Size(rect.r, rect.r), 0, False, True, Dist(rect.r, rect.r))
+                    .a(Vector(rect.r, rect.r), 0, False, True, Vector(rect.r, rect.r))
                     .v(rect.h - 2 * rect.r)
-                    .a(Size(rect.r, rect.r), 0, False, True, Dist(-rect.r, rect.r))
+                    .a(Vector(rect.r, rect.r), 0, False, True, Vector(-rect.r, rect.r))
                     .h(-rect.w)
-                    .a(Size(rect.r, rect.r), 0, False, False, Dist(rect.r, -rect.r))
+                    .a(Vector(rect.r, rect.r), 0, False, False, Vector(rect.r, -rect.r))
                     .v(-(rect.h - 2 * rect.r))
                     .z()
-                    .scale(Dist(unit, unit))
+                    .scale(Vector(unit, unit))
                 ),
             },
         )

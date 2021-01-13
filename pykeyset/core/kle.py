@@ -10,7 +10,7 @@ from urllib.parse import urlparse
 from recordclass import recordclass
 
 from ..utils.error import error, info, warning
-from ..utils.types import Color, Point, Size
+from ..utils.types import Color, Vector
 
 Key = recordclass("Key", ("pos", "size", "type", "legend", "legsize", "bgcol", "fgcol"))
 KeyType = Enum("KeyType", ["NONE", "NORM", "DEFHOME", "SCOOP", "BAR", "BUMP", "SPACE"])
@@ -84,7 +84,7 @@ class KleFile:
     def __init__(self):
 
         self.keys = []
-        self.size = Size(0, 0)
+        self.size = Vector(0, 0)
 
     @staticmethod
     def _load_url(ctx, url):
@@ -181,15 +181,15 @@ class KleFile:
 
             props.newline()
 
-        self.size = Size(props.maxw, props.maxh)
+        self.size = Vector(props.maxw, props.maxh)
 
         ctx.kle = self
 
     def _parsekey(self, string, props):
         legend = [html.unescape(leg) for leg in kle_to_ord(string.split("\n"), props.a)]
 
-        pos = Point(props.x, props.y)
-        size = Size(props.w, props.h)
+        pos = Vector(props.x, props.y)
+        size = Vector(props.w, props.h)
 
         if _is_stepped_caps(props):
             size = "step"
@@ -224,7 +224,7 @@ class KleFile:
         elif props.d:
             type = KeyType.NONE
 
-        bgcol = Color(props.c)
+        bgcol = Color.from_hex(props.c)
         if "\n" in props.t:
             colors = props.t.split("\n")
             if colors[0]:
@@ -234,7 +234,7 @@ class KleFile:
             fgcol = kle_to_ord(props.t.split("\n"), props.a)
             fgcol = [Color(fg) if fg else Color(defaultcolor) for fg in fgcol]
         else:
-            fgcol = 12 * [Color(props.t)]
+            fgcol = 12 * [Color.from_hex(props.t)]
 
         legsize = [props.f] * 9
 

@@ -5,7 +5,7 @@ from xml.etree import ElementTree as et
 from ..utils.config import config
 from ..utils.error import error, warning
 from ..utils.path import Path
-from ..utils.types import Dist, Point, Size
+from ..utils.types import Vector
 from .kle import KeyType
 
 
@@ -28,20 +28,20 @@ class Layout:
 
         self = cls()
 
-        svg_size = Size(
-            ctx.kle.size.w * 0.75 * config().dpi,  # 1u = 0.75in
-            ctx.kle.size.h * 0.75 * config().dpi,
+        svg_size = Vector(
+            ctx.kle.size.x * 0.75 * config().dpi,  # 1u = 0.75in
+            ctx.kle.size.y * 0.75 * config().dpi,
         )
-        viewbox = Size(
-            ctx.kle.size.w * self.unit,
-            ctx.kle.size.h * self.unit,
+        viewbox = Vector(
+            ctx.kle.size.x * self.unit,
+            ctx.kle.size.y * self.unit,
         )
 
         self.root.attrib.update(
             {
-                "width": _format(svg_size.w),
-                "height": _format(svg_size.h),
-                "viewBox": f"0 0 {_format(viewbox.w)} {_format(viewbox.h)}",
+                "width": _format(svg_size.x),
+                "height": _format(svg_size.y),
+                "viewBox": f"0 0 {_format(viewbox.x)} {_format(viewbox.y)}",
                 "xmlns": "http://www.w3.org/2000/svg",
                 "stroke-linecap": "round",
                 "stroke-linejoin": "round",
@@ -93,7 +93,7 @@ class Layout:
             prevlegend = [None] + legend
 
             result = Path()
-            position = Point(0, 0)
+            position = Vector(0, 0)
 
             for leg, prev in zip(legend, prevlegend):
 
@@ -131,9 +131,11 @@ class Layout:
                         position.x += advance
                         result.append(path)
                 else:
-                    position.x -= ctx.font.getkerning(prev, leg, size)
+                    position = position._replace(
+                        x=position.x - ctx.font.getkerning(prev, leg, size)
+                    )
                     path.translate(position)
-                    position.x += advance
+                    position = position._replace(x=position.x + advance)
                     result.append(path)
 
             legendsize = result.boundingbox
@@ -143,18 +145,18 @@ class Layout:
                     f"squishing legend '{''.join(legend)}' to {100 * rect.w / legendsize.w:.3f}% "
                     "of its natural width to fit"
                 )
-                pos = Point(legendsize.x, legendsize.y)
-                result.scale(Dist(rect.w / legendsize.w, 1))
+                pos = Vector(legendsize.x, legendsize.y)
+                result.scale(Vector(rect.w / legendsize.w, 1))
                 legendsize = result.boundingbox
-            legendsize.h = size
+            legendsize = legendsize._replace(h=size)
 
-            pos = Dist(
+            pos = Vector(
                 rect.x - legendsize.x + (halign / 2) * (rect.w - legendsize.w),
                 rect.y + legendsize.h + (valign / 2) * (rect.h - legendsize.h),
             )
 
             result.translate(pos)
-            result.scale(Dist(self.unit, self.unit))
+            result.scale(Vector(self.unit, self.unit))
 
             if config().showalign:
                 legendsize = result.boundingbox
@@ -190,14 +192,14 @@ class Layout:
                 {
                     "d": str(
                         Path()
-                        .M(Point(rect.x - 0.25, rect.y))
+                        .M(Vector(rect.x - 0.25, rect.y))
                         .h(rect.w + 0.25)
                         .v(rect.h)
                         .h(-rect.w)
                         .v(-1)
                         .h(-0.25)
                         .z()
-                        .scale(Dist(self.unit, self.unit))
+                        .scale(Vector(self.unit, self.unit))
                     ),
                     "fill": "none",
                     "stroke": "#f00",

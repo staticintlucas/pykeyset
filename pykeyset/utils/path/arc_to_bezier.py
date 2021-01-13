@@ -2,7 +2,7 @@
 
 from math import atan2, ceil, cos, isclose, pi, radians, sin, sqrt, tan
 
-from ...utils.types import Dist, Point
+from ...utils.types import Vector
 
 TOL = 1e-6
 
@@ -11,23 +11,20 @@ def arc_to_bezier(r, xar, laf, sf, d):
 
     curves = []
 
-    r = Dist(*r)
-    d = Point(*d)
     xar = radians(xar)
 
     if isclose(d.x, 0) and isclose(d.y, 0):
         return []
 
-    d = Point(d.x * cos(xar) + d.y * sin(xar), -d.x * sin(xar) + d.y * cos(xar))
+    d = Vector(d.x * cos(xar) + d.y * sin(xar), -d.x * sin(xar) + d.y * cos(xar))
 
     # Ensure our radii are large enough
     if isclose(r.x, 0, abs_tol=TOL) or isclose(r.y, 0, abs_tol=TOL):
-        return [(Point(d.x / 3, d.y / 3), Point(2 * d.x / 3, 2 * d.y / 3), Point(d.x, d.y))]
+        return [(Vector(d.x / 3, d.y / 3), Vector(2 * d.x / 3, 2 * d.y / 3), Vector(d.x, d.y))]
     else:
         lamb = sqrt((d.x / r.x / 2) ** 2 + (d.y / r.y / 2) ** 2)
         if lamb > 1:
-            r.x *= lamb
-            r.y *= lamb
+            r = Vector(r.x * lamb, r.y * lamb)
 
     c = _get_center(r, laf, sf, d)
 
@@ -67,20 +64,16 @@ def arc_to_bezier(r, xar, laf, sf, d):
 
     if xar != 0:
         for curve in curves:
-            for d in curve:
-                d.x, d.y = d.x * cos(xar) - d.y * sin(xar), d.x * sin(xar) + d.y * cos(xar)
+            for i, d in enumerate(curve):
+                curve[i] = Vector(d.x * cos(xar) - d.y * sin(xar), d.x * sin(xar) + d.y * cos(xar))
 
     return curves
 
 
 def _get_center(r, laf, sf, d):
 
-    r = Dist(*r)
-    d = Point(*d)
-
     # Since we only use half dx/dy in this calculation, pre-halve them
-    d.x = d.x / 2
-    d.y = d.y / 2
+    d = Vector(d.x / 2, d.y / 2)
 
     sign = 1 if laf == sf else -1
 
@@ -93,7 +86,7 @@ def _get_center(r, laf, sf, d):
     else:
         co = sign * sqrt(v)
 
-    c = Point(r.x * d.y / r.y * co + d.x, -r.y * d.x / r.x * co + d.y)
+    c = Vector(r.x * d.y / r.y * co + d.x, -r.y * d.x / r.x * co + d.y)
 
     return c
 
@@ -109,7 +102,7 @@ def _create_arc(r, phi0, dphi):
     x3, y3 = x4 + y4 * a, y4 - x4 * a
 
     return [
-        Point(x2 - x1, y2 - y1),
-        Point(x3 - x1, y3 - y1),
-        Point(x4 - x1, y4 - y1),
+        Vector(x2 - x1, y2 - y1),
+        Vector(x3 - x1, y3 - y1),
+        Vector(x4 - x1, y4 - y1),
     ]

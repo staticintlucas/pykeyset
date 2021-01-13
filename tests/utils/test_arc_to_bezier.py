@@ -5,7 +5,7 @@ from math import isclose, radians, tan
 import pytest
 
 from pykeyset.utils.path.arc_to_bezier import _create_arc, _get_center, arc_to_bezier
-from pykeyset.utils.types import Dist, Point
+from pykeyset.utils.types import Vector
 
 A = 4 / 3 * tan(radians(90) / 4)
 
@@ -13,16 +13,16 @@ A = 4 / 3 * tan(radians(90) / 4)
 @pytest.mark.parametrize(
     "r, xar, laf, sf, d, results",
     [
-        (Dist(1, 1), 0, False, False, Point(1, 1), [Point(1, 1)]),
-        (Dist(1, 1), 0, True, False, Point(1, 1), [Point(-1, 1), Point(1, 1), Point(1, -1)]),
-        (Dist(1, 1), 0, True, True, Point(1, 1), [Point(1, -1), Point(1, 1), Point(-1, 1)]),
-        (Dist(1, 2), 0, False, False, Point(1, 2), [Point(1, 2)]),
-        (Dist(1, 2), 90, False, False, Point(2, -1), [Point(2, -1)]),
-        (Dist(1, 1), 0, False, False, Point(0, 0), []),
-        (Dist(1.42, 1.42), 0, False, True, Point(0, -2), [Point(0, -2)]),
-        (Dist(1.42, 1.42), 0, False, False, Point(0, 2), [Point(0, 2)]),
-        (Dist(1, 1), 0, False, False, Point(4, 0), [Point(2, 2), Point(2, -2)]),
-        (Dist(0, 0), 0, False, False, Point(1, 0), [Point(1, 0)]),
+        (Vector(1, 1), 0, False, False, Vector(1, 1), [Vector(1, 1)]),
+        (Vector(1, 1), 0, True, False, Vector(1, 1), [Vector(-1, 1), Vector(1, 1), Vector(1, -1)]),
+        (Vector(1, 1), 0, True, True, Vector(1, 1), [Vector(1, -1), Vector(1, 1), Vector(-1, 1)]),
+        (Vector(1, 2), 0, False, False, Vector(1, 2), [Vector(1, 2)]),
+        (Vector(1, 2), 90, False, False, Vector(2, -1), [Vector(2, -1)]),
+        (Vector(1, 1), 0, False, False, Vector(0, 0), []),
+        (Vector(1.42, 1.42), 0, False, True, Vector(0, -2), [Vector(0, -2)]),
+        (Vector(1.42, 1.42), 0, False, False, Vector(0, 2), [Vector(0, 2)]),
+        (Vector(1, 1), 0, False, False, Vector(4, 0), [Vector(2, 2), Vector(2, -2)]),
+        (Vector(0, 0), 0, False, False, Vector(1, 0), [Vector(1, 0)]),
     ],
 )
 def test_arc_to_bezier(r, xar, laf, sf, d, results):
@@ -39,11 +39,11 @@ def test_arc_to_bezier(r, xar, laf, sf, d, results):
 @pytest.mark.parametrize(
     "r, laf, sf, d, result",
     [
-        (Dist(1, 1), False, False, Point(1, 1), Point(1, 0)),
-        (Dist(1, 1), True, False, Point(1, 1), Point(0, 1)),
-        (Dist(1, 1), False, True, Point(1, 1), Point(0, 1)),
-        (Dist(1, 1), True, True, Point(1, 1), Point(1, 0)),
-        (Dist(1, 1), False, False, Point(2, 0), Point(1, 0)),
+        (Vector(1, 1), False, False, Vector(1, 1), Vector(1, 0)),
+        (Vector(1, 1), True, False, Vector(1, 1), Vector(0, 1)),
+        (Vector(1, 1), False, True, Vector(1, 1), Vector(0, 1)),
+        (Vector(1, 1), True, True, Vector(1, 1), Vector(1, 0)),
+        (Vector(1, 1), False, False, Vector(2, 0), Vector(1, 0)),
     ],
 )
 def test_get_center(r, laf, sf, d, result):
@@ -57,19 +57,19 @@ def test_get_center(r, laf, sf, d, result):
 @pytest.mark.parametrize(
     "phi0, dphi, p1, p2, p",
     [
-        (0, 90, Point(0, A), Point(A - 1, 1), Point(-1, 1)),
-        (90, 90, Point(-A, 0), Point(-1, A - 1), Point(-1, -1)),
-        (180, 90, Point(0, -A), Point(1 - A, -1), Point(1, -1)),
-        (-90, 90, Point(A, 0), Point(1, 1 - A), Point(1, 1)),
-        (0, -90, Point(0, -A), Point(A - 1, -1), Point(-1, -1)),
-        (90, -90, Point(A, 0), Point(1, A - 1), Point(1, -1)),
-        (180, -90, Point(0, A), Point(1 - A, 1), Point(1, 1)),
-        (-90, -90, Point(-A, 0), Point(-1, 1 - A), Point(-1, 1)),
+        (0, 90, Vector(0, A), Vector(A - 1, 1), Vector(-1, 1)),
+        (90, 90, Vector(-A, 0), Vector(-1, A - 1), Vector(-1, -1)),
+        (180, 90, Vector(0, -A), Vector(1 - A, -1), Vector(1, -1)),
+        (-90, 90, Vector(A, 0), Vector(1, 1 - A), Vector(1, 1)),
+        (0, -90, Vector(0, -A), Vector(A - 1, -1), Vector(-1, -1)),
+        (90, -90, Vector(A, 0), Vector(1, A - 1), Vector(1, -1)),
+        (180, -90, Vector(0, A), Vector(1 - A, 1), Vector(1, 1)),
+        (-90, -90, Vector(-A, 0), Vector(-1, 1 - A), Vector(-1, 1)),
     ],
 )
 def test_create_arc(phi0, dphi, p1, p2, p):
 
-    points = _create_arc(Dist(1, 1), radians(phi0), radians(dphi))
+    points = _create_arc(Vector(1, 1), radians(phi0), radians(dphi))
 
     assert len(points) == 3
 
