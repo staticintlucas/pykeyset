@@ -4,7 +4,7 @@ import re
 from copy import deepcopy
 from math import cos, inf, radians, sin, tan
 
-from ..error import error, warning
+from ..error import error
 from ..types import Rect, Vector
 from .arc_to_bezier import arc_to_bezier
 
@@ -139,10 +139,10 @@ class Path:
                     "bounding box of path is None even though path is not empty. This should not "
                     "happen"
                 )  # pragma: no cover
-        self._updatebbox(Vector(other._bbox.x, other._bbox.y))
-        self._updatebbox(Vector(other._bbox.x + other._bbox.w, other._bbox.y + other._bbox.h))
+        self._updatebbox(other._bbox.position)
+        self._updatebbox(other._bbox.position + other._bbox.size)
         self.d.extend(deepcopy(other.d))
-        self.point = Vector(*other.point)
+        self.point = other.point
         return self
 
     def setboundingbox(self, bbox):
@@ -155,15 +155,15 @@ class Path:
     @property
     def boundingbox(self):
         """Return the bounding box of the path"""
-        return Rect(*self._bbox) if self._bbox is not None else Rect(0, 0, 0, 0)
+        return self._bbox if self._bbox is not None else Rect(0, 0, 0, 0)
 
     def _rel(self, d):
         """Convert an absolute position d to a relative distance"""
-        return Vector(d.x - self.point.x, d.y - self.point.y)
+        return d - self.point
 
     def _abs(self, d):
         """Convert a relative distance d to an absolute position"""
-        return Vector(d.x + self.point.x, d.y + self.point.y)
+        return d + self.point
 
     def m(self, d):
         """SVG m path command"""
@@ -173,28 +173,22 @@ class Path:
     def l(self, d):  # noqa: E741, E743
         """SVG l path command"""
         self.d.append(_l(d))
-        self.point = self.point._replace(x=self.point.x + d.x, y=self.point.y + d.y)
+        self.point = self.point + d
         self._updatebbox(self.point)
         return self
 
     def h(self, x):
         """SVG h path command"""
-        self.d.append(_l(Vector(x, 0)))
-        self.point = self.point._replace(x=self.point.x + x)
-        self._updatebbox(self.point)
-        return self
+        return self.l(Vector(x, 0))
 
     def v(self, y):
         """SVG v path command"""
-        self.d.append(_l(Vector(0, y)))
-        self.point = self.point._replace(y=self.point.y + y)
-        self._updatebbox(self.point)
-        return self
+        return self.l(Vector(0, y))
 
     def c(self, d1, d2, d):
         """SVG c path command"""
         self.d.append(_c(d1, d2, d))
-        self.point = self.point._replace(x=self.point.x + d.x, y=self.point.y + d.y)
+        self.point = self.point + d
         self._updatebbox(self.point)
         return self
 
@@ -202,19 +196,18 @@ class Path:
         """SVG s path command"""
         last = self.d[-1] if len(self.d) > 0 else None
         if isinstance(last, _c):
-            x1 = last.d.x - last.d2.x
-            y1 = last.d.y - last.d2.y
-            self.d.append(_c(Vector(x1, y1), d2, d))
+            d1 = last.d - last.d2
+            self.d.append(_c(d1, d2, d))
         else:
             self.d.append(_q(d2, d))
-        self.point = self.point._replace(x=self.point.x + d.x, y=self.point.y + d.y)
+        self.point = self.point + d
         self._updatebbox(self.point)
         return self
 
     def q(self, d1, d):
         """SVG q path command"""
         self.d.append(_q(d1, d))
-        self.point = self.point._replace(x=self.point.x + d.x, y=self.point.y + d.y)
+        self.point = self.point + d
         self._updatebbox(self.point)
         return self
 
@@ -222,12 +215,11 @@ class Path:
         """SVG t path command"""
         last = self.d[-1] if len(self.d) > 0 else None
         if isinstance(last, _q):
-            x1 = last.d.x - last.d1.x
-            y1 = last.d.y - last.d1.y
-            self.d.append(_q(Vector(x1, y1), d))
+            d1 = last.d - last.d1
+            self.d.append(_q(d1, d))
         else:
             self.d.append(_l(d))
-        self.point = self.point._replace(x=self.point.x + d.x, y=self.point.y + d.y)
+        self.point = self.point + d
         self._updatebbox(self.point)
         return self
 
@@ -242,7 +234,7 @@ class Path:
         self.d.append(_z())
         lastm = next((s for s in self.d[::-1] if isinstance(s, _M)), None)
         if lastm is not None:
-            self.point = Vector(*lastm.d)
+            self.point = lastm.d
         else:
             self.point = Vector(0, 0)
         self._updatebbox(self.point)
@@ -251,7 +243,7 @@ class Path:
     def M(self, d):
         """SVG M path command"""
         self.d.append(_M(d))
-        self.point = Vector(*d)
+        self.point = d
         self._updatebbox(self.point)
         return self
 
@@ -297,13 +289,13 @@ class Path:
         for t in trns:
             try:
                 if t.startswith("scale("):
-                    val = [float(v) for v in t[6:-1].split(",")]
+                    val = [float(v) for v in t[6:-1].split(",", 1)]
                     s = Vector(val[0], val[1] if len(val) > 1 else val[0])
                     self.scale(s)
 
                 elif t.startswith("translate("):
-                    val = [float(v) for v in t[10:-1].split(",")]
-                    d = Vector(val[0], val[1])
+                    val = [float(v) for v in t[10:-1].split(",", 1)]
+                    d = Vector(val[0], val[1] if len(val) > 1 else 0)
                     self.translate(d)
 
                 elif t.startswith("rotate("):
@@ -327,13 +319,13 @@ class Path:
     def scale(self, s):
         for seg in self.d:
             seg.scale(s)
-        self.point = self.point._replace(x=self.point.x * s.x, y=self.point.y * s.y)
+        self.point = Vector(self.point.x * s.x, self.point.y * s.y)
         if self._bbox is not None:
-            self._bbox = self._bbox._replace(
-                x=self._bbox.x * s.x,
-                y=self._bbox.y * s.y,
-                w=self._bbox.w * s.x,
-                h=self._bbox.h * s.y,
+            self._bbox = Rect(
+                self._bbox.x * s.x,
+                self._bbox.y * s.y,
+                self._bbox.w * s.x,
+                self._bbox.h * s.y,
             )
             if self._bbox.w < 0:
                 self._bbox = self._bbox._replace(
@@ -350,7 +342,7 @@ class Path:
     def translate(self, d):
         for seg in self.d:
             seg.translate(d)
-        self.point = self.point._replace(x=self.point.x + d.x, y=self.point.y + d.y)
+        self.point = self.point + d
         if self._bbox is not None:
             self._bbox = self._bbox._replace(x=self._bbox.x + d.x, y=self._bbox.y + d.y)
         return self
@@ -380,7 +372,7 @@ class Path:
 
     def _recalculatebbox(self):
         if self.bboxoverride:
-            warning("cannot recalculate bounding box that has been previously overridden")
+            raise ValueError("cannot recalculate bounding box that has been previously overridden")
         elif len(self.d) == 0:
             self._bbox = None
         else:
@@ -396,34 +388,37 @@ class Path:
                 elif isinstance(seg, _z):
                     pt = start
                 else:
-                    pt = pt._replace(x=pt.x + seg.d.x, y=pt.y + seg.d.y)
+                    pt = pt + seg.d
                 minpt = Vector(min(minpt.x, pt.x), min(minpt.y, pt.y))
                 maxpt = Vector(max(maxpt.x, pt.x), max(maxpt.y, pt.y))
-            self._bbox = Rect(minpt.x, minpt.y, maxpt.x - minpt.x, maxpt.y - minpt.y)
+            self._bbox = Rect(*minpt, *(maxpt - minpt))
 
     def _updatebbox(self, point):
         if self._bbox is None:
-            self._bbox = Rect(point.x, point.y, 0, 0)
+            self._bbox = Rect(*point, 0, 0)
         else:
-            x, y, w, h = self._bbox
-            x2, y2 = x + w, y + h
-            x, y, x2, y2 = min(x, point.x), min(y, point.y), max(x2, point.x), max(y2, point.y)
-            self._bbox = Rect(x, y, x2 - x, y2 - y)
+            pt1 = self._bbox.position
+            pt2 = self._bbox.position + self._bbox.size
+            pt1, pt2 = (
+                Vector(min(pt1.x, point.x), min(pt1.y, point.y)),
+                Vector(max(pt2.x, point.x), max(pt2.y, point.y)),
+            )
+            self._bbox = Rect(*pt1, *(pt2 - pt1))
 
 
 # Absolute move
 class _M:
     def __init__(self, d):
-        self.d = Vector(*d)
+        self.d = d
 
     def __repr__(self):
-        return "M{0:s}".format(_format(self.d.x, self.d.y))
+        return f"M{format_coords(self.d)}"
 
     def scale(self, s):
-        self.d = self.d._replace(x=self.d.x * s.x, y=self.d.y * s.y)
+        self.d = Vector(self.d.x * s.x, self.d.y * s.y)
 
     def translate(self, d):
-        self.d = self.d._replace(x=self.d.x + d.x, y=self.d.y + d.y)
+        self.d = self.d + d
 
     def rotate(self, t):
         t = radians(t)
@@ -442,13 +437,13 @@ class _M:
 # Relative line
 class _l:
     def __init__(self, d):
-        self.d = Vector(*d)
+        self.d = d
 
     def __repr__(self):
-        return "l{0:s}".format(_format(self.d.x, self.d.y))
+        return f"l{format_coords(self.d)}"
 
     def scale(self, s):
-        self.d = self.d._replace(x=self.d.x * s.x, y=self.d.y * s.y)
+        self.d = Vector(self.d.x * s.x, self.d.y * s.y)
 
     def translate(self, d):
         pass  # Do nothing since this is a relative distance
@@ -470,19 +465,17 @@ class _l:
 # Relative cubic Bézier
 class _c:
     def __init__(self, d1, d2, d):
-        self.d1 = Vector(*d1)
-        self.d2 = Vector(*d2)
-        self.d = Vector(*d)
+        self.d1 = d1
+        self.d2 = d2
+        self.d = d
 
     def __repr__(self):
-        return "c{0:s}".format(
-            _format(self.d1.x, self.d1.y, self.d2.x, self.d2.y, self.d.x, self.d.y)
-        )
+        return f"c{format_coords(self.d1, self.d2, self.d)}"
 
     def scale(self, s):
-        self.d1 = self.d1._replace(x=self.d1.x * s.x, y=self.d1.y * s.y)
-        self.d2 = self.d2._replace(x=self.d2.x * s.x, y=self.d2.y * s.y)
-        self.d = self.d._replace(x=self.d.x * s.x, y=self.d.y * s.y)
+        self.d1 = Vector(self.d1.x * s.x, self.d1.y * s.y)
+        self.d2 = Vector(self.d2.x * s.x, self.d2.y * s.y)
+        self.d = Vector(self.d.x * s.x, self.d.y * s.y)
 
     def translate(self, d):
         pass  # Do nothing since this is a relative distance
@@ -510,15 +503,15 @@ class _c:
 # Relative quadratic Bézier
 class _q:
     def __init__(self, d1, d):
-        self.d1 = Vector(*d1)
-        self.d = Vector(*d)
+        self.d1 = d1
+        self.d = d
 
     def __repr__(self):
-        return "q{0:s}".format(_format(self.d1.x, self.d1.y, self.d.x, self.d.y))
+        return f"q{format_coords(self.d1, self.d)}"
 
     def scale(self, s):
-        self.d1 = self.d1._replace(x=self.d1.x * s.x, y=self.d1.y * s.y)
-        self.d = self.d._replace(x=self.d.x * s.x, y=self.d.y * s.y)
+        self.d1 = Vector(self.d1.x * s.x, self.d1.y * s.y)
+        self.d = Vector(self.d.x * s.x, self.d.y * s.y)
 
     def translate(self, d):
         pass  # Do nothing since this is a relative distance
@@ -565,5 +558,6 @@ class _z:
 
 
 # Format a list of coords as efficiently as possible
-def _format(*args):
-    return "".join(f"{float(n): .3f}".rstrip("0").rstrip(".") for n in args).lstrip()
+def format_coords(*args):
+    coords = [a for arg in args for a in arg]
+    return "".join(f"{float(c): .3f}".rstrip("0").rstrip(".") for c in coords).lstrip()

@@ -87,7 +87,8 @@ def test_setbbox():
     path.setboundingbox(Rect(-5, -5, 20, 20))
     assert tuple(path.boundingbox) == (-5, -5, 20, 20)
 
-    path._recalculatebbox()
+    with pytest.raises(ValueError):
+        path._recalculatebbox()
     assert tuple(path.boundingbox) == (-5, -5, 20, 20)
 
     path = Path()
@@ -131,7 +132,7 @@ def test_transform(transform, bbox):
     "transform",
     [
         ("flurp(20)"),
-        ("translate(10)"),
+        ("translate(p)"),
         ("rotate(10, 20)"),
         ("I sense something; a presence I've not felt since— "),
     ],

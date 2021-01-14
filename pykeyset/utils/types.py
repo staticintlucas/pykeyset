@@ -2,6 +2,7 @@
 
 import colorsys
 import math
+from numbers import Number
 from typing import NamedTuple
 
 
@@ -16,6 +17,21 @@ class Vector(NamedTuple):
     @property
     def angle(self) -> float:
         return math.atan2(self.y, self.x)
+
+    def __neg__(self) -> "Vector":
+        return Vector(-self.x, -self.y)
+
+    def __add__(self, other: "Vector") -> "Vector":
+        return Vector(self.x + other.x, self.y + other.y)
+
+    def __sub__(self, other: "Vector") -> "Vector":
+        return Vector(self.x - other.x, self.y - other.y)
+
+    def __mul__(self, other: Number) -> "Vector":
+        return Vector(self.x * other, self.y * other)
+
+    def __truediv__(self, other: Number) -> "Vector":
+        return Vector(self.x / other, self.y / other)
 
 
 class Rect(NamedTuple):

@@ -16,6 +16,28 @@ def test_vector():
     assert isclose(vec.angle, radians(45))
 
 
+def test_vector_maths():
+
+    vec1 = Vector(1, 2)
+    vec2 = Vector(3, 6)
+
+    vec3 = vec1 + vec2
+    assert isclose(vec3.x, 4)
+    assert isclose(vec3.y, 8)
+
+    vec4 = vec2 - vec1
+    assert isclose(vec4.x, 2)
+    assert isclose(vec4.y, 4)
+
+    vec5 = vec2 * (2 / 3)
+    assert isclose(vec5.x, 2)
+    assert isclose(vec5.y, 4)
+
+    vec6 = vec2 / 3
+    assert isclose(vec6.x, 1)
+    assert isclose(vec6.y, 2)
+
+
 def test_rect():
 
     rect = Rect(1, 1, 2, 3)
