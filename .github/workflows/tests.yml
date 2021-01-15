@@ -44,7 +44,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: .venv
-          key: venv-2-${{ runner.os }}-${{ steps.python-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
+          key: venv-3-${{ runner.os }}-${{ steps.python-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
       - name: Install repo
         run: |
           poetry config virtualenvs.in-project true
