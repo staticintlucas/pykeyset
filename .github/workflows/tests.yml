@@ -45,10 +45,10 @@ jobs:
         with:
           path: .venv
           key: venv-3-${{ runner.os }}-${{ steps.python-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
+      - name: Configure Poetry
+        run: poetry config virtualenvs.in-project true -vvv
       - name: Install repo
-        run: |
-          poetry config virtualenvs.in-project true
-          poetry install
+        run: poetry install -vvv
       - name: Run tests
         run: poetry run pytest -q tests --cov=pykeyset --cov-report=xml
       - name: Upload coverage to Codecov

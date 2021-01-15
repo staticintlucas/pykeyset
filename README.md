@@ -8,7 +8,7 @@ A Python-based tool to create pretty keyset layout diagrams using correct fonts 
 [![Python Version](https://img.shields.io/pypi/pyversions/pykeyset?style=flat-square)][pypi]
 [![Code style](https://img.shields.io/badge/code_style-black-black?style=flat-square)][black]
 [![PyPI](https://img.shields.io/pypi/v/pykeyset?style=flat-square)][pypi]
-[![License](https://img.shields.io/github/license/staticintlucas/pykeyset?style=flat-square)][license]
+[![License](https://img.shields.io/github/license/staticintlucas/pykeyset?style=flat-square)][licence]
 
 ## Warning
 
@@ -86,7 +86,7 @@ The builtin *`cherry`* font is based on [Open Cherry] by Dakota Felder
 [pykeyset]: https://github.com/staticintlucas/pykeyset
 [actions]: https://github.com/staticintlucas/pykeyset/actions
 [coverage]: https://codecov.io/gh/staticintlucas/pykeyset
-[license]: LICENSE
+[licence]: LICENCE
 [pypi]: https://pypi.org/project/pykeyset/
 [black]: https://github.com/psf/black
 [Poetry]: https://python-poetry.org/
