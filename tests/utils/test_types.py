@@ -29,13 +29,29 @@ def test_vector_maths():
     assert isclose(vec4.x, 2)
     assert isclose(vec4.y, 4)
 
-    vec5 = vec2 * (2 / 3)
-    assert isclose(vec5.x, 2)
-    assert isclose(vec5.y, 4)
+    vec5 = -vec2
+    assert isclose(vec5.x, -3)
+    assert isclose(vec5.y, -6)
 
-    vec6 = vec2 / 3
-    assert isclose(vec6.x, 1)
-    assert isclose(vec6.y, 2)
+    vec6 = vec2 * (2 / 3)
+    assert isclose(vec6.x, 2)
+    assert isclose(vec6.y, 4)
+
+    vec7 = vec2 / 3
+    assert isclose(vec7.x, 1)
+    assert isclose(vec7.y, 2)
+
+    vec8 = vec1 * vec2
+    assert isclose(vec8.x, 3)
+    assert isclose(vec8.y, 12)
+
+    vec9 = vec2 / vec1
+    assert isclose(vec9.x, 3)
+    assert isclose(vec9.y, 3)
+
+    vec10 = vec1.rotate(radians(90))
+    assert isclose(vec10.x, -2)
+    assert isclose(vec10.y, 1)
 
 
 def test_rect():
@@ -54,6 +70,23 @@ def test_rect():
     assert rect.position.y == rect.y
     assert rect.size.x == rect.w
     assert rect.size.y == rect.h
+
+
+def test_rect_scale():
+
+    rect1 = Rect(1, 1, 2, 3)
+
+    rect2 = rect1.scale(Vector(3, 2))
+    assert isclose(rect2.x, 3)
+    assert isclose(rect2.y, 2)
+    assert isclose(rect2.w, 6)
+    assert isclose(rect2.h, 6)
+
+    rect3 = rect1.scale(Vector(-2, -1))
+    assert isclose(rect3.x, -6)
+    assert isclose(rect3.y, -4)
+    assert isclose(rect3.w, 4)
+    assert isclose(rect3.h, 3)
 
 
 def test_round_rect():

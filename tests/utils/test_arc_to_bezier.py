@@ -16,6 +16,7 @@ A = 4 / 3 * tan(radians(90) / 4)
         (Vector(1, 1), 0, False, False, Vector(1, 1), [Vector(1, 1)]),
         (Vector(1, 1), 0, True, False, Vector(1, 1), [Vector(-1, 1), Vector(1, 1), Vector(1, -1)]),
         (Vector(1, 1), 0, True, True, Vector(1, 1), [Vector(1, -1), Vector(1, 1), Vector(-1, 1)]),
+        (Vector(1, 1), 0, True, True, Vector(1, -1), [Vector(-1, -1), Vector(1, -1), Vector(1, 1)]),
         (Vector(1, 2), 0, False, False, Vector(1, 2), [Vector(1, 2)]),
         (Vector(1, 2), 90, False, False, Vector(2, -1), [Vector(2, -1)]),
         (Vector(1, 1), 0, False, False, Vector(0, 0), []),

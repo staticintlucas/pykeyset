@@ -319,24 +319,9 @@ class Path:
     def scale(self, s):
         for seg in self.d:
             seg.scale(s)
-        self.point = Vector(self.point.x * s.x, self.point.y * s.y)
+        self.point = self.point * s
         if self._bbox is not None:
-            self._bbox = Rect(
-                self._bbox.x * s.x,
-                self._bbox.y * s.y,
-                self._bbox.w * s.x,
-                self._bbox.h * s.y,
-            )
-            if self._bbox.w < 0:
-                self._bbox = self._bbox._replace(
-                    x=self._bbox.x + self._bbox.w,
-                    w=-self._bbox.w,
-                )
-            if self._bbox.h < 0:
-                self._bbox = self._bbox._replace(
-                    y=self._bbox.y + self._bbox.h,
-                    h=-self._bbox.h,
-                )
+            self._bbox = self._bbox.scale(s)
         return self
 
     def translate(self, d):
@@ -415,15 +400,13 @@ class _M:
         return f"M{format_coords(self.d)}"
 
     def scale(self, s):
-        self.d = Vector(self.d.x * s.x, self.d.y * s.y)
+        self.d = self.d * s
 
     def translate(self, d):
         self.d = self.d + d
 
     def rotate(self, t):
-        t = radians(t)
-        x, y = self.d
-        self.d = Vector(x * cos(t) - y * sin(t), x * sin(t) + y * cos(t))
+        self.d = self.d.rotate(radians(t))
 
     def skew_x(self, t):
         t = radians(t)
@@ -443,15 +426,13 @@ class _l:
         return f"l{format_coords(self.d)}"
 
     def scale(self, s):
-        self.d = Vector(self.d.x * s.x, self.d.y * s.y)
+        self.d = self.d * s
 
     def translate(self, d):
         pass  # Do nothing since this is a relative distance
 
     def rotate(self, t):
-        t = radians(t)
-        x, y = self.d.x, self.d.y
-        self.d = Vector(x * cos(t) - y * sin(t), x * sin(t) + y * cos(t))
+        self.d = self.d.rotate(radians(t))
 
     def skew_x(self, t):
         t = radians(t)
@@ -473,19 +454,17 @@ class _c:
         return f"c{format_coords(self.d1, self.d2, self.d)}"
 
     def scale(self, s):
-        self.d1 = Vector(self.d1.x * s.x, self.d1.y * s.y)
-        self.d2 = Vector(self.d2.x * s.x, self.d2.y * s.y)
-        self.d = Vector(self.d.x * s.x, self.d.y * s.y)
+        self.d1 = self.d1 * s
+        self.d2 = self.d2 * s
+        self.d = self.d * s
 
     def translate(self, d):
         pass  # Do nothing since this is a relative distance
 
     def rotate(self, t):
-        t = radians(t)
-        x1, y1, x2, y2, x, y = self.d1.x, self.d1.y, self.d2.x, self.d2.y, self.d.x, self.d.y
-        self.d1 = Vector(x1 * cos(t) - y1 * sin(t), x1 * sin(t) + y1 * cos(t))
-        self.d2 = Vector(x2 * cos(t) - y2 * sin(t), x2 * sin(t) + y2 * cos(t))
-        self.d = Vector(x * cos(t) - y * sin(t), x * sin(t) + y * cos(t))
+        self.d1 = self.d1.rotate(radians(t))
+        self.d2 = self.d2.rotate(radians(t))
+        self.d = self.d.rotate(radians(t))
 
     def skew_x(self, t):
         t = radians(t)
@@ -510,17 +489,15 @@ class _q:
         return f"q{format_coords(self.d1, self.d)}"
 
     def scale(self, s):
-        self.d1 = Vector(self.d1.x * s.x, self.d1.y * s.y)
-        self.d = Vector(self.d.x * s.x, self.d.y * s.y)
+        self.d1 = self.d1 * s
+        self.d = self.d * s
 
     def translate(self, d):
         pass  # Do nothing since this is a relative distance
 
     def rotate(self, t):
-        t = radians(t)
-        x1, y1, x, y = self.d1.x, self.d1.y, self.d.x, self.d.y
-        self.d1 = Vector(x1 * cos(t) - y1 * sin(t), x1 * sin(t) + y1 * cos(t))
-        self.d = Vector(x * cos(t) - y * sin(t), x * sin(t) + y * cos(t))
+        self.d1 = self.d1.rotate(radians(t))
+        self.d = self.d.rotate(radians(t))
 
     def skew_x(self, t):
         t = radians(t)

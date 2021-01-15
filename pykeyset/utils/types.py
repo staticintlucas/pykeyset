@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import colorsys
-import math
+from math import atan2, cos, sin, sqrt
 from numbers import Number
-from typing import NamedTuple
+from typing import NamedTuple, Union
 
 
 class Vector(NamedTuple):
@@ -12,11 +12,11 @@ class Vector(NamedTuple):
 
     @property
     def magnitude(self) -> float:
-        return math.sqrt(self.x * self.x + self.y * self.y)
+        return sqrt(self.x * self.x + self.y * self.y)
 
     @property
     def angle(self) -> float:
-        return math.atan2(self.y, self.x)
+        return atan2(self.y, self.x)
 
     def __neg__(self) -> "Vector":
         return Vector(-self.x, -self.y)
@@ -27,11 +27,21 @@ class Vector(NamedTuple):
     def __sub__(self, other: "Vector") -> "Vector":
         return Vector(self.x - other.x, self.y - other.y)
 
-    def __mul__(self, other: Number) -> "Vector":
-        return Vector(self.x * other, self.y * other)
+    def __mul__(self, other: Union[Number, "Vector"]) -> "Vector":
+        if isinstance(other, self.__class__):
+            return Vector(self.x * other.x, self.y * other.y)
+        else:
+            return Vector(self.x * other, self.y * other)
 
-    def __truediv__(self, other: Number) -> "Vector":
-        return Vector(self.x / other, self.y / other)
+    def __truediv__(self, other: Union[Number, "Vector"]) -> "Vector":
+        if isinstance(other, self.__class__):
+            return Vector(self.x / other.x, self.y / other.y)
+        else:
+            return Vector(self.x / other, self.y / other)
+
+    def rotate(self, angle: Number) -> "Vector":
+        c, s = cos(angle), sin(angle)
+        return Vector(self.x * c - self.y * s, self.x * s + self.y * c)
 
 
 class Rect(NamedTuple):
@@ -55,6 +65,11 @@ class Rect(NamedTuple):
     @property
     def size(self) -> Vector:
         return Vector(self.w, self.h)
+
+    def scale(self, other: Vector) -> "Rect":
+        x1, x2 = sorted([self.x * other.x, (self.x + self.w) * other.x])
+        y1, y2 = sorted([self.y * other.y, (self.y + self.h) * other.y])
+        return Rect(x1, y1, x2 - x1, y2 - y1)
 
 
 class RoundRect(Rect):
