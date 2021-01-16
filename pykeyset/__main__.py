@@ -6,7 +6,7 @@ import os.path
 import pstats
 import sys
 from time import perf_counter
-from typing import List, Optional
+from typing import Any, List, Optional
 
 import typer
 
@@ -21,7 +21,7 @@ PROFILE_FILE = "pykeyset_profile.txt"
 starttime = None
 
 
-def print_version(value: bool):
+def print_version(value: bool) -> None:
     if value:
         typer.echo(
             f"{os.path.basename(sys.argv[0])} version {__version__}\n"
@@ -79,7 +79,7 @@ def callback(
         is_eager=True,
         help="Show version message and exit.",
     ),
-):
+) -> None:
 
     global starttime
     starttime = perf_counter()
@@ -104,7 +104,7 @@ def callback(
     )
 
 
-def result_callback(exit_code, **kwargs):
+def result_callback(exit_code: int, **kwargs: Any) -> None:
 
     global profiler
     if profiler is not None:
@@ -137,7 +137,7 @@ def run(
         show_default=False,
         help="Command list files to execute. Each is executed in an isolated context.",
     ),
-):
+) -> int:
     """Run one or more command list (.cmdlist) files."""
 
     if cmdlists is None or len(cmdlists) == 0:

@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 
 from collections.abc import Mapping, MutableMapping
+from typing import Any, Iterator, Type
 
 import toml
 
 
-def load(file):
+def load(file: str) -> "TomlNode":
     return toml.load(file, TomlNode)
 
 
-def loads(string):
+def loads(string: str) -> "TomlNode":
     return toml.loads(string, TomlNode)
 
 
@@ -17,7 +18,7 @@ _unset = lambda: None  # noqa: E731
 
 
 class TomlNode(MutableMapping):
-    def __init__(self, tree={}):
+    def __init__(self, tree: dict = {}) -> None:
 
         self.dict = dict(tree)
         self.section = ""
@@ -26,35 +27,35 @@ class TomlNode(MutableMapping):
             if isinstance(v, dict):
                 self[k] = TomlNode(v)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str) -> Any:
         if key in self.dict:
             return self.dict[key]
         else:
             raise KeyError(key, self.section) from None
 
-    def __setitem__(self, key, val):
+    def __setitem__(self, key: str, val: Any) -> None:
 
         if isinstance(val, Mapping):
             val = TomlNode(val)
             val.section = f"{self.section}.{key}" if self.section else key
         self.dict[key] = val
 
-    def __delitem__(self, key):
+    def __delitem__(self, key: str) -> None:
         if key in self.dict:
             del self.dict[key]
         else:
             raise KeyError(key, self.section) from None
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[str]:
         yield from self.dict.__iter__()
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.dict)
 
-    def __contains__(self, key):
+    def __contains__(self, key: str) -> bool:
         return key in self.dict
 
-    def getkey(self, key, type=None, default=_unset):
+    def getkey(self, key: str, type: Type = None, default: Any = _unset) -> Any:
         if key not in self.dict or isinstance(self[key], TomlNode):
             if default is not _unset:
                 val = default
@@ -67,7 +68,7 @@ class TomlNode(MutableMapping):
 
         return val
 
-    def getsection(self, key):
+    def getsection(self, key: str) -> "TomlNode":
         if key not in self.dict:
             raise KeyError(f"{self.section}.{key}" if self.section else key, self.section)
         else:

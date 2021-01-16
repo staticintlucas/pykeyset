@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
 
 from math import ceil, cos, isclose, pi, radians, sin, sqrt, tan
+from numbers import Number
+from typing import List, Tuple
 
 from ...utils.types import Vector
 
 TOL = 1e-6
 
 
-def arc_to_bezier(r, xar, laf, sf, d):
+def arc_to_bezier(
+    r: Vector, xar: Number, laf: bool, sf: bool, d: Vector
+) -> List[Tuple[Vector, Vector, Vector]]:
 
     curves = []
 
@@ -78,7 +82,7 @@ def arc_to_bezier(r, xar, laf, sf, d):
     return curves
 
 
-def _get_center(r, laf, sf, d):
+def _get_center(r: Vector, laf: bool, sf: bool, d: Vector) -> Vector:
 
     # Since we only use half dx/dy in this calculation, pre-halve them
     d = d / 2
@@ -98,7 +102,7 @@ def _get_center(r, laf, sf, d):
     return c
 
 
-def _create_arc(r, phi0, dphi):
+def _create_arc(r: Vector, phi0: Number, dphi: Number) -> Tuple[Vector, Vector, Vector]:
 
     a = 4 / 3 * tan(dphi / 4)
 
@@ -108,8 +112,8 @@ def _create_arc(r, phi0, dphi):
     d2 = Vector(d1.x - d1.y * a, d1.y + d1.x * a)
     d3 = Vector(d4.x + d4.y * a, d4.y - d4.x * a)
 
-    return [
+    return (
         d2 - d1,
         d3 - d1,
         d4 - d1,
-    ]
+    )
