@@ -75,9 +75,8 @@ def arc_to_bezier(
 
     # Rotate result to match xar
     if xar != 0:
-        for curve in curves:
-            for i, d in enumerate(curve):
-                curve[i] = d.rotate(xar)
+        for i, curve in enumerate(curves):
+            curves[i] = tuple(d.rotate(xar) for d in curve)
 
     return curves
 
