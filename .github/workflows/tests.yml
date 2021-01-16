@@ -39,16 +39,14 @@ jobs:
         run: |
           echo "::set-output name=version::$(python -c 'import platform; print(platform.python_version())')"
       - name: Install Poetry
-        uses: Gr1N/setup-poetry@v4
+        run: |
+          pip install -U poetry
+          poetry config virtualenvs.in-project true
       - name: Set up cache
         uses: actions/cache@v2
         with:
           path: .venv
           key: venv-3-${{ runner.os }}-${{ steps.python-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
-      - name: Configure Poetry
-        run: |
-          poetry --version
-          poetry config virtualenvs.in-project true -vvv
       - name: Install repo
         run: poetry install -vvv
       - name: Run tests
