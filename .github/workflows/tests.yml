@@ -46,7 +46,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: .venv
-          key: venv-3-${{ runner.os }}-${{ steps.python-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
+          key: venv-4-${{ runner.os }}-${{ steps.python-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
       - name: Install repo
         run: poetry install -vvv
       - name: Run tests
