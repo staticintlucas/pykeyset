@@ -49,7 +49,7 @@ jobs:
           path: .venv
           key: venv-1-${{ runner.os }}-${{ steps.python-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
       - name: Install repo
-        run: poetry install
+        run: poetry install -vvv
       - name: Run tests
         run: poetry run pytest -q tests --cov=pykeyset --cov-report=xml
       - name: Upload coverage to Codecov
