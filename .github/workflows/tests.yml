@@ -47,8 +47,8 @@ jobs:
           key: venv-3-${{ runner.os }}-${{ steps.python-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
       - name: Configure Poetry
         run: |
+          poetry --version
           poetry config virtualenvs.in-project true -vvv
-          poetry cache clear --all .
       - name: Install repo
         run: poetry install -vvv
       - name: Run tests
