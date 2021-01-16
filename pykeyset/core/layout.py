@@ -179,7 +179,7 @@ class Layout:
                 "path",
                 {
                     "d": str(result),
-                    "fill": str(color),
+                    "fill": color.to_hex(),
                     "stroke": "none",
                 },
             )

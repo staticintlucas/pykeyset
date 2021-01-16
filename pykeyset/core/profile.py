@@ -253,8 +253,8 @@ class Profile:
             g,
             "rect",
             {
-                "fill": color,
-                "stroke": color.highlight(),
+                "fill": color.to_hex(),
+                "stroke": color.highlight().to_hex(),
                 "stroke-width": "10",
                 "x": _format(rect.x * unit),
                 "y": _format(rect.y * unit),
@@ -285,8 +285,8 @@ class Profile:
                 g,
                 "rect",
                 {
-                    "fill": color,
-                    "stroke": color.highlight(),
+                    "fill": color.to_hex(),
+                    "stroke": color.highlight().to_hex(),
                     "stroke-width": "10",
                     "x": _format(rect.x * unit),
                     "y": _format(rect.y * unit),
@@ -361,7 +361,7 @@ class Profile:
                 "path",
                 {
                     "fill": self._addgradient(ctx, gradtype, color, depth),
-                    "stroke": color.highlight(),
+                    "stroke": color.highlight().to_hex(),
                     "stroke-width": "10",
                     "d": str(path),
                 },
@@ -373,8 +373,8 @@ class Profile:
             g,
             "path",
             {
-                "fill": color,
-                "stroke": color.highlight(),
+                "fill": color.to_hex(),
+                "stroke": color.highlight().to_hex(),
                 "stroke-width": "10",
                 "d": str(
                     Path()
@@ -482,7 +482,7 @@ class Profile:
             "path",
             {
                 "fill": self._addgradient(ctx, GradientType.KEY, color, self.depth),
-                "stroke": color.highlight(),
+                "stroke": color.highlight().to_hex(),
                 "stroke-width": "10",
                 "d": str(path),
             },
@@ -505,7 +505,7 @@ class Profile:
             "path",
             {
                 "fill": self._addgradient(ctx, GradientType.SPACE, color, self.depth),
-                "stroke": color.highlight(),
+                "stroke": color.highlight().to_hex(),
                 "stroke-width": "10",
                 "d": str(
                     Path()
@@ -528,10 +528,10 @@ class Profile:
 
         if self.type == ProfileType.FLAT:
             # Flat has not gradients so we just return the flat colour
-            return f"{color}"
+            return color.to_hex()
 
         else:
-            id = f"{gradtype.name.lower()}-{str(color).lstrip('#')}"
+            id = f"{gradtype.name.lower()}-{color.to_hex().lstrip('#')}"
             url = f"url(#{id})"
 
             if self.defs is None:
@@ -594,7 +594,7 @@ class Profile:
                     "stop",
                     {
                         "offset": f"{_format(dist)}%",
-                        "stop-color": f"{col}",
+                        "stop-color": col.to_hex(),
                     },
                 )
 
