@@ -56,15 +56,15 @@ def arc_to_bezier(
                 dphi -= 2 * pi
 
     # Double checks the quadrant of dphi
-    # TODO remove these? They shouldn't ever fail I think
-    if not laf and not sf:
-        assert 0 >= dphi >= -pi
-    if not laf and sf:
-        assert 0 <= dphi <= pi
-    if laf and not sf:
-        assert -pi >= dphi >= -(2 * pi)
-    if laf and sf:
-        assert pi <= dphi <= 2 * pi
+    # TODO remove these? They shouldn't ever fail I think aside from the odd tolerance issue
+    # if not laf and not sf:
+    #     assert 0 >= dphi >= -pi
+    # if not laf and sf:
+    #     assert 0 <= dphi <= pi
+    # if laf and not sf:
+    #     assert -pi >= dphi >= -(2 * pi)
+    # if laf and sf:
+    #     assert pi <= dphi <= 2 * pi
 
     segments = ceil(abs(dphi / (pi / 2)) - TOL)  # Subtract TOL so 90.0001 deg doesn't become 2 segs
     dphi /= segments
@@ -91,7 +91,7 @@ def _get_center(r: Vector, laf: bool, sf: bool, d: Vector) -> Vector:
     expr = (r.x * d.y) ** 2 + (r.y * d.x) ** 2
     v = ((r.x * r.y) ** 2 - expr) / expr
 
-    if isclose(v, 0):
+    if isclose(v, 0, abs_tol=TOL):
         co = 0
     else:
         co = sign * sqrt(v)
@@ -105,14 +105,14 @@ def _create_arc(r: Vector, phi0: Number, dphi: Number) -> Tuple[Vector, Vector, 
 
     a = 4 / 3 * tan(dphi / 4)
 
-    d1 = r * Vector(cos(phi0), sin(phi0))
-    d4 = r * Vector(cos(phi0 + dphi), sin(phi0 + dphi))
+    d1 = Vector(cos(phi0), sin(phi0))
+    d4 = Vector(cos(phi0 + dphi), sin(phi0 + dphi))
 
     d2 = Vector(d1.x - d1.y * a, d1.y + d1.x * a)
     d3 = Vector(d4.x + d4.y * a, d4.y - d4.x * a)
 
     return (
-        d2 - d1,
-        d3 - d1,
-        d4 - d1,
+        r * (d2 - d1),
+        r * (d3 - d1),
+        r * (d4 - d1),
     )

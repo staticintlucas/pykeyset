@@ -9,7 +9,7 @@ import click.core
 from typer import Context
 
 from . import core
-from .utils.error import error, info
+from .utils.error import info
 
 __all__ = ["run", "format_options"]
 
@@ -48,7 +48,7 @@ def run(filename: str, commands: List[str]) -> None:
                 break
 
         if command is None:
-            error(f"invalid command '{line[0]}'")
+            raise ValueError(f"invalid command '{line[0]}'")
 
         info(f"executing command '{command}'")
 

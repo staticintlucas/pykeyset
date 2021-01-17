@@ -56,21 +56,22 @@ def test_get_center(r, laf, sf, d, result):
 
 
 @pytest.mark.parametrize(
-    "phi0, dphi, p1, p2, p",
+    "r, phi0, dphi, p1, p2, p",
     [
-        (0, 90, Vector(0, A), Vector(A - 1, 1), Vector(-1, 1)),
-        (90, 90, Vector(-A, 0), Vector(-1, A - 1), Vector(-1, -1)),
-        (180, 90, Vector(0, -A), Vector(1 - A, -1), Vector(1, -1)),
-        (-90, 90, Vector(A, 0), Vector(1, 1 - A), Vector(1, 1)),
-        (0, -90, Vector(0, -A), Vector(A - 1, -1), Vector(-1, -1)),
-        (90, -90, Vector(A, 0), Vector(1, A - 1), Vector(1, -1)),
-        (180, -90, Vector(0, A), Vector(1 - A, 1), Vector(1, 1)),
-        (-90, -90, Vector(-A, 0), Vector(-1, 1 - A), Vector(-1, 1)),
+        (Vector(1, 1), 0, 90, Vector(0, A), Vector(A - 1, 1), Vector(-1, 1)),
+        (Vector(1, 1), 90, 90, Vector(-A, 0), Vector(-1, A - 1), Vector(-1, -1)),
+        (Vector(1, 1), 180, 90, Vector(0, -A), Vector(1 - A, -1), Vector(1, -1)),
+        (Vector(1, 1), -90, 90, Vector(A, 0), Vector(1, 1 - A), Vector(1, 1)),
+        (Vector(1, 1), 0, -90, Vector(0, -A), Vector(A - 1, -1), Vector(-1, -1)),
+        (Vector(1, 1), 90, -90, Vector(A, 0), Vector(1, A - 1), Vector(1, -1)),
+        (Vector(1, 1), 180, -90, Vector(0, A), Vector(1 - A, 1), Vector(1, 1)),
+        (Vector(1, 1), -90, -90, Vector(-A, 0), Vector(-1, 1 - A), Vector(-1, 1)),
+        (Vector(2, 1), 0, 90, Vector(0, A), Vector(2 * (A - 1), 1), Vector(-2, 1)),
     ],
 )
-def test_create_arc(phi0, dphi, p1, p2, p):
+def test_create_arc(r, phi0, dphi, p1, p2, p):
 
-    points = _create_arc(Vector(1, 1), radians(phi0), radians(dphi))
+    points = _create_arc(r, radians(phi0), radians(dphi))
 
     assert len(points) == 3
 
