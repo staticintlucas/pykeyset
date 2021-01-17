@@ -8,6 +8,9 @@ if sys.version_info[:2] >= (3, 7):
 else:
     import importlib_resources as ilr  # pragma: no cover
 
+import click.core
+import typer.core
+
 from . import fonts, icons, profiles
 
 fonts = {
@@ -27,3 +30,12 @@ profiles = {
     for res in ilr.contents(profiles)
     if ilr.is_resource(profiles, res) and res.endswith(".toml")
 }
+
+
+def format_options(ctx: typer.Context, formatter: click.HelpFormatter):
+    # Add a list of built in fonts to Font.load's __doc__ for use in the help message
+
+    with formatter.section("Built in resources"):
+        formatter.write_text(f"Fonts: {', '.join(fonts.keys())}")
+        formatter.write_text(f"Icons: {', '.join(icons.keys())}")
+        formatter.write_text(f"Profiles: {', '.join(profiles.keys())}")

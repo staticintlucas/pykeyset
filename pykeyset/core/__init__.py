@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from . import save
+from . import fontgen, save
 from .font import Font
 from .icons import Icons
 from .kle import KleFile
@@ -19,4 +19,4 @@ class Context:
         self.layout = None
 
 
-__all__ = ["Context", "Font", "Profile", "KleFile", "Layout", "Icons", "save"]
+__all__ = ["Context", "Font", "Profile", "KleFile", "Layout", "Icons", "fontgen", "save"]

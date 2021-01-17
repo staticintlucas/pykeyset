@@ -5,6 +5,7 @@ from ..utils.error import error
 
 
 def as_svg(ctx, filename):
+    """export the generated graphic as an SVG file"""
 
     if ctx.layout is None:
         error("no layout has been generated")

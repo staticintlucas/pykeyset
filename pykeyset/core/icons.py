@@ -24,10 +24,11 @@ class Icons:
         self.unitsize = 1000
 
     @classmethod
-    def load(cls, ctx, iconfile):
+    def load(cls, ctx, file):
+        """load built in icons or an XML icon/novelty file"""
 
         self = cls()
-        self.file = iconfile
+        self.file = file
 
         try:
             if not os.path.isfile(self.file):

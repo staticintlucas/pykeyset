@@ -8,12 +8,13 @@ import sys
 from time import perf_counter
 from typing import Any, List, Optional
 
+import click.core
 import typer
 
-from . import __version__, cmdlist
+from . import __version__, cmdlist, res
 from .utils import Verbosity
 from .utils.config import set_config
-from .utils.error import error, warning
+from .utils.error import error
 
 profiler = None
 PROFILE_FILE = "pykeyset_profile.txt"
@@ -80,7 +81,6 @@ def callback(
         help="Show version message and exit.",
     ),
 ) -> None:
-
     global starttime
     starttime = perf_counter()
 
@@ -121,21 +121,29 @@ def result_callback(exit_code: int, **kwargs: Any) -> None:
 
 
 app = typer.Typer(
-    context_settings={"max_content_width": 800},
+    context_settings={"max_content_width": 800},  # So that is doesn't auto wrap at 80
     add_completion=False,
     options_metavar="[options]",
+    subcommand_metavar="<command> [args ...]",
     callback=callback,
     result_callback=result_callback,
 )
 
 
-@app.command(options_metavar="[options]", no_args_is_help=True)
+class RunCommand(typer.core.TyperCommand):
+    def format_options(self, ctx: typer.Context, formatter: click.HelpFormatter) -> None:
+        super().format_options(ctx, formatter)
+        cmdlist.format_options(ctx, formatter)
+        res.format_options(ctx, formatter)
+
+
+@app.command(options_metavar="[options]", no_args_is_help=True, cls=RunCommand)
 def run(
     cmdlists: List[str] = typer.Argument(
         None,
         metavar="<cmdlist> ...",
         show_default=False,
-        help="Command list files to execute. Each is executed in an isolated context.",
+        help="Command list files to execute. Each is executed in its own context.",
     ),
 ) -> int:
     """Run one or more command list (.cmdlist) files."""
@@ -150,25 +158,14 @@ def run(
 
         try:
             with open(cl) as f:
-                for line in f:
-                    # Strip out comments
-                    line = line.split(";", 1)[0].strip()
+                commands = f.readlines()
+            cmd_dict[cl] = commands
 
-                    if len(line) == 0:
-                        continue  # Ignore empty lines
-
-                    commands.append(line)
-
-            if len(commands) > 0:
-                cmd_dict[cl] = commands
-
-            else:
-                warning(f"ignoring empty cmdlist '{cl}'")
         except IOError as e:
             error(f"cannot load command list '{e.filename}'. {e.strerror}")
 
     for name, cmds in cmd_dict.items():
-        cmdlist.execute(name, cmds)
+        cmdlist.run(name, cmds)
 
     return 0
 

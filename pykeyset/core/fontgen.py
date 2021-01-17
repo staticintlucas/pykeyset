@@ -6,7 +6,9 @@ from xml.etree import ElementTree as et
 from ..utils.error import error, info, warning
 
 
-def fontgen(output, input):
+def fontgen(ctx, output, input):
+    """create a new XML font file from a source font"""
+
     try:
         import fontforge
     except ModuleNotFoundError:

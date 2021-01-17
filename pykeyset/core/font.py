@@ -35,10 +35,11 @@ class Font:
         self.kerning = {}
 
     @classmethod
-    def load(cls, ctx, fontfile):
+    def load(cls, ctx, file):
+        """load a built in font or an XML font file"""
 
         self = cls()
-        self.file = fontfile
+        self.file = file
 
         try:
             if not os.path.isfile(self.file):

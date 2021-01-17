@@ -18,6 +18,7 @@ class Layout:
 
     @classmethod
     def layout(cls, ctx):
+        """generate a layout diagram from the loaded resources"""
 
         if ctx.kle is None:
             error("no KLE layout is loaded")

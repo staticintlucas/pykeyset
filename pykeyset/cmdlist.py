@@ -1,109 +1,81 @@
 # -*- coding: utf-8 -*-
 
+import inspect
+import shlex
 from inspect import signature
+from typing import List
+
+import click.core
+from typer import Context
 
 from . import core
 from .utils.error import error, info
 
+__all__ = ["run", "format_options"]
+
+
 COMMANDS = {
-    "load kle": dict(
-        args="{<file>|<url>}",
-        fun=core.KleFile.load,
-        desc="load a Keyboard Layout Editor URL or JSON file",
-    ),
-    "load font": dict(
-        args="{<name>|<file>}",
-        fun=core.Font.load,
-        desc="load an XML font file",
-    ),
-    "load icons": dict(
-        args="<file>",
-        fun=core.Icons.load,
-        desc="load an XML icon or novelty file (use name for built in icons)",
-    ),
-    "load profile": dict(
-        args="{<name>|<file>}",
-        fun=core.Profile.load,
-        desc="load an keycap profile configuration file",
-    ),
-    "generate layout": dict(
-        args="",
-        fun=core.Layout.layout,
-        desc="generate a layout diagram from the loaded assets",
-    ),
-    # "generate texture": dict(
-    #     args="",
-    #     fun=lambda *_: None,
-    #     desc="generate a texture file (for renders, etc.)",
-    # ),
-    "save svg": dict(
-        args="[<file>]",
-        fun=core.save.as_svg,
-        desc="export the generated graphic as an SVG file",
-    ),
-    # "save png": dict(
-    #     args="[<file>]",
-    #     fun=lambda *_: None,
-    #     desc="export the generated graphic as a PNG image",
-    # ),
-    # "save ai": dict(
-    #     args="[<file>]",
-    #     fun=lambda *_: None,
-    #     desc="export the generated graphic as an Illustrator file",
-    # ),
-    "newfont": dict(
-        args="<file> <src>",
-        fun=lambda ctx, outp, inp: core.fontgen.fontgen(outp, inp),
-        desc="create a new XML font file from a source font",
-    ),
+    "load kle": core.KleFile.load,
+    "load font": core.Font.load,
+    "load icons": core.Icons.load,
+    "load profile": core.Profile.load,
+    "generate layout": core.Layout.layout,
+    # "generate texture": # TODO generate a texture file (for renders, etc.)
+    "save svg": core.save.as_svg,
+    # "save png": # TODO export the generated graphic as a PNG image
+    # "save ai": # TODO export the generated graphic as an Illustrator file
+    "newfont": core.fontgen.fontgen,
 }
 
-FMT_HELP_WIDTH = 24
 
+def run(filename: str, commands: List[str]) -> None:
 
-def execute(name, commands):
-
-    context = core.Context(name)
+    context = core.Context(filename)
 
     for line in commands:
 
-        line = " ".join(line.split()) + " "
-        cmd = next((c for c in COMMANDS if line.startswith(c + " ")), None)
+        line = shlex.split(line, comments=True)
 
-        if cmd is None:
-            error(f"invalid command '{line}'")
+        if len(line) == 0:
+            continue
 
-        info(f"executing command '{line}'")
+        command, func = None, None
+        for cmd, fn in COMMANDS.items():
+            cmd = cmd.split()
+            if len(line) >= len(cmd) and line[: len(cmd)] == cmd:
+                command = cmd
+                func = fn
+                break
 
-        fun = COMMANDS[cmd]["fun"]
-        num_args = len(signature(fun).parameters) - 1  # Subtract one for the context
+        if command is None:
+            error(f"invalid command '{line[0]}'")
 
-        args = line[len(cmd) :].split()
+        info(f"executing command '{command}'")
+
+        num_args = len(signature(func).parameters) - 1  # Subtract one for the context
+        args = line[len(command) :]
 
         if len(args) < num_args:
-            error(f"not enough arguments for command '{cmd}' in '{name}'")
+            raise ValueError(f"not enough arguments for command '{command}'")
         elif len(args) > num_args:
-            error(f"too many arguments for command '{cmd}' in '{name}'")
+            raise ValueError(f"too many arguments for command '{command}'")
         else:
-            fun(context, *args)
+            func(context, *args)
 
 
-def help_msg():
+def format_options(ctx: Context, formatter: click.HelpFormatter) -> None:
 
-    message = ["commands:"]
+    items = []
+    for cmd, fun in COMMANDS.items():
 
-    for cmd, val in COMMANDS.items():
+        empty = inspect.Parameter.empty
+        args = [
+            f"<{p.name}>" if p.default is empty else f"[{p.name}]"
+            for p in list(signature(fun).parameters.values())[1:]
+        ]
+        cmd = f"{cmd} {' '.join(args)}"
 
-        msg = f'  {cmd} {val["args"]}'
+        items.append((cmd, inspect.cleandoc(fun.__doc__)))
 
-        if len(msg) > FMT_HELP_WIDTH - 2:
-            msg = f'{msg}\n{" " * FMT_HELP_WIDTH}{val["desc"]}'
-        else:
-            msg = f'{msg.ljust(FMT_HELP_WIDTH)}{val["desc"]}'
-
-        message.append(msg)
-
-    return "\n".join(message)
-
-
-__all__ = ["execute", "help_msg"]
+    with formatter.section("Commands"):
+        formatter.write_dl(items)

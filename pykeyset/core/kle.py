@@ -135,21 +135,22 @@ class KleFile:
             error(f"cannot load KLE layout from '{path}'. {e.strerror}")
 
     @classmethod
-    def load(cls, ctx, path):
+    def load(cls, ctx, file):
+        """load a KLE Gist URL or local JSON file"""
 
         self = cls()
 
-        if urlparse(path).scheme in ("http", "https"):
-            data = self._load_url(ctx, path)
+        if urlparse(file).scheme in ("http", "https"):
+            data = self._load_url(ctx, file)
         else:
-            data = self._load_file(ctx, path)
+            data = self._load_file(ctx, file)
 
-        self.file = path
+        self.file = file
 
         try:
             data = json.loads(data)
         except json.JSONDecodeError as e:
-            error(f"cannot decode KLE JSON file in '{path}'. {str(e).capitalize()}")
+            error(f"cannot decode KLE JSON file in '{file}'. {str(e).capitalize()}")
 
         props = _Props(self.file)
 
@@ -228,11 +229,11 @@ class KleFile:
         if "\n" in props.t:
             colors = props.t.split("\n")
             if colors[0]:
-                defaultcolor = colors[0]
+                defaultcolor = Color.from_hex(colors[0])
             else:
-                defaultcolor = "#000000"
+                defaultcolor = Color(0, 0, 0)
             fgcol = kle_to_ord(props.t.split("\n"), props.a)
-            fgcol = [Color(fg) if fg else Color(defaultcolor) for fg in fgcol]
+            fgcol = [Color.from_hex(fg) if fg else defaultcolor for fg in fgcol]
         else:
             fgcol = 12 * [Color.from_hex(props.t)]
 

@@ -39,10 +39,11 @@ class Profile:
         self.gradients = []  # Keep track of which keytop gradients have already been generated
 
     @classmethod
-    def load(cls, ctx, proffile):
+    def load(cls, ctx, file):
+        """load a built in profile or a keycap profile config file"""
 
         self = cls()
-        self.name = proffile
+        self.name = file
 
         try:
             if not os.path.isfile(self.name):
