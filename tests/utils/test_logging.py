@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import os
-
 import pytest
 import typer
 
@@ -127,10 +125,7 @@ def test_color(capsys, message, severity, file, code):
     print_message(message, severity, file)
     stderr = capsys.readouterr().err
 
-    if os.name == "nt":
-        assert "\x1b" not in stderr
-    else:
-        assert code in stderr
+    assert code in stderr
 
 
 @pytest.mark.parametrize(
