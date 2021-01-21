@@ -2,8 +2,8 @@
 
 import pytest
 
+from pykeyset.utils import Verbosity
 from pykeyset.utils.config import config, set_config
-from pykeyset.utils.error import Verbosity
 
 
 @pytest.mark.parametrize(
@@ -13,10 +13,10 @@ from pykeyset.utils.error import Verbosity
         ("profile", False),
         ("dpi", 96),
         ("verbosity", Verbosity.NONE),
-        ("showalign", False),
+        ("show_align", False),
     ],
 )
-def test_default(reset_config_fixture, key, val):
+def test_default(key, val):
     assert getattr(config(), key) == val
 
 
@@ -27,17 +27,17 @@ def test_default(reset_config_fixture, key, val):
         ("profile", True),
         ("dpi", 192),
         ("verbosity", Verbosity.NORMAL),
-        ("showalign", True),
+        ("show_align", True),
     ],
 )
-def test_set_config(reset_config_fixture, key, val):
+def test_set_config(key, val):
 
     set_config(**{key: val})
 
     assert getattr(config(), key) == val
 
 
-def test_set_unknown_config(reset_config_fixture):
+def test_set_unknown_config():
 
     with pytest.raises(ValueError):
         set_config(unknown="value")

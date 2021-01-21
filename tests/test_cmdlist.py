@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import re
+from pathlib import Path
+from textwrap import dedent
 
 import click.core
 import pytest
-from typer import Context
+import typer
 
-from pykeyset import cmdlist
+from pykeyset import cmdlist, core
 
 
 @pytest.fixture
@@ -36,12 +38,58 @@ def dont_call(monkeypatch):
         ("load kle 'url #comment'", "kle url #comment"),
     ],
 )
-def test_cmdlist(capsys, dont_call, cmd, result):
+def test_cmdlist_line(capsys, dont_call, cmd, result):
 
-    cmdlist.run("test", [cmd])
+    ctx = core.Context("test")
+
+    cmdlist.run_line(ctx, cmd)
     stdout = capsys.readouterr().out
 
     assert stdout.strip() == result
+
+
+def test_cmdlist(capsys, dont_call, tmp_path):
+
+    d = tmp_path / "pykeyset_test"
+    d.mkdir()
+
+    text = dedent(
+        """\
+        load kle kleurl
+        load font name
+        load icons novelty
+        load profile meow
+        generate layout
+        save svg output
+        fontgen dest.xml src.ttf
+        #comment
+        load kle url #comment
+        load kle 'url #comment'"""
+    )
+
+    result = dedent(
+        """\
+        kle kleurl
+        font name
+        icon novelty
+        profile meow
+        layout
+        svg output
+        fontgen dest.xml src.ttf
+        kle url
+        kle url #comment"""
+    )
+
+    f = d / "test.cmdlist"
+    f.write_text(text)
+
+    cmdlist.run(f)
+    stdout = capsys.readouterr().out
+
+    assert stdout.strip() == result
+
+    with pytest.raises(IOError):
+        cmdlist.run(Path("notfound.cmdlist"))
 
 
 @pytest.mark.parametrize(
@@ -55,8 +103,10 @@ def test_cmdlist(capsys, dont_call, cmd, result):
 )
 def test_invalid_cmdlist(dont_call, cmd):
 
+    ctx = core.Context("test")
+
     with pytest.raises(ValueError):
-        cmdlist.run("test", [cmd])
+        cmdlist.run_line(ctx, cmd)
 
 
 def test_format_options():
@@ -75,7 +125,7 @@ def test_format_options():
     )
 
     cmdclass = click.Command("test")
-    ctx = Context(cmdclass)
+    ctx = typer.Context(cmdclass)
     fmt = click.HelpFormatter()
 
     cmdlist.format_options(ctx, fmt)

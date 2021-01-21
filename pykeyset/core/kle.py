@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 
 from recordclass import recordclass
 
-from ..utils.error import error, info, warning
+from ..utils.logging import error, format_filename, info, warning
 from ..utils.types import Color, Vector
 
 Key = recordclass("Key", ("pos", "size", "type", "legend", "legsize", "bgcol", "fgcol"))
@@ -96,7 +96,7 @@ class KleFile:
             or not urlparts.netloc.endswith("keyboard-layout-editor.com")
             or not urlparts.fragment.startswith("/gists/")
         ):
-            error(f"URL is not a valid KLE link '{url}'")
+            error(ValueError(f"URL is not a valid KLE link: {url}"))
 
         gisturl = "https://api.github.com" + urlparts.fragment
 
@@ -104,23 +104,27 @@ class KleFile:
             with request.urlopen(gisturl) as response:
                 gist = json.load(response)
         except request.HTTPError as e:
-            error(f"cannot load KLE data: request returned {e} for URL '{gisturl}'")
+            error(
+                IOError(f"cannot load KLE data: request returned {e} for URL {gisturl}"), file=url
+            )
         except request.URLError as e:
-            error(f"cannot load KLE data: {e.reason} for URL '{gisturl}'")
+            error(IOError(f"cannot load KLE data: {e.reason} for URL {gisturl}"), file=url)
         except json.JSONDecodeError as e:
-            error(f"cannot decode JSON response for URL '{gisturl}'. {str(e).capitalize()}")
+            error(
+                ValueError(f"invalid JSON response for URL {gisturl}: {str(e).lower()}"), file=url
+            )
 
         if "files" not in gist:
-            error(f"no files found in KLE URL '{url}'")
+            error(ValueError("no files found in KLE gist"), file=url)
 
         file = [f for f in gist.get("files", []) if f.endswith(".kbd.json")]
 
         if len(file) == 0:
-            error(f"no valid KLE files found in KLE URL '{url}'")
+            error(ValueError("no valid KLE files found in KLE gist"), file=url)
         file = file[0]
 
         if "content" not in gist["files"][file]:
-            error(f"gist file has no content in KLE URL '{url}'")
+            error(ValueError("no content in file in KLE gist"), file=url)
 
         return gist["files"][file]["content"]
 
@@ -132,7 +136,10 @@ class KleFile:
                 return f.read()
 
         except IOError as e:
-            error(f"cannot load KLE layout from '{path}'. {e.strerror}")
+            error(
+                IOError(f"cannot load KLE layout from {format_filename(path)}: {e.strerror}"),
+                file=path,
+            )
 
     @classmethod
     def load(cls, ctx, file):
@@ -150,7 +157,7 @@ class KleFile:
         try:
             data = json.loads(data)
         except json.JSONDecodeError as e:
-            error(f"cannot decode KLE JSON file in '{file}'. {str(e).capitalize()}")
+            error(ValueError(f"cannot decode KLE JSON file: {str(e).lower()}"), file=self.file)
 
         props = _Props(self.file)
 
@@ -202,8 +209,9 @@ class KleFile:
             for p in ("l", "x2", "y2", "w2", "h2"):
                 if not isclose(getattr(props, p), props.defaults[p]):
                     warning(
-                        f"ignoring unsupported KLE property '{p}' in KLE data. In file "
-                        f"'{self.file}'"
+                        ValueError(f"unsupported property '{p}' in KLE data"),
+                        "Ignoring this property",
+                        file=self.file,
                     )
                     info(
                         "stepped caps lock and ISO enter use unsupported properties but are "
@@ -310,7 +318,11 @@ class _Props:
 
         for p in props:
             if p not in self.defaults.keys():
-                warning(f"ignoring unsupported KLE property '{p}' in '{props[p]}'")
+                warning(
+                    ValueError(f"unsupported property '{p}' in KLE data"),
+                    "Ignoring this property",
+                    file=self.file,
+                )
 
     def newline(self):
         self.x = 0

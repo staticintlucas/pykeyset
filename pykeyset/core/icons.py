@@ -6,7 +6,7 @@ from xml.etree import ElementTree as et
 
 from .. import res
 from ..utils import path
-from ..utils.error import error, warning
+from ..utils.logging import error, format_filename, warning
 from ..utils.types import Rect, Vector
 
 Icon = namedtuple("Icon", ("name", "path"))
@@ -31,13 +31,8 @@ class Icons:
         self.file = file
 
         try:
-            if not os.path.isfile(self.file):
-
-                if self.file in res.icons:
-                    file = res.icons[self.file]
-
-                else:
-                    error(f"cannot load icons from '{os.path.abspath(self.file)}'. File not found")
+            if not os.path.isfile(self.file) and self.file in res.icons:
+                file = res.icons[self.file]
 
                 with file as f:
                     root = et.parse(f).getroot()
@@ -45,12 +40,18 @@ class Icons:
                 root = et.parse(self.file).getroot()
 
         except IOError as e:
-            error(f"cannot load icons from '{self.file}'. {e.strerror}")
+            error(
+                ValueError(
+                    f"cannot load icons from {format_filename(self.file)}: {e.strerror.lower()}"
+                )
+            )
         except et.ParseError as e:
-            error(f"cannot load icons from '{self.file}'. {e.msg.capitalize()}")
+            error(
+                ValueError(f"cannot load icons from {format_filename(self.file)}: {e.msg.lower()}")
+            )
 
         if "key-size" not in root.attrib:
-            error(f"no global 'key-size' attribute for icons '{self.file}'")
+            error(ValueError("no global 'key-size' attribute for icon file"), file=self.file)
 
         self.unitsize = float(root.get("key-size"))
         global_xform = root.get("transform", None)
@@ -60,7 +61,11 @@ class Icons:
             skip = False
             for a in ("name", "path"):
                 if a not in icon.attrib:
-                    warning(f"no '{a}' attribute for icon in '{self.file}'. Ignoring this icon")
+                    warning(
+                        ValueError(f"no '{a}' attribute for 'icon' element."),
+                        "Skipping this icon",
+                        file=self.file,
+                    )
                     skip = True
             if skip:
                 continue
@@ -79,9 +84,11 @@ class Icons:
                     x, y, w, h = (float(i) for i in icon.attrib["bbox"].split(" "))
                 except ValueError:
                     warning(
-                        f"invalid 'bbox' attribute for icon '{name}' in '{self.file}'. Ignoring "
-                        "this "
-                        "icon"
+                        ValueError(
+                            f"invalid 'bbox' attribute for 'icon' element with name='{name}'"
+                        ),
+                        "Skipping this icon",
+                        file=self.file,
                     )
                     continue
                 gp.setboundingbox(Rect(x, y, w, h))
@@ -89,7 +96,7 @@ class Icons:
             self.icons[name] = Icon(name, gp)
 
         if len(self.icons) == 0:
-            error(f"no valid icons found in '{self.file}'")
+            error(ValueError("no valid icons found in file"), file=self.file)
 
         ctx.icons.append(self)
 

@@ -5,7 +5,7 @@ from copy import deepcopy
 from math import cos, inf, radians, sin, tan
 from numbers import Number
 
-from ..error import error
+from ..logging import error
 from ..types import Rect, Vector
 from .arc_to_bezier import arc_to_bezier
 
@@ -121,10 +121,10 @@ class Path:
                     self.Z()
 
                 else:
-                    error(f"invalid path command '{t}'")
+                    raise ValueError(f"invalid path command '{t}'")
 
             except (StopIteration, ValueError):
-                error("invalid path")
+                raise ValueError("invalid path")
 
     def __repr__(self) -> str:
         return "".join(str(d) for d in self.d)
@@ -312,10 +312,10 @@ class Path:
                     self.skew_y(val)
 
                 else:
-                    error(f"unsupported transform '{t.split('(')[0]}'")
+                    raise ValueError(f"unsupported transform '{t.split('(')[0]}'")
 
             except (ValueError, IndexError):
-                error("invalid transform")
+                raise ValueError("invalid transform")
 
     def scale(self, s: Vector) -> "Path":
         for seg in self.d:

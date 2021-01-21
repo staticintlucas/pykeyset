@@ -2,18 +2,19 @@
 
 from typing import Any, NamedTuple, Optional
 
-from . import Severity, Verbosity
+from . import Verbosity
 
 __all__ = ["config", "set_config", "reset_config"]
 
 
 class _Config(NamedTuple):
-    showalign: bool
+    show_align: bool
     dpi: int
     profile: bool
     color: Optional[bool]
     verbosity: Verbosity
-    exceptlevel: Severity
+    raise_warnings: bool
+    is_script: bool
 
 
 _config = None
@@ -39,12 +40,13 @@ def set_config(**kwargs: Any) -> None:
         reset_config()  # pragma: no cover
 
     _config = _Config(
-        showalign=kwargs.pop("showalign", _config.showalign),
+        show_align=kwargs.pop("show_align", _config.show_align),
         dpi=kwargs.pop("dpi", _config.dpi),
         profile=kwargs.pop("profile", _config.profile),
         color=kwargs.pop("color", _config.color),
         verbosity=kwargs.pop("verbosity", _config.verbosity),
-        exceptlevel=kwargs.pop("exceptlevel", _config.exceptlevel),
+        raise_warnings=kwargs.pop("raise_warnings", _config.raise_warnings),
+        is_script=kwargs.pop("is_script", _config.is_script),
     )
 
     if len(kwargs) > 0:
@@ -57,10 +59,11 @@ def reset_config() -> None:
     global _config
 
     _config = _Config(
-        showalign=False,
+        show_align=False,
         dpi=96,
         profile=False,
         color=None,
         verbosity=Verbosity.NONE,
-        exceptlevel=Severity.FATAL,
+        raise_warnings=False,
+        is_script=False,
     )

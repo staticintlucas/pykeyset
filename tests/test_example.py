@@ -24,7 +24,7 @@ def test_cmdlist(tmp_path):
 
     cmdlist = "test.cmdlist"
     contents = """
-        load kle http://www.keyboard-layout-editor.com/#/gists/102f1fb614275f50e39d970d691e1030
+        load kle 'http://www.keyboard-layout-editor.com/#/gists/102f1fb614275f50e39d970d691e1030'
         load profile cherry
         load font cherry
         generate layout
@@ -38,4 +38,4 @@ def test_cmdlist(tmp_path):
     f.write_text(contents)
 
     with cwd(d):
-        run(cmdlists=[cmdlist])
+        run([f])

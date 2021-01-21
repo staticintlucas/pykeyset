@@ -15,4 +15,4 @@ class Severity(OrderedEnum):
     DEBUG = 0
     INFO = 1
     WARNING = 2
-    FATAL = 3
+    ERROR = 3

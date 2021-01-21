@@ -1,16 +1,19 @@
 # -*- coding: utf-8 -*-
 from xml.etree import ElementTree as et
 
-from ..utils.error import error
+from ..utils.logging import error, format_filename
 
 
 def as_svg(ctx, filename):
     """export the generated graphic as an SVG file"""
 
     if ctx.layout is None:
-        error("no layout has been generated")
+        error(ValueError("no layout has been generated"), file=ctx.name)
 
     try:
         et.ElementTree(ctx.layout.root).write(filename)
     except IOError as e:
-        error(f"cannot save to file '{filename}'. {e.strerror}")
+        error(
+            IOError(f"cannot write to file {format_filename(filename)}: {e.strerror}"),
+            file=ctx.name,
+        )

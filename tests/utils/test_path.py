@@ -4,7 +4,6 @@ from math import radians, tan
 
 import pytest
 
-from pykeyset.utils.error import KeysetError
 from pykeyset.utils.path import Path
 from pykeyset.utils.types import Rect
 
@@ -53,7 +52,7 @@ def test_string(string, expected):
 )
 def test_invalid(string):
 
-    with pytest.raises(KeysetError):
+    with pytest.raises(ValueError):
         _ = Path(string)
 
 
@@ -141,5 +140,5 @@ def test_invalid_transform(transform):
 
     path = Path("M0 0l10 10c5 5 15 5 20 0q5 -5 10 0z")
 
-    with pytest.raises(KeysetError):
+    with pytest.raises(ValueError):
         path.transform(transform)

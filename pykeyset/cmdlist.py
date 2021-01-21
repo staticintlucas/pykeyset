@@ -3,13 +3,13 @@
 import inspect
 import shlex
 from inspect import signature
-from typing import List
+from pathlib import Path
 
 import click.core
 from typer import Context
 
 from . import core
-from .utils.error import info
+from .utils.logging import error, format_filename, info
 
 __all__ = ["run", "format_options"]
 
@@ -28,39 +28,47 @@ COMMANDS = {
 }
 
 
-def run(filename: str, commands: List[str]) -> None:
+def run(filepath: Path) -> None:
 
-    context = core.Context(filename)
+    context = core.Context(filepath)
 
-    for line in commands:
+    try:
+        with filepath.open() as file:
+            for line in file:
+                run_line(context, line)
+    except IOError as e:
+        error(IOError(f"cannot open command list {format_filename(filepath)}: {e.strerror}"))
 
-        line = shlex.split(line, comments=True)
 
-        if len(line) == 0:
-            continue
+def run_line(context: core.Context, line: str) -> None:
 
-        command, func = None, None
-        for cmd, fn in COMMANDS.items():
-            cmd = cmd.split()
-            if len(line) >= len(cmd) and line[: len(cmd)] == cmd:
-                command = cmd
-                func = fn
-                break
+    line = shlex.split(line, comments=True)
 
-        if command is None:
-            raise ValueError(f"invalid command '{line[0]}'")
+    if len(line) == 0:
+        return
 
-        info(f"executing command '{command}'")
+    command, func = None, None
+    for cmd, fn in COMMANDS.items():
+        cmd = cmd.split()
+        if len(line) >= len(cmd) and line[: len(cmd)] == cmd:
+            command = cmd
+            func = fn
+            break
 
-        num_args = len(signature(func).parameters) - 1  # Subtract one for the context
-        args = line[len(command) :]
+    if command is None:
+        raise ValueError(f"invalid command '{line[0]}'")
 
-        if len(args) < num_args:
-            raise ValueError(f"not enough arguments for command '{command}'")
-        elif len(args) > num_args:
-            raise ValueError(f"too many arguments for command '{command}'")
-        else:
-            func(context, *args)
+    info(f"executing command '{command}'", file=context.name)
+
+    num_args = len(signature(func).parameters) - 1  # Subtract one for the context
+    args = line[len(command) :]
+
+    if len(args) < num_args:
+        raise ValueError(f"not enough arguments for command '{command}'")
+    elif len(args) > num_args:
+        raise ValueError(f"too many arguments for command '{command}'")
+    else:
+        func(context, *args)
 
 
 def format_options(ctx: Context, formatter: click.HelpFormatter) -> None:

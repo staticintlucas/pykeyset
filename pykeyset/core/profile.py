@@ -10,7 +10,7 @@ from toml import TomlDecodeError
 
 from .. import res
 from ..utils import tomlparser
-from ..utils.error import error
+from ..utils.logging import error, format_filename
 from ..utils.path import Path
 from ..utils.types import Rect, RoundRect, Vector
 from .kle import KeyType
@@ -46,15 +46,8 @@ class Profile:
         self.name = file
 
         try:
-            if not os.path.isfile(self.name):
-
-                if self.name in res.profiles:
-                    file = res.profiles[self.name]
-
-                else:
-                    error(
-                        f"cannot load profile from '{os.path.abspath(self.name)}'. File not found"
-                    )
+            if not os.path.isfile(self.name) and self.name in res.profiles:
+                file = res.profiles[self.name]
 
                 with file as f:
                     root = tomlparser.load(f)
@@ -62,14 +55,24 @@ class Profile:
                 root = tomlparser.load(self.name)
 
         except IOError as e:
-            error(f"cannot load profile from '{self.name}'. {e.strerror}")
+            error(
+                ValueError(
+                    f"cannot load profile from {format_filename(self.name)}: {e.strerror.lower()}"
+                ),
+                file=self.name,
+            )
         except TomlDecodeError as e:
-            error(f"cannot load profile from '{self.name}'. {str(e).capitalize()}")
+            error(
+                ValueError(
+                    f"cannot load profile from {format_filename(self.name)}: {str(e).lower()}"
+                ),
+                file=self.name,
+            )
 
         try:
             proftype = root.getkey("type", type=str).upper()
             if proftype not in (t.name for t in ProfileType):
-                error(f"invalid value '{proftype}' for 'type' in profile '{self.name}'")
+                error(ValueError(f"invalid value '{proftype}' for profile type"), file=self.name)
             self.type = ProfileType[proftype]
 
             if self.type != ProfileType.FLAT:
@@ -78,9 +81,9 @@ class Profile:
                 self.depth = 0
 
         except KeyError as e:
-            error(f"no key '{e.args[0]}' in profile '{self.name}'")
+            error(ValueError(f"no key '{e.args[0]}' in profile"), file=self.name)
         except TypeError as e:
-            error(f"invalid value for key '{e.args[0]}' in profile '{self.name}'")
+            error(ValueError(f"invalid value for key '{e.args[0]}' in profile"), file=self.name)
 
         try:
             bottom = root.getsection("bottom")
@@ -89,7 +92,7 @@ class Profile:
             homing = root.getsection("homing")
 
         except KeyError as e:
-            error(f"no section [{e.args[0]}] in profile '{self.name}'")
+            error(ValueError(f"no section [{e.args[0]}] in profile"), file=self.name)
 
         try:
             w = bottom.getkey("width", type=Number) / 19.05
@@ -104,11 +107,16 @@ class Profile:
             self.top = RoundRect(0.5 - (w / 2), 0.5 - (h / 2) + top_offset, w, h, r)
 
         except KeyError as e:
-            error(f"no key '{e.args[0]}' in section [{e.args[1]}] in profile '{self.name}'")
+            error(
+                ValueError(f"no key '{e.args[0]}' in section [{e.args[1]}] in profile"),
+                file=self.name,
+            )
         except ValueError as e:
             error(
-                f"invalid value for key '{e.args[0]}' in section [{e.args[1]}] in profile "
-                f"'{self.name}'"
+                ValueError(
+                    f"invalid value for key '{e.args[0]}' in section [{e.args[1]}] in profile"
+                ),
+                file=self.name,
             )
 
         try:
@@ -121,11 +129,17 @@ class Profile:
                     section = legend.getsection(texttype)
                     textsize = float(section["size"]) / 19.05
                 except KeyError as e:
-                    error(f"no key '{e.args[0]}' in section [{e.args[1]}] in profile '{self.name}'")
+                    error(
+                        ValueError(f"no key '{e.args[0]}' in section [{e.args[1]}] in profile"),
+                        file=self.name,
+                    )
                 except ValueError as e:
                     error(
-                        f"invalid value for key '{e.args[0]}' in section [{e.args[1]}] in profile "
-                        f"'{self.name}'"
+                        ValueError(
+                            f"invalid value for key '{e.args[0]}' in section [{e.args[1]}] in "
+                            "profile"
+                        ),
+                        file=self.name,
                     )
 
                 w = section.getkey("width", Number, default_w) / 19.05
@@ -135,8 +149,11 @@ class Profile:
                 for key, value in {"width": w, "height": h}.items():
                     if value is None:
                         error(
-                            f"no key '{key}' in section [{section.section}] or in section "
-                            f"[{legend.section}] in profile '{self.name}'"
+                            ValueError(
+                                f"no key '{key}' in section [{section.section}] or in section "
+                                "[{legend.section}] in profile"
+                            ),
+                            file=self.name,
                         )
 
                 setattr(self.textrect, texttype, Rect(0.5 - (w / 2), 0.5 - (h / 2) + offset, w, h))
@@ -144,8 +161,10 @@ class Profile:
 
         except ValueError as e:
             error(
-                f"invalid value for key '{e.args[0]}' in section [{e.args[1]}] in profile "
-                f"'{self.name}'"
+                ValueError(
+                    f"invalid value for key '{e.args[0]}' in section [{e.args[1]}] in profile"
+                ),
+                file=self.name,
             )
 
         try:
@@ -168,11 +187,16 @@ class Profile:
                 self.homing["bump"] = {"radius": radius, "offset": offset}
 
         except KeyError as e:
-            error(f"no key '{e.args[0]}' in section [{e.args[1]}] in profile '{self.name}'")
+            error(
+                ValueError(f"no key '{e.args[0]}' in section [{e.args[1]}] in profile"),
+                file=self.name,
+            )
         except ValueError as e:
             error(
-                f"invalid value for key '{e.args[0]}' in section [{e.args[1]}] in profile "
-                f"'{self.name}'"
+                ValueError(
+                    f"invalid value for key '{e.args[0]}' in section [{e.args[1]}] in profile"
+                ),
+                file=self.name,
             )
 
         try:
@@ -180,23 +204,34 @@ class Profile:
 
             if default not in ("scoop", "bar", "bump"):
                 error(
-                    f"unknown default homing type '{default}' in section [{homing.section}] in "
-                    f"file '{self.name}'"
+                    ValueError(
+                        f"unknown default homing type '{default}' in section [{homing.section}] in "
+                        "file"
+                    ),
+                    file=self.name,
                 )
             elif default not in self.homing:
                 error(
-                    f"default homing type '{default}' has no corresponding section "
-                    f"[{homing.section}.{default}] in '{self.name}'"
+                    ValueError(
+                        f"default homing type '{default}' has no corresponding section "
+                        f"[{homing.section}.{default}]"
+                    ),
+                    file=self.name,
                 )
             else:
                 self.defaulthoming = default
 
         except KeyError as e:
-            error(f"no key '{e.args[0]}' in section [{e.args[1]}] in profile '{self.name}'")
+            error(
+                ValueError(f"no key '{e.args[0]}' in section [{e.args[1]}] in profile"),
+                file=self.name,
+            )
         except ValueError as e:
             error(
-                f"invalid value for key '{e.args[0]}' in section [{e.args[1]}] in profile "
-                f"'{self.name}'"
+                ValueError(
+                    f"invalid value for key '{e.args[0]}' in section [{e.args[1]}] in profile"
+                ),
+                file=self.name,
             )
 
         ctx.profile = self
@@ -277,7 +312,7 @@ class Profile:
             try:
                 depth = self.homing["scoop"]["depth"]
             except KeyError:
-                error(f"no scooped homing keys for profile '{self.name}'")
+                error(ValueError("no scooped homing keys for profile"), file=self.name)
         else:
             depth = self.depth
 

@@ -3,7 +3,7 @@
 import tempfile
 from xml.etree import ElementTree as et
 
-from ..utils.error import error, info, warning
+from ..utils.logging import error, format_filename, info, warning
 
 
 def fontgen(ctx, output, input):
@@ -11,30 +11,39 @@ def fontgen(ctx, output, input):
 
     try:
         import fontforge
-    except ModuleNotFoundError:
-        error("cannot import Python FontForge module. Make sure it is installed on your system")
+    except ModuleNotFoundError as e:
+        from rich import inspect
+
+        inspect(e)
+        error(
+            ImportError(
+                "cannot import Python FontForge module. Make sure it is installed on your system",
+                name=e.name,
+                path=e.path,
+            )
+        )
 
     if not output.endswith(".xml"):
         output = output + ".xml"
 
-    info(f"opening font '{input}' with FontForge")
+    info("opening font with FontForge", file=input)
     try:
         font = fontforge.open(input, 0x10)  # 0x10 = hidewindow
     except Exception as e:
-        error(f"FontForge couldn't open font file '{input}': {e}")
+        error(IOError(f"FontForge could not load the font {format_filename(input)}: {e}"))
 
     with tempfile.NamedTemporaryFile(suffix=".svg") as tmp:
 
         font.generate(tmp.name)
         tmp.seek(0)
 
-        info("reading FontForge output")
+        info("reading FontForge output", file=input)
 
         try:
             root = et.parse(tmp).getroot()
             namespace = {"default": "http://www.w3.org/2000/svg"}
         except et.ParseError as e:
-            error(f"Error parsing FontForge output. {e.msg.capitalize()}")
+            error(ValueError(f"cannot parse FontForge output: {e.msg.capitalize()}"), file=input)
 
         defs = _et_get_child(root, "defs")
         font = _et_get_child(defs, "font")
@@ -44,7 +53,13 @@ def fontgen(ctx, output, input):
         if "horiz-adv-x" in font.attrib:
             ksfont.set("horiz-adv-x", font.get("horiz-adv-x"))
         else:
-            warning(f"no 'horiz-adv-x' attribute found for '{font.tag}' in FontForge SVG output")
+            warning(
+                AttributeError(
+                    f"no 'horiz-adv-x' attribute found for '{font.tag}' in FontForge SVG output"
+                ),
+                "All glyphs must have their 'horiz-adv-x' set individually.",
+                file=input,
+            )
 
         fontface = _et_get_child(font, "font-face")
 
@@ -55,7 +70,7 @@ def fontgen(ctx, output, input):
         ksfont.set("descent", _et_get_attr(fontface, "descent"))
         ksfont.set("slope", _et_get_attr(fontface, "slope", "0"))
 
-        info("parsing replacement glyph")
+        info("parsing replacement glyph", file=input)
 
         missing = (
             font.findall("default:missing-glyph", namespace)[::-1]
@@ -74,9 +89,13 @@ def fontgen(ctx, output, input):
                 attrib["horiz-adv-x"] = missing.get("horiz-adv-x")
             ksfont.append(et.Element("missing", attrib))
         else:
-            warning("no replacement glyph found in font")
+            warning(
+                "no replacement glyph found in font",
+                "If any glyphs are missing a default character will be drawn",
+                file=input,
+            )
 
-        info("parsing glyphs")
+        info("parsing glyphs", file=input)
 
         for glyph in font.findall("default:glyph", namespace):
             if not all(a in glyph.attrib for a in ("unicode", "d")):
@@ -92,7 +111,7 @@ def fontgen(ctx, output, input):
 
             ksfont.append(et.Element("glyph", attrib))
 
-        info("parsing kerning information")
+        info("parsing kerning information", file=input)
 
         for kern in font.findall("default:hkern", namespace):
             u1attr = kern.get("u1", kern.get("g1", None))
@@ -131,12 +150,12 @@ def fontgen(ctx, output, input):
             if len(el) > 0:
                 el.text = "\n"
 
-        info("generating output")
+        info("generating output", file=input)
 
         try:
             et.ElementTree(ksfont).write(output)
         except IOError as e:
-            error(f"cannot write font to '{output}'. {e.strerror}")
+            error(IOError(0, f"cannot write font to file. {e.strerror}", 0, output), file=input)
 
 
 _unset = lambda: None  # noqa: E731
@@ -147,11 +166,11 @@ def _et_get_child(node, name, default=_unset):
     res = node.findall(f"default:{name}", {"default": "http://www.w3.org/2000/svg"})
 
     if len(res) == 0:
-        error(f"no '{name}' node found in '{node.tag}' in FontForge SVG output")
+        error(ValueError(f"no '{name}' node found in '{node.tag}' in FontForge SVG output"))
     elif len(res) > 1:
         warning(
-            f"multiple '{name}' nodes found in '{node.tag}' in FontForge SVG output. Using last "
-            "node found"
+            ValueError(f"multiple '{name}' nodes found in '{node.tag}' in FontForge SVG output"),
+            "Using last node found",
         )
 
     return res[-1]
@@ -166,10 +185,10 @@ def _et_get_attr(node, name, default=_unset):
     if name in node.attrib:
         return node.get(name)
     elif default is _unset:
-        error(f"no '{name}' attribute found for '{tag}' in FontForge SVG output")
+        error(ValueError(f"no '{name}' attribute found for '{tag}' in FontForge SVG output"))
     else:
         warning(
-            f"no '{name}' attribute found for '{tag}' in FontForge SVG output. Using default value "
-            f"({default})"
+            ValueError(f"no '{name}' attribute found for '{tag}' in FontForge SVG output"),
+            f"Using default value ({default})",
         )
         return default

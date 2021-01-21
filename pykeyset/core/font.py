@@ -4,7 +4,7 @@ import os.path
 from xml.etree import ElementTree as et
 
 from .. import res
-from ..utils.error import error, warning
+from ..utils.logging import error, format_filename, warning
 from ..utils.path import Path
 from ..utils.types import Vector
 
@@ -42,13 +42,8 @@ class Font:
         self.file = file
 
         try:
-            if not os.path.isfile(self.file):
-
-                if self.file in res.fonts:
-                    file = res.fonts[self.file]
-
-                else:
-                    error(f"cannot load font from '{os.path.abspath(self.file)}'. File not found")
+            if not os.path.isfile(self.file) and self.file in res.fonts:
+                file = res.fonts[self.file]
 
                 with file as f:
                     root = et.parse(f).getroot()
@@ -56,20 +51,28 @@ class Font:
                 root = et.parse(self.file).getroot()
 
         except IOError as e:
-            error(f"cannot load font from '{self.file}'. {e.strerror}")
+            error(
+                IOError(f"cannot load font from {format_filename(self.file)}: {e.strerror.lower()}")
+            )
         except et.ParseError as e:
-            error(f"cannot load font from '{self.file}'. {e.msg.capitalize()}")
+            error(
+                ValueError(f"cannot load font from {format_filename(self.file)}: {e.msg.lower()}")
+            )
 
         for a in ("em-size", "cap-height", "x-height"):
             if a not in root.attrib:
-                error(f"no global '{a}' attribute for font '{self.file}'")
+                error(ValueError(f"no global '{a}' attribute for font"), file=self.file)
 
         self.emsize = float(root.get("em-size"))
         self.capheight = float(root.get("cap-height"))
         self.xheight = float(root.get("x-height"))
 
         if "slope" not in root.attrib:
-            warning(f"no global 'slope' attribute for font '{self.file}'. Using default value (0)")
+            warning(
+                ValueError("no global 'slope' attribute for font"),
+                "Using default value (0)",
+                file=self.file,
+            )
         self.slope = float(root.get("slope", 0))
         # TODO enable this when I enable multiline legend support
         # if "line-height" not in root.attrib:
@@ -81,8 +84,9 @@ class Font:
 
         if "horiz-adv-x" not in root.attrib:
             warning(
-                f"no global 'horiz-adv-x' attribute for font '{self.file}'. "
-                "this attribute must for each individual glyph instead"
+                ValueError("no global 'horiz-adv-x' attribute for font"),
+                "This attribute must for each individual glyph instead",
+                file=self.file,
             )
             def_advance = None
         else:
@@ -94,7 +98,11 @@ class Font:
             skip = False
             for a in ("char", "path"):
                 if a not in glyph.attrib:
-                    warning(f"no '{a}' attribute for 'glyph' in '{self.file}'. Ignoring this glyph")
+                    warning(
+                        ValueError(f"no '{a}' attribute for 'glyph' element"),
+                        "Skipping this glyph",
+                        file=self.file,
+                    )
                     skip = True
             if skip:
                 continue
@@ -114,15 +122,19 @@ class Font:
                 advance = def_advance
             else:
                 warning(
-                    f"no 'horiz-adv-x' attribute for 'glyph' and not default value "
-                    f"set in '{self.file}'. Ignoring this glyph"
+                    ValueError(
+                        f"no 'horiz-adv-x' attribute for 'glyph' element with char='{char}'; and "
+                        "no default 'horiz-adv-x' set for font"
+                    ),
+                    "Skipping this glyph",
+                    file=self.file,
                 )
                 continue
 
             self.glyphs[char] = Glyph(char, gp, advance)
 
         if len(self.glyphs) == 0:
-            error(f"no valid glyphs found in font '{self.file}'")
+            error(ValueError("no valid glyphs found in font"), file=self.file)
 
         for kern in root.findall("kern"):
 
@@ -130,8 +142,9 @@ class Font:
             for a in ("u", "k"):
                 if a not in kern.attrib:
                     warning(
-                        f"no '{a}' attribute for 'kern' in '{self.file}'. Ignoring "
-                        "this kerning value"
+                        ValueError(f"no '{a}' attribute for 'kern' element"),
+                        "Skipping this kerning value",
+                        file=self.file,
                     )
                     skip = True
             if skip:
@@ -140,8 +153,9 @@ class Font:
             u = kern.get("u")
             if len(u) != 2:
                 warning(
-                    f"invalid 'u' attribute for 'kern' in '{self.file}'. Ignoring "
-                    "this kerning value"
+                    ValueError("invalid 'u' value for 'kern' element"),
+                    "Ignoring this kerning value",
+                    file=self.file,
                 )
                 continue
 
@@ -149,8 +163,9 @@ class Font:
                 k = float(kern.get("k"))
             except ValueError:
                 warning(
-                    f"invalid 'k' attribute for 'kern' in '{self.file}'. Ignoring "
-                    "this kerning value"
+                    ValueError(f"invalid 'k' value for 'kern' element with u='{u}'"),
+                    "Ignoring this kerning value",
+                    file=self.file,
                 )
                 continue
 

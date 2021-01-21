@@ -3,7 +3,7 @@
 from xml.etree import ElementTree as et
 
 from ..utils.config import config
-from ..utils.error import error, warning
+from ..utils.logging import error, warning
 from ..utils.path import Path
 from ..utils.types import Vector
 from .kle import KeyType
@@ -21,11 +21,11 @@ class Layout:
         """generate a layout diagram from the loaded resources"""
 
         if ctx.kle is None:
-            error("no KLE layout is loaded")
+            error(ValueError("no KLE layout is loaded"))
         elif ctx.font is None:
-            error("no font is loaded")
+            error(ValueError("no font is loaded"))
         elif ctx.profile is None:
-            error("no profile is loaded")
+            error(ValueError("no profile is loaded"))
 
         self = cls()
 
@@ -71,7 +71,7 @@ class Layout:
 
     def drawlegend(self, ctx, key, g):
 
-        if config().showalign:
+        if config().show_align:
             for size in set(key.legsize):
                 rect = ctx.profile.getlegendrect(key, size)
                 g.append(self.drawlegendrect(key, rect))
@@ -107,7 +107,10 @@ class Layout:
 
                 if path is None:
                     if len(leg) > 1:
-                        warning(f"no glyph for character '{leg}'")
+                        warning(
+                            ValueError(f"no glyph for character '{leg}'"),
+                            "Drawing name literally instead",
+                        )
 
                         prevl = [prev] + list(leg)
                         for l, p in zip(leg, prevl):  # noqa: E741
@@ -116,8 +119,8 @@ class Layout:
                             if path is None:
                                 path, advance = ctx.font.replacement(size)
                                 warning(
-                                    f"no glyph for character '{l}', using replacement glyph "
-                                    "instead"
+                                    ValueError(f"no glyph for character '{l}'"),
+                                    "Using replacement glyph instead",
                                 )
 
                             position.x -= ctx.font.getkerning(p, l, size)
@@ -126,7 +129,10 @@ class Layout:
                             result.append(path)
                     else:
                         path, advance = ctx.font.replacement(size)
-                        warning(f"no glyph for character '{leg}', using replacement glyph instead")
+                        warning(
+                            ValueError(f"no glyph for character '{leg}'"),
+                            "Using replacement glyph instead",
+                        )
 
                         path.translate(position)
                         position.x += advance
@@ -143,8 +149,11 @@ class Layout:
 
             if legendsize.w > rect.w:
                 warning(
-                    f"squishing legend '{''.join(legend)}' to {100 * rect.w / legendsize.w:.3f}% "
-                    "of its natural width to fit"
+                    ValueError(
+                        f"legend '{''.join(legend)}' is {legendsize.w / rect.w:.3f} times larger "
+                        "than the bounding box"
+                    ),
+                    "squishing legend to fit",
                 )
                 pos = Vector(legendsize.x, legendsize.y)
                 result.scale(Vector(rect.w / legendsize.w, 1))
@@ -159,7 +168,7 @@ class Layout:
             result.translate(pos)
             result.scale(Vector(self.unit, self.unit))
 
-            if config().showalign:
+            if config().show_align:
                 legendsize = result.boundingbox
                 et.SubElement(
                     g,

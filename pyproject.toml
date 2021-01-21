@@ -20,14 +20,14 @@ classifiers = [
 pykeyset = "pykeyset.__main__:app"
 
 [tool.poetry.dependencies]
-python = "^3.6"
-colorama = "^0.4.3"
+python = "^3.6.2"
 toml = "^0.10.1"
 recordclass = "^0.14.0"
 importlib-resources = { version="^4.0", python="<3.7" }
 typer = {version = "^0.3.0", extras = ["all"]}
 click = "^7.1.1"
 enum-tools = "^0.6.1"
+rich = "^9.0.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
