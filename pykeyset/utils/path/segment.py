@@ -1,45 +1,20 @@
 # -*- coding: utf-8 -*-
 
-from abc import ABCMeta, abstractmethod
 from math import isclose, radians, tan
 from numbers import Number
-from typing import NamedTuple, NamedTupleMeta, Union
+from typing import NamedTuple
 
 from ..types import Vector
 
-
-class NamedTupleABCMeta(ABCMeta, NamedTupleMeta):
-    pass
-
-
-class Segment(metaclass=NamedTupleABCMeta):
-    @abstractmethod
-    def __repr__(self) -> str:
-        pass  # pragma: no cover
-
-    @abstractmethod
-    def scale(self, scale: Union[Number, Vector]) -> "Segment":
-        pass  # pragma: no cover
-
-    @abstractmethod
-    def translate(self, dist: Vector) -> "Segment":
-        pass  # pragma: no cover
-
-    @abstractmethod
-    def rotate(self, degrees: Number) -> "Segment":
-        pass  # pragma: no cover
-
-    @abstractmethod
-    def skew_x(self, degrees: Number) -> "Segment":
-        pass  # pragma: no cover
-
-    @abstractmethod
-    def skew_y(self, degrees: Number) -> "Segment":
-        pass  # pragma: no cover
+# Note: I tried (and failed) to make a common abstract base class for all these segment types. The
+# issue was that NamedTuple does a lot of internal trickery to make it work the way it's supposed
+# to. As a result it didn't work quite correctly in Python <= 3.8 and straight up raised an error
+# in Python 3.9. For now this is about the best way to do this if we want immutability (we do) and
+# a namedtuple-like interface
 
 
-class Move(NamedTuple, Segment):
-    """Absolute move (M) segment"""
+class Move(NamedTuple):
+    """Absolute move (M) NamedTuple"""
 
     point: Vector
 
@@ -62,8 +37,8 @@ class Move(NamedTuple, Segment):
         return Move(self.point + Vector(0, self.point.x * tan(radians(degrees))))
 
 
-class Line(NamedTuple, Segment):
-    """Relative line (l) segment"""
+class Line(NamedTuple):
+    """Relative line (l) NamedTuple"""
 
     point: Vector
 
@@ -91,8 +66,8 @@ class Line(NamedTuple, Segment):
         return Line(self.point._replace(y=self.point.y + self.point.x * tan(radians(degrees))))
 
 
-class CubicBezier(NamedTuple, Segment):
-    """Relative cubic Bézier (c) segment"""
+class CubicBezier(NamedTuple):
+    """Relative cubic Bézier (c) NamedTuple"""
 
     ctrl1: Vector
     ctrl2: Vector
@@ -128,8 +103,8 @@ class CubicBezier(NamedTuple, Segment):
         )
 
 
-class QuadraticBezier(NamedTuple, Segment):
-    """Relative quadratic Bézier (q) segment"""
+class QuadraticBezier(NamedTuple):
+    """Relative quadratic Bézier (q) NamedTuple"""
 
     ctrl: Vector
     point: Vector
@@ -162,8 +137,8 @@ class QuadraticBezier(NamedTuple, Segment):
         )
 
 
-class ClosePath(NamedTuple, Segment):
-    """Close path (z) segment"""
+class ClosePath(NamedTuple):
+    """Close path (z) NamedTuple"""
 
     def __repr__(self) -> str:
         return "z"
