@@ -72,6 +72,7 @@ def callback(
     if profile:
         global profiler
         profiler = cProfile.Profile()
+        profiler.enable()
 
     if debug:
         verbosity = Verbosity.DEBUG

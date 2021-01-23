@@ -17,10 +17,10 @@ A = 4 / 3 * tan(radians(90) / 4)
         ("m,0,0", "M0 0"),
         ("l 10 10", "l10 10"),
         ("L 10 10", "l10 10"),
-        ("h10,", "l10 0"),
-        ("H,10", "l10 0"),
-        ("v,   10", "l0 10"),
-        ("V 10.0", "l0 10"),
+        ("h10,", "h10"),
+        ("H,10", "h10"),
+        ("v,   10", "v10"),
+        ("V 10.0", "v10"),
         ("c 5 0 10 5 10 10", "c5 0 10 5 10 10"),
         ("C -5 0 -10 5 -10 10", "c-5 0-10 5-10 10"),
         ("s 10 0 10 10", "q10 0 10 10"),
@@ -94,6 +94,21 @@ def test_setbbox():
     path._recalculatebbox()
     assert path._bbox is None
     assert tuple(path.boundingbox) == (0, 0, 0, 0)
+
+
+@pytest.mark.parametrize(
+    "path, bbox",
+    [
+        (Path("M0 0l10 10"), (0, 0, 10, 10)),
+        (Path("M0 0l10 -10"), (0, -10, 10, 10)),
+        (Path("M0 0l10 10M0 0l10 -10"), (0, -10, 10, 20)),
+    ],
+)
+def test_recalculate_bbox(path, bbox):
+
+    path._bbox = None
+    path._recalculatebbox()
+    assert tuple(path.boundingbox) == bbox
 
 
 def test_copy():
