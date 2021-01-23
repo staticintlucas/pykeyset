@@ -113,15 +113,16 @@ def test_format_options():
 
     expected = re.sub(
         r"\s+",
-        "",
+        " ",
         """Commands:
-      load kle <file>           load a KLE Gist URL or local JSON file
-      load font <file>          load a built in font or an XML font file
-      load icons <file>         load built in icons or an XML icon/novelty file
-      load profile <file>       load a built in profile or a keycap profile config file
-      generate layout           generate a layout diagram from the loaded resources
-      save svg <filename>       export the generated graphic as an SVG file
-      newfont <output> <input>  create a new XML font file from a source font""",
+        load kle <file>           load a KLE Gist URL or local JSON file
+        load font <file>          load a built in font or an XML font file
+        load icons <file>         load built in icons or an XML icon/novelty file
+        load profile <file>       load a built in profile or a keycap profile config file
+        generate layout           generate a layout diagram from the loaded resources
+        save svg <filename>       export the generated graphic as an SVG file
+        newfont <output> <input>  create a new XML font file from a source font
+        """,
     )
 
     cmdclass = click.Command("test")
@@ -130,4 +131,4 @@ def test_format_options():
 
     cmdlist.format_options(ctx, fmt)
 
-    assert re.sub(r"\s+", "", fmt.getvalue()) == expected
+    assert re.sub(r"\s+", " ", fmt.getvalue()) == expected

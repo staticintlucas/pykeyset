@@ -14,7 +14,7 @@ import rich.traceback
 import typer
 from typer import Option
 
-from . import __version__, cmdlist, res
+from . import __version__, cmdlist, resources
 from .utils import Verbosity
 from .utils.config import set_config
 
@@ -125,7 +125,7 @@ class RunCommand(typer.core.TyperCommand):
     def format_options(self, ctx: typer.Context, formatter: click.HelpFormatter) -> None:
         super().format_options(ctx, formatter)
         cmdlist.format_options(ctx, formatter)
-        res.format_options(ctx, formatter)
+        resources.format_options(ctx, formatter)
 
 
 @app.command(options_metavar="[options]", no_args_is_help=True, cls=RunCommand)

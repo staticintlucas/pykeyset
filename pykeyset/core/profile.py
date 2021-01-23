@@ -8,7 +8,7 @@ from xml.etree import ElementTree as et
 from recordclass import recordclass
 from toml import TomlDecodeError
 
-from .. import res
+from .. import resources
 from ..utils import tomlparser
 from ..utils.logging import error, format_filename
 from ..utils.path import Path
@@ -46,8 +46,8 @@ class Profile:
         self.name = file
 
         try:
-            if not os.path.isfile(self.name) and self.name in res.profiles:
-                file = res.profiles[self.name]
+            if not os.path.isfile(self.name) and self.name in resources.profiles:
+                file = resources.profiles[self.name]
 
                 with file as f:
                     root = tomlparser.load(f)

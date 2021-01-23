@@ -3,7 +3,7 @@
 import os.path
 from xml.etree import ElementTree as et
 
-from .. import res
+from .. import resources
 from ..utils.logging import error, format_filename, warning
 from ..utils.path import Path
 from ..utils.types import Vector
@@ -42,8 +42,8 @@ class Font:
         self.file = file
 
         try:
-            if not os.path.isfile(self.file) and self.file in res.fonts:
-                file = res.fonts[self.file]
+            if not os.path.isfile(self.file) and self.file in resources.fonts:
+                file = resources.fonts[self.file]
 
                 with file as f:
                     root = et.parse(f).getroot()

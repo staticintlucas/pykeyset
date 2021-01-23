@@ -4,7 +4,7 @@ import os.path
 from collections import namedtuple
 from xml.etree import ElementTree as et
 
-from .. import res
+from .. import resources
 from ..utils import path
 from ..utils.logging import error, format_filename, warning
 from ..utils.types import Rect, Vector
@@ -31,8 +31,8 @@ class Icons:
         self.file = file
 
         try:
-            if not os.path.isfile(self.file) and self.file in res.icons:
-                file = res.icons[self.file]
+            if not os.path.isfile(self.file) and self.file in resources.icons:
+                file = resources.icons[self.file]
 
                 with file as f:
                     root = et.parse(f).getroot()

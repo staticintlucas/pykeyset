@@ -204,7 +204,7 @@ class KleFile:
         elif _is_iso_enter(props):
             size = "iso"
             if props.x2 < 0:
-                pos.x += props.x2
+                pos = pos._replace(x=pos.x + props.x2)
         else:
             for p in ("l", "x2", "y2", "w2", "h2"):
                 if not isclose(getattr(props, p), props.defaults[p]):
