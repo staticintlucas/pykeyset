@@ -48,7 +48,7 @@ jobs:
         with:
           path: .venv
           key: venv-1-${{ runner.os }}-${{ steps.python-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
-        if: matrix.os != 'Windows' && matrix.python-version != '3.6'
+        if: matrix.os != 'Windows' || matrix.python-version != '3.6'
       - name: Install repo
         run: poetry install -vvv
       - name: Run tests
