@@ -4,7 +4,7 @@ import inspect
 import sys
 from pathlib import Path
 from types import TracebackType
-from typing import NoReturn, Optional
+from typing import NoReturn, Optional, Union
 
 import rich.console
 import typer
@@ -136,7 +136,7 @@ def format_error(error: Exception, resolution: Optional[str] = None) -> str:
     return result
 
 
-def format_filename(filename: str) -> str:
+def format_filename(filename: Union[str, Path]) -> str:
     return f"[bold magenta]{filename}[/bold magenta]"
 
 

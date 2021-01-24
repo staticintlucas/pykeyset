@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import re
-from os.path import splitext
 from pathlib import Path
 
 import click.core
@@ -22,7 +21,7 @@ from pykeyset import resources
 def test_resource(res, ext):
 
     path = Path(resources.__file__).parent / res
-    items = [splitext(p.name)[0] for p in path.glob(f"*.{ext}")]
+    items = [p.stem for p in path.glob(f"*.{ext}")]
 
     assert items == list(getattr(resources, res))
 

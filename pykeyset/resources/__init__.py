@@ -33,7 +33,7 @@ profiles = {
 
 
 def format_options(ctx: typer.Context, formatter: click.HelpFormatter):
-    # Add a list of built in fonts to Font.load's __doc__ for use in the help message
+    """Formats the help options for the available builtin resources"""
 
     with formatter.section("Built in resources"):
         formatter.write_text(f"Fonts: {', '.join(fonts.keys())}")
