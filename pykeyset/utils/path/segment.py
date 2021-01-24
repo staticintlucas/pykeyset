@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from math import isclose, radians, tan
-from numbers import Number
-from typing import NamedTuple
+from typing import NamedTuple, Union
 
 from ..types import Vector
 
@@ -21,19 +20,19 @@ class Move(NamedTuple):
     def __repr__(self) -> str:
         return f"M{format_coords(self.point)}"
 
-    def scale(self, scale: Vector) -> "Move":
+    def scale(self, scale: Union[float, "Vector"]) -> "Move":
         return Move(self.point * scale)
 
     def translate(self, dist: Vector) -> "Move":
         return Move(self.point + dist)
 
-    def rotate(self, degrees: Number) -> "Move":
+    def rotate(self, degrees: float) -> "Move":
         return Move(self.point.rotate(radians(degrees)))
 
-    def skew_x(self, degrees: Number) -> "Move":
+    def skew_x(self, degrees: float) -> "Move":
         return Move(self.point - Vector(self.point.y * tan(radians(degrees)), 0))
 
-    def skew_y(self, degrees: Number) -> "Move":
+    def skew_y(self, degrees: float) -> "Move":
         return Move(self.point + Vector(0, self.point.x * tan(radians(degrees))))
 
 
@@ -50,19 +49,19 @@ class Line(NamedTuple):
         else:
             return f"l{format_coords(self.point)}"
 
-    def scale(self, scale: Vector) -> "Line":
+    def scale(self, scale: Union[float, "Vector"]) -> "Line":
         return Line(self.point * scale)
 
     def translate(self, dist: Vector) -> "Line":
         return self  # Do nothing since this is a relative distance
 
-    def rotate(self, degrees: Number) -> "Line":
+    def rotate(self, degrees: float) -> "Line":
         return Line(self.point.rotate(radians(degrees)))
 
-    def skew_x(self, degrees: Number) -> "Line":
+    def skew_x(self, degrees: float) -> "Line":
         return Line(self.point._replace(x=self.point.x - self.point.y * tan(radians(degrees))))
 
-    def skew_y(self, degrees: Number) -> "Line":
+    def skew_y(self, degrees: float) -> "Line":
         return Line(self.point._replace(y=self.point.y + self.point.x * tan(radians(degrees))))
 
 
@@ -76,17 +75,17 @@ class CubicBezier(NamedTuple):
     def __repr__(self) -> str:
         return f"c{format_coords(self.ctrl1, self.ctrl2, self.point)}"
 
-    def scale(self, scale: Vector) -> "CubicBezier":
+    def scale(self, scale: Union[float, "Vector"]) -> "CubicBezier":
         return CubicBezier(self.ctrl1 * scale, self.ctrl2 * scale, self.point * scale)
 
     def translate(self, dist: Vector) -> "CubicBezier":
         return self  # Do nothing since this is a relative distance
 
-    def rotate(self, degrees: Number) -> "CubicBezier":
+    def rotate(self, degrees: float) -> "CubicBezier":
         t = radians(degrees)
         return CubicBezier(self.ctrl1.rotate(t), self.ctrl2.rotate(t), self.point.rotate(t))
 
-    def skew_x(self, degrees: Number) -> "CubicBezier":
+    def skew_x(self, degrees: float) -> "CubicBezier":
         t = radians(degrees)
         return CubicBezier(
             self.ctrl1._replace(x=self.ctrl1.x - self.ctrl1.y * tan(t)),
@@ -94,7 +93,7 @@ class CubicBezier(NamedTuple):
             self.point._replace(x=self.point.x - self.point.y * tan(t)),
         )
 
-    def skew_y(self, degrees: Number) -> "CubicBezier":
+    def skew_y(self, degrees: float) -> "CubicBezier":
         t = radians(degrees)
         return CubicBezier(
             self.ctrl1._replace(y=self.ctrl1.y + self.ctrl1.x * tan(t)),
@@ -112,24 +111,24 @@ class QuadraticBezier(NamedTuple):
     def __repr__(self) -> str:
         return f"q{format_coords(self.ctrl, self.point)}"
 
-    def scale(self, scale: Vector) -> "QuadraticBezier":
+    def scale(self, scale: Union[float, "Vector"]) -> "QuadraticBezier":
         return QuadraticBezier(self.ctrl * scale, self.point * scale)
 
     def translate(self, dist: Vector) -> "QuadraticBezier":
         return self  # Do nothing since this is a relative distance
 
-    def rotate(self, degrees: Number) -> "QuadraticBezier":
+    def rotate(self, degrees: float) -> "QuadraticBezier":
         t = radians(degrees)
         return QuadraticBezier(self.ctrl.rotate(t), self.point.rotate(t))
 
-    def skew_x(self, degrees: Number) -> "QuadraticBezier":
+    def skew_x(self, degrees: float) -> "QuadraticBezier":
         t = radians(degrees)
         return QuadraticBezier(
             self.ctrl._replace(x=self.ctrl.x - self.ctrl.y * tan(t)),
             self.point._replace(x=self.point.x - self.point.y * tan(t)),
         )
 
-    def skew_y(self, degrees: Number) -> "QuadraticBezier":
+    def skew_y(self, degrees: float) -> "QuadraticBezier":
         t = radians(degrees)
         return QuadraticBezier(
             self.ctrl._replace(y=self.ctrl.y + self.ctrl.x * tan(t)),
@@ -143,19 +142,19 @@ class ClosePath(NamedTuple):
     def __repr__(self) -> str:
         return "z"
 
-    def scale(self, scale: Vector) -> "ClosePath":
+    def scale(self, scale: Union[float, "Vector"]) -> "ClosePath":
         return self
 
     def translate(self, dist: Vector) -> "ClosePath":
         return self
 
-    def rotate(self, degrees: Number) -> "ClosePath":
+    def rotate(self, degrees: float) -> "ClosePath":
         return self
 
-    def skew_x(self, degrees: Number) -> "ClosePath":
+    def skew_x(self, degrees: float) -> "ClosePath":
         return self
 
-    def skew_y(self, degrees: Number) -> "ClosePath":
+    def skew_y(self, degrees: float) -> "ClosePath":
         return self
 
 

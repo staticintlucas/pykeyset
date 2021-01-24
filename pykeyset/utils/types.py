@@ -2,7 +2,6 @@
 
 import colorsys
 from math import atan2, cos, sin, sqrt
-from numbers import Number
 from typing import NamedTuple, Union
 
 
@@ -27,19 +26,19 @@ class Vector(NamedTuple):
     def __sub__(self, other: "Vector") -> "Vector":
         return Vector(self.x - other.x, self.y - other.y)
 
-    def __mul__(self, other: Union[Number, "Vector"]) -> "Vector":
+    def __mul__(self, other: Union[float, "Vector"]) -> "Vector":
         if isinstance(other, self.__class__):
             return Vector(self.x * other.x, self.y * other.y)
         else:
             return Vector(self.x * other, self.y * other)
 
-    def __truediv__(self, other: Union[Number, "Vector"]) -> "Vector":
+    def __truediv__(self, other: Union[float, "Vector"]) -> "Vector":
         if isinstance(other, self.__class__):
             return Vector(self.x / other.x, self.y / other.y)
         else:
             return Vector(self.x / other, self.y / other)
 
-    def rotate(self, angle: Number) -> "Vector":
+    def rotate(self, angle: float) -> "Vector":
         c, s = cos(angle), sin(angle)
         return Vector(self.x * c - self.y * s, self.x * s + self.y * c)
 
@@ -66,9 +65,13 @@ class Rect(NamedTuple):
     def size(self) -> Vector:
         return Vector(self.w, self.h)
 
-    def scale(self, other: Vector) -> "Rect":
-        x1, x2 = sorted([self.x * other.x, (self.x + self.w) * other.x])
-        y1, y2 = sorted([self.y * other.y, (self.y + self.h) * other.y])
+    def scale(self, scale: Union[float, "Vector"]) -> "Rect":
+        if isinstance(scale, Vector):
+            x1, x2 = sorted([self.x * scale.x, (self.x + self.w) * scale.x])
+            y1, y2 = sorted([self.y * scale.y, (self.y + self.h) * scale.y])
+        else:
+            x1, x2 = sorted([self.x * scale, (self.x + self.w) * scale])
+            y1, y2 = sorted([self.y * scale, (self.y + self.h) * scale])
         return Rect(x1, y1, x2 - x1, y2 - y1)
 
 

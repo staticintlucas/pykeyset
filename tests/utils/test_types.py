@@ -88,6 +88,12 @@ def test_rect_scale():
     assert isclose(rect3.w, 4)
     assert isclose(rect3.h, 3)
 
+    rect4 = rect1.scale(2)
+    assert isclose(rect4.x, 2)
+    assert isclose(rect4.y, 2)
+    assert isclose(rect4.w, 4)
+    assert isclose(rect4.h, 6)
+
 
 def test_round_rect():
 

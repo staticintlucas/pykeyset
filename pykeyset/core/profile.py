@@ -2,7 +2,7 @@
 
 import os.path
 from enum import Enum
-from numbers import Number
+from numbers import Real
 from xml.etree import ElementTree as et
 
 from recordclass import recordclass
@@ -76,7 +76,7 @@ class Profile:
             self.type = ProfileType[proftype]
 
             if self.type != ProfileType.FLAT:
-                self.depth = root.getkey("depth", type=Number)
+                self.depth = root.getkey("depth", type=Real)
             else:
                 self.depth = 0
 
@@ -95,15 +95,15 @@ class Profile:
             error(ValueError(f"no section [{e.args[0]}] in profile"), file=self.name)
 
         try:
-            w = bottom.getkey("width", type=Number) / 19.05
-            h = bottom.getkey("height", type=Number) / 19.05
-            r = bottom.getkey("radius", type=Number) / 19.05
+            w = bottom.getkey("width", type=Real) / 19.05
+            h = bottom.getkey("height", type=Real) / 19.05
+            r = bottom.getkey("radius", type=Real) / 19.05
             self.bottom = RoundRect(0.5 - (w / 2), 0.5 - (h / 2), w, h, r)
 
-            w = top.getkey("width", type=Number) / 19.05
-            h = top.getkey("height", type=Number) / 19.05
-            r = top.getkey("radius", type=Number) / 19.05
-            top_offset = top.getkey("y-offset", type=Number, default=0) / 19.05
+            w = top.getkey("width", type=Real) / 19.05
+            h = top.getkey("height", type=Real) / 19.05
+            r = top.getkey("radius", type=Real) / 19.05
+            top_offset = top.getkey("y-offset", type=Real, default=0) / 19.05
             self.top = RoundRect(0.5 - (w / 2), 0.5 - (h / 2) + top_offset, w, h, r)
 
         except KeyError as e:
@@ -120,9 +120,9 @@ class Profile:
             )
 
         try:
-            default_w = legend.getkey("width", type=Number, default=None)
-            default_h = legend.getkey("height", type=Number, default=None)
-            default_offset = legend.getkey("y-offset", type=Number, default=0)
+            default_w = legend.getkey("width", type=Real, default=None)
+            default_h = legend.getkey("height", type=Real, default=None)
+            default_offset = legend.getkey("y-offset", type=Real, default=0)
 
             for texttype in ("alpha", "symbol", "mod"):
                 try:
@@ -142,9 +142,9 @@ class Profile:
                         file=self.name,
                     )
 
-                w = section.getkey("width", Number, default_w) / 19.05
-                h = section.getkey("height", Number, default_h) / 19.05
-                offset = section.getkey("y-offset", Number, default_offset) / 19.05 + top_offset
+                w = section.getkey("width", float, default_w) / 19.05
+                h = section.getkey("height", float, default_h) / 19.05
+                offset = section.getkey("y-offset", float, default_offset) / 19.05 + top_offset
 
                 for key, value in {"width": w, "height": h}.items():
                     if value is None:
@@ -169,20 +169,20 @@ class Profile:
 
         try:
             if "scoop" in homing and isinstance(homing["scoop"], tomlparser.TomlNode):
-                depth = homing["scoop"].getkey("depth", type=Number)
+                depth = homing["scoop"].getkey("depth", type=Real)
 
                 self.homing["scoop"] = {"depth": depth}
 
             if "bar" in homing and isinstance(homing["bar"], tomlparser.TomlNode):
-                width = homing["bar"].getkey("width", type=Number, default=0)
-                height = homing["bar"].getkey("height", type=Number, default=0)
-                offset = homing["bar"].getkey("y-offset", type=Number, default=0)
+                width = homing["bar"].getkey("width", type=Real, default=0)
+                height = homing["bar"].getkey("height", type=Real, default=0)
+                offset = homing["bar"].getkey("y-offset", type=Real, default=0)
 
                 self.homing["bar"] = {"width": width, "height": height, "offset": offset}
 
             if "bump" in homing and isinstance(homing["bump"], tomlparser.TomlNode):
-                radius = homing["bump"].getkey("radius", type=Number, default=0)
-                offset = homing["bump"].getkey("y-offset", type=Number, default=0)
+                radius = homing["bump"].getkey("radius", type=Real, default=0)
+                offset = homing["bump"].getkey("y-offset", type=Real, default=0)
 
                 self.homing["bump"] = {"radius": radius, "offset": offset}
 

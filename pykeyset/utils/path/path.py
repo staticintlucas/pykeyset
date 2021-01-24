@@ -2,9 +2,8 @@
 
 import re
 from math import cos, radians, sin, tan
-from numbers import Number
 
-from ..types import Rect, Vector
+from ..types import Rect, Union, Vector
 from .arc_to_bezier import arc_to_bezier
 from .segment import ClosePath, CubicBezier, Line, Move, QuadraticBezier
 
@@ -186,11 +185,11 @@ class Path:
         self._updatebbox(self.point)
         return self
 
-    def h(self, x: Number) -> "Path":
+    def h(self, x: float) -> "Path":
         """SVG h path command"""
         return self.l(Vector(x, 0))
 
-    def v(self, y: Number) -> "Path":
+    def v(self, y: float) -> "Path":
         """SVG v path command"""
         return self.l(Vector(0, y))
 
@@ -232,7 +231,7 @@ class Path:
         self._updatebbox(self.point)
         return self
 
-    def a(self, r: Vector, xar: Number, laf: bool, sf: bool, d: Vector) -> "Path":
+    def a(self, r: Vector, xar: float, laf: bool, sf: bool, d: Vector) -> "Path":
         """SVG a path command"""
         for d1, d2, d in arc_to_bezier(r, xar, laf, sf, d):
             self.c(d1, d2, d)
@@ -260,11 +259,11 @@ class Path:
         """SVG L path command"""
         return self.l(self._rel(d))
 
-    def H(self, x: Number) -> "Path":
+    def H(self, x: float) -> "Path":
         """SVG H path command"""
         return self.h(x - self.point.x)
 
-    def V(self, y: Number) -> "Path":
+    def V(self, y: float) -> "Path":
         """SVG V path command"""
         return self.v(y - self.point.y)
 
@@ -284,7 +283,7 @@ class Path:
         """SVG T path command"""
         return self.t(self._rel(d))
 
-    def A(self, r: Vector, xar: Number, laf: float, sf: float, d: Vector) -> "Path":
+    def A(self, r: Vector, xar: float, laf: float, sf: float, d: Vector) -> "Path":
         """SVG A path command"""
         return self.a(r, xar, laf, sf, self._rel(d))
 
@@ -325,7 +324,7 @@ class Path:
             except (ValueError, IndexError):
                 raise ValueError("invalid transform")
 
-    def scale(self, s: Vector) -> "Path":
+    def scale(self, s: Union[float, "Vector"]) -> "Path":
         for i, seg in enumerate(self.d):
             self.d[i] = seg.scale(s)
         self.point = self.point * s
@@ -341,7 +340,7 @@ class Path:
             self._bbox = self._bbox._replace(x=self._bbox.x + d.x, y=self._bbox.y + d.y)
         return self
 
-    def rotate(self, t: Number) -> "Path":
+    def rotate(self, t: float) -> "Path":
         for i, seg in enumerate(self.d):
             self.d[i] = seg.rotate(t)
         c, s = cos(radians(t)), sin(radians(t))
@@ -350,14 +349,14 @@ class Path:
         self._recalculatebbox()
         return self
 
-    def skew_x(self, t: Number) -> "Path":
+    def skew_x(self, t: float) -> "Path":
         for i, seg in enumerate(self.d):
             self.d[i] = seg.skew_x(t)
         self.point = self.point._replace(x=self.point.x - self.point.y * tan(radians(t)))
         self._recalculatebbox()
         return self
 
-    def skew_y(self, t: Number) -> "Path":
+    def skew_y(self, t: float) -> "Path":
         for i, seg in enumerate(self.d):
             self.d[i] = seg.skew_y(t)
         self.point = self.point._replace(y=self.point.y + self.point.x * tan(radians(t)))
