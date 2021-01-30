@@ -45,3 +45,14 @@ def test_format_options():
     resources.format_options(ctx, fmt)
 
     assert re.sub(r"\s+", " ", fmt.getvalue()) == expected
+
+
+def test_acquire_resource():
+
+    with resources.fonts["cherry"]:
+        pass
+
+    # Test it twice to ensure a resource can be used more than once. Previously reloading the same
+    # resource failed because a resourcemangager cannot be used multiple times.
+    with resources.fonts["cherry"]:
+        pass
