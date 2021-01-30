@@ -142,9 +142,9 @@ class Profile:
                         file=self.name,
                     )
 
-                w = section.getkey("width", float, default_w) / 19.05
-                h = section.getkey("height", float, default_h) / 19.05
-                offset = section.getkey("y-offset", float, default_offset) / 19.05 + top_offset
+                w = section.getkey("width", type=Real, default=default_w) / 19.05
+                h = section.getkey("height", type=Real, default=default_h) / 19.05
+                offset = section.getkey("y-offset", Real, default_offset) / 19.05 + top_offset
 
                 for key, value in {"width": w, "height": h}.items():
                     if value is None:
