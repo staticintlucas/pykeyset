@@ -103,7 +103,9 @@ class Layout:
                     if path is not None:
                         break
                 else:
-                    path, advance = ctx.font.getglyph(ctx, leg, size)
+                    glyph = ctx.font.glyph(leg, size)
+                    path = glyph.path
+                    advance = glyph.advance
 
                 if path is None:
                     if len(leg) > 1:
@@ -115,9 +117,13 @@ class Layout:
                         prevl = [prev] + list(leg)
                         for l, p in zip(leg, prevl):  # noqa: E741
 
-                            path, advance = ctx.font.getglyph(ctx, l, size)
+                            glyph = ctx.font.glyph(l, size)
+                            path = glyph.path
+                            advance = glyph.advance
                             if path is None:
-                                path, advance = ctx.font.replacement(size)
+                                glyph = ctx.font.replacement(size)
+                                path = glyph.path
+                                advance = glyph.advance
                                 warning(
                                     ValueError(f"no glyph for character '{l}'"),
                                     "Using replacement glyph instead",
@@ -128,7 +134,9 @@ class Layout:
                             position.x += advance
                             result.append(path)
                     else:
-                        path, advance = ctx.font.replacement(size)
+                        glyph = ctx.font.replacement(size)
+                        path = glyph.path
+                        advance = glyph.advance
                         warning(
                             ValueError(f"no glyph for character '{leg}'"),
                             "Using replacement glyph instead",
@@ -139,7 +147,7 @@ class Layout:
                         result.append(path)
                 else:
                     position = position._replace(
-                        x=position.x - ctx.font.getkerning(prev, leg, size)
+                        x=position.x - ctx.font.kerning.get(prev, leg, size)
                     )
                     path.translate(position)
                     position = position._replace(x=position.x + advance)

@@ -16,7 +16,7 @@ __all__ = ["run", "format_options"]
 
 COMMANDS = {
     "load kle": core.KleFile.load,
-    "load font": core.Font.load,
+    "load font": core.font.load,
     "load icons": core.Icons.load,
     "load profile": core.Profile.load,
     "generate layout": core.Layout.layout,
