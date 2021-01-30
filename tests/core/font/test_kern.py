@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from math import isclose
+
 from pykeyset.core.font.kerning import Kerning
 
 KERNINGS = {
@@ -19,6 +21,9 @@ def test_kerning():
 
     for (lhs, rhs), value in KERNINGS.items():
         kerning.set(lhs, rhs, value)
+
+    for (lhs, rhs), value in KERNINGS.items():
+        assert isclose(kerning.get(lhs, rhs, 1), value)
 
     assert len(kerning) == len(KERNINGS)
 
