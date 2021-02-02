@@ -3,8 +3,7 @@
 import os.path
 from pathlib import Path
 
-from pykeyset import resources
-
+from ... import resources
 from .font import Font
 from .glyph import Glyph
 from .kerning import Kerning
