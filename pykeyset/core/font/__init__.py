@@ -9,7 +9,7 @@ from .glyph import Glyph
 from .kerning import Kerning
 from .load import load_builtin, load_file
 
-__all__ = [Font, Glyph, Kerning, load_builtin, load_file]
+__all__ = ["Font", "Glyph", "Kerning", "load_builtin", "load_file"]
 
 
 # TODO this function is used by the cmdlist parser. Move it somewhere more appropriate?
