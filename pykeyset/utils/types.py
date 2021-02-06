@@ -1,8 +1,21 @@
 # -*- coding: utf-8 -*-
 
 import colorsys
+from enum import Enum
 from math import atan2, cos, sin, sqrt
 from typing import NamedTuple, Union
+
+
+class VerticalAlign(Enum):
+    TOP = 0
+    MIDDLE = 0.5
+    BOTTOM = 1
+
+
+class HorizontalAlign(Enum):
+    LEFT = 0
+    CENTER = 0.5
+    RIGHT = 1
 
 
 class Vector(NamedTuple):

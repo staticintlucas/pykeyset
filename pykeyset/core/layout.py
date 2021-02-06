@@ -5,7 +5,7 @@ from xml.etree import ElementTree as et
 from ..utils.config import config
 from ..utils.logging import error, warning
 from ..utils.path import Path
-from ..utils.types import Vector
+from ..utils.types import HorizontalAlign, Vector, VerticalAlign
 from .kle import KeyType
 
 
@@ -78,7 +78,8 @@ class Layout:
 
         for i, (legend, size, color) in enumerate(zip(key.legend, key.legsize, key.fgcol)):
 
-            halign, valign = i % 3, i // 3
+            halign = (HorizontalAlign.LEFT, HorizontalAlign.CENTER, HorizontalAlign.RIGHT)[i % 3]
+            valign = (VerticalAlign.TOP, VerticalAlign.MIDDLE, VerticalAlign.BOTTOM)[i // 3]
 
             if len(legend) == 0:
                 continue
@@ -99,16 +100,30 @@ class Layout:
             for leg, prev in zip(legend, prevlegend):
 
                 for icons in reversed(ctx.icons):
-                    path, advance = icons.geticon(ctx, leg, size, valign)
-                    if path is not None:
+                    icon = icons.icon(leg, 1, size, valign)
+                    if icon is not None:
+                        path = icon.path
+                        advance = path.boundingbox.width
+
+                        path.translate(position)
+                        position = position._replace(x=position.x + advance)
+                        result.append(path)
+
                         break
                 else:
                     glyph = ctx.font.glyph(leg, size)
-                    path = glyph.path
-                    advance = glyph.advance
+                    if glyph is not None:
+                        path = glyph.path
+                        advance = glyph.advance
 
-                if path is None:
-                    if len(leg) > 1:
+                        position = position._replace(
+                            x=position.x - ctx.font.kerning.get(prev, leg, size)
+                        )
+                        path.translate(position)
+                        position = position._replace(x=position.x + advance)
+                        result.append(path)
+
+                    elif len(leg) > 1:
                         warning(
                             ValueError(f"no glyph for character '{leg}'"),
                             "Drawing name literally instead",
@@ -118,9 +133,10 @@ class Layout:
                         for l, p in zip(leg, prevl):  # noqa: E741
 
                             glyph = ctx.font.glyph(l, size)
-                            path = glyph.path
-                            advance = glyph.advance
-                            if path is None:
+                            if glyph is not None:
+                                path = glyph.path
+                                advance = glyph.advance
+                            else:
                                 glyph = ctx.font.replacement(size)
                                 path = glyph.path
                                 advance = glyph.advance
@@ -129,9 +145,11 @@ class Layout:
                                     "Using replacement glyph instead",
                                 )
 
-                            position.x -= ctx.font.getkerning(p, l, size)
+                            position = position._replace(
+                                x=position.x - ctx.font.kerning.get(p, l, size)
+                            )
                             path.translate(position)
-                            position.x += advance
+                            position = position._replace(x=position.x + advance)
                             result.append(path)
                     else:
                         glyph = ctx.font.replacement(size)
@@ -143,15 +161,8 @@ class Layout:
                         )
 
                         path.translate(position)
-                        position.x += advance
+                        position = position._replace(x=position.x + advance)
                         result.append(path)
-                else:
-                    position = position._replace(
-                        x=position.x - ctx.font.kerning.get(prev, leg, size)
-                    )
-                    path.translate(position)
-                    position = position._replace(x=position.x + advance)
-                    result.append(path)
 
             legendsize = result.boundingbox
 
@@ -169,8 +180,8 @@ class Layout:
             legendsize = legendsize._replace(h=size)
 
             pos = Vector(
-                rect.x - legendsize.x + (halign / 2) * (rect.w - legendsize.w),
-                rect.y + legendsize.h + (valign / 2) * (rect.h - legendsize.h),
+                rect.x - legendsize.x + halign.value * (rect.w - legendsize.w),
+                rect.y + legendsize.h + valign.value * (rect.h - legendsize.h),
             )
 
             result.translate(pos)
