@@ -26,12 +26,9 @@ class IconSet:
         if name not in self._icons:
             return None
 
-        print(name, valign)
-
         icon = self._icons[name]
-        # Scale modifies the object in place so the copy is necessary, but it also returns a
-        # reference so we can assign here too
-        path = icon.path.copy().scale(icon_size / self.icon_size)
+        path = icon.path.copy()
+        path.scale(icon_size / self.icon_size)
 
         bbox = path.boundingbox
         offset = (bbox.height - font_size) * (1 - valign.value)
