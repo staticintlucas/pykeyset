@@ -134,7 +134,7 @@ class Color(
         return Color(*rgb)
 
     def to_hex(self) -> str:
-        return "#" + "".join(f"{int(c * 256):02x}" for c in (self.r, self.g, self.b))
+        return "#" + "".join(f"{int(c * 255 + 0.5):02x}" for c in (self.r, self.g, self.b))
 
     def lighter(self, val: float = 0.15) -> "Color":
         if not 0.0 <= val <= 1.0:
