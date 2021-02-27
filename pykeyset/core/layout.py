@@ -7,14 +7,13 @@ from ..utils.logging import error, warning
 from ..utils.path import Path
 from ..utils.types import HorizontalAlign, Vector, VerticalAlign
 from .kle import KeyType
+from .profile.types import HomingType
 
 
 class Layout:
     def __init__(self):
 
         self.root = et.Element("svg")
-
-        self.unit = 1000  # Number of SVG units in 1u size
 
     @classmethod
     def layout(cls, ctx):
@@ -34,8 +33,8 @@ class Layout:
             ctx.kle.size.y * 0.75 * config().dpi,
         )
         viewbox = Vector(
-            ctx.kle.size.x * self.unit,
-            ctx.kle.size.y * self.unit,
+            ctx.kle.size.x * 1000,
+            ctx.kle.size.y * 1000,
         )
 
         self.root.attrib.update(
@@ -50,22 +49,23 @@ class Layout:
         )
 
         for key in ctx.kle.keys:
-            x = _format(key.pos.x * self.unit)
-            y = _format(key.pos.y * self.unit)
+            x = _format(key.pos.x * 1000)
+            y = _format(key.pos.y * 1000)
             g = et.SubElement(self.root, "g", {"transform": f"translate({x},{y})"})
 
             if key.type == KeyType.DEFHOME:
-                if ctx.profile.defaulthoming == "scoop":
+                if ctx.profile.homing.default == HomingType.SCOOP:
                     key.type = KeyType.SCOOP
-                elif ctx.profile.defaulthoming == "bump":
+                elif ctx.profile.homing.default == HomingType.BUMP:
                     key.type = KeyType.BUMP
                 else:
                     key.type = KeyType.BAR
 
-            ctx.profile.drawkey(ctx, key, g, self.unit)
+            ctx.profile.key(key, g)
             self.drawlegend(ctx, key, g)
 
-        self.root.insert(0, ctx.profile.defs)
+        if ctx.profile.defs is not None:
+            self.root.insert(0, ctx.profile.defs)
 
         ctx.layout = self
 
@@ -84,12 +84,12 @@ class Layout:
             if len(legend) == 0:
                 continue
 
-            rect = ctx.profile.getlegendrect(key, size)
-            size = ctx.profile.getlegendsize(size)
+            rect = ctx.profile.legend_rect(key, size)
+            size = ctx.profile.legend_size(size)
 
             if key.size == "iso" and valign == 0:
-                rect.x -= 0.25
-                rect.w += 0.25
+                rect.x -= 250
+                rect.w += 250
 
             legend = self.parselegend(legend)
             prevlegend = [None] + legend
@@ -100,7 +100,7 @@ class Layout:
             for leg, prev in zip(legend, prevlegend):
 
                 for icons in reversed(ctx.icons):
-                    icon = icons.icon(leg, 1, size, valign)
+                    icon = icons.icon(leg, 1000, size, valign)
                     if icon is not None:
                         path = icon.path
                         advance = path.boundingbox.width
@@ -185,7 +185,6 @@ class Layout:
             )
 
             result.translate(pos)
-            result.scale(Vector(self.unit, self.unit))
 
             if config().show_align:
                 legendsize = result.boundingbox
@@ -199,7 +198,7 @@ class Layout:
                         "height": _format(legendsize.h),
                         "fill": "none",
                         "stroke": "#f00",
-                        "stroke-width": _format(self.unit / config().dpi / 0.75 / 3),
+                        "stroke-width": _format(1000 / config().dpi / 0.75 / 3),
                     },
                 )
 
@@ -221,31 +220,30 @@ class Layout:
                 {
                     "d": str(
                         Path()
-                        .M(Vector(rect.x - 0.25, rect.y))
-                        .h(rect.w + 0.25)
+                        .M(Vector(rect.x - 250, rect.y))
+                        .h(rect.w + 250)
                         .v(rect.h)
                         .h(-rect.w)
                         .v(-1)
-                        .h(-0.25)
+                        .h(-250)
                         .z()
-                        .scale(Vector(self.unit, self.unit))
                     ),
                     "fill": "none",
                     "stroke": "#f00",
-                    "stroke-width": _format(self.unit / config().dpi / 0.75 / 3),
+                    "stroke-width": _format(1000 / config().dpi / 0.75 / 3),
                 },
             )
         else:
             result = et.Element(
                 "rect",
                 {
-                    "x": _format(rect.x * self.unit),
-                    "y": _format(rect.y * self.unit),
-                    "width": _format(rect.w * self.unit),
-                    "height": _format(rect.h * self.unit),
+                    "x": _format(rect.x),
+                    "y": _format(rect.y),
+                    "width": _format(rect.w),
+                    "height": _format(rect.h),
                     "fill": "none",
                     "stroke": "#f00",
-                    "stroke-width": _format(self.unit / config().dpi / 0.75 / 3),
+                    "stroke-width": _format(1000 / config().dpi / 0.75 / 3),
                 },
             )
 

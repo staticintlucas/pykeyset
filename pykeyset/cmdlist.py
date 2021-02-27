@@ -18,7 +18,7 @@ COMMANDS = {
     "load kle": core.KleFile.load,
     "load font": core.font.load,
     "load icons": core.icon.load,
-    "load profile": core.Profile.load,
+    "load profile": core.profile.load,
     "generate layout": core.Layout.layout,
     # "generate texture": # TODO generate a texture file (for renders, etc.)
     "save svg": core.save.as_svg,
