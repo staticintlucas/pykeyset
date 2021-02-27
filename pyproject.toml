@@ -14,6 +14,9 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: CPython",
     # TODO no PyPy support because recordclass fails to compile
     # "Programming Language :: Python :: Implementation :: PyPy",
+    # Manually add Python 3.6 classifier because Poetry doesn't automatically do it since we only
+    # support ^3.6.2
+    "Programming Language :: Python :: 3.6",
 ]
 
 [tool.poetry.scripts]

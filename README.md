@@ -1,4 +1,4 @@
-# [`pykeyset`][pykeyset]
+# pykeyset
 
 A Python-based tool to create pretty keyset layout diagrams using correct fonts and icons.
 

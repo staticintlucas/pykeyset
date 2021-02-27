@@ -1,5 +1,19 @@
 # Change Log
 
+## [v0.0.3](https://github.com/staticintlucas/pykeyset/releases/tag/v0.0.3)
+
+### Fixes
+
+* Fix issue causing PyPI not to detect Python 3.6 support
+
+### Built in resources
+
+Profiles: `cherry`  \
+Fonts: `cherry`  \
+Icons: `cherry` (incomplete)
+
+---
+
 ## [v0.0.2](https://github.com/staticintlucas/pykeyset/releases/tag/v0.0.2)
 
 ### New
