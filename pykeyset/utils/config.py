@@ -28,6 +28,9 @@ def config() -> _Config:
     if _config is None:
         reset_config()  # pragma: no cover
 
+    # This assertion never fires, it tells the type checker that _config cannot be None from here on
+    assert _config is not None
+
     return _config
 
 

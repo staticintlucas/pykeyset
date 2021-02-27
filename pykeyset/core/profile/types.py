@@ -75,9 +75,9 @@ T = TypeVar("T")
 
 
 class TextTypePropertyBase(NamedTuple):
-    alpha: T
-    symbol: T
-    mod: T
+    alpha: T  # type: ignore
+    symbol: T  # type: ignore
+    mod: T  # type: ignore
 
 
 if sys.version_info >= (3, 7):  # pragma: no cover

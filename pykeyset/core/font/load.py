@@ -77,7 +77,7 @@ def parse_root(name: str, root: et.Element) -> Tuple[Font, Optional[float]]:
                 error(FontError(f"invalid value for '{key}' in font {fmt_file(name)}"))
     else:
         slope = float(root.get("slope", 0))
-        advance = float(root.get("horiz-adv-x")) if "horiz-adv-x" in root.attrib else None
+        advance = float(root.get("horiz-adv-x", 0)) if "horiz-adv-x" in root.attrib else None
         # line_height = float(root.get("line-height", em_size))
 
     return Font(name, em_size, cap_height, x_height, slope), advance

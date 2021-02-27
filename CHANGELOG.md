@@ -31,7 +31,7 @@ Icons: `cherry` (incomplete)
 * Tweaked kerning for some charaters in the `cherry` font
 * Refactored error handling
 * Improved cmdlist parsing
-* Replace `recordclass` with immutable `namedtuple` to avoid unnecessary `deepcopy`'s
+* Replace most `recordclass` with immutable `namedtuple` to avoid unnecessary `deepcopy`'s
 * Heavily refactor font, icon, and profile loading functionality
 
 ### Fixes

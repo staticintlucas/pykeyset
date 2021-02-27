@@ -40,13 +40,13 @@ class Vector(NamedTuple):
         return Vector(self.x - other.x, self.y - other.y)
 
     def __mul__(self, other: Union[float, "Vector"]) -> "Vector":
-        if isinstance(other, self.__class__):
+        if isinstance(other, Vector):
             return Vector(self.x * other.x, self.y * other.y)
         else:
             return Vector(self.x * other, self.y * other)
 
     def __truediv__(self, other: Union[float, "Vector"]) -> "Vector":
-        if isinstance(other, self.__class__):
+        if isinstance(other, Vector):
             return Vector(self.x / other.x, self.y / other.y)
         else:
             return Vector(self.x / other, self.y / other)
@@ -88,13 +88,28 @@ class Rect(NamedTuple):
         return Rect(x1, y1, x2 - x1, y2 - y1)
 
 
-class RoundRect(Rect):
+class RoundRect(NamedTuple):
+    x: float
+    y: float
+    w: float
+    h: float
     r: float
 
-    def __new__(cls, x: float, y: float, w: float, h: float, r: float):
-        self = super().__new__(cls, x, y, w, h)
-        self.r = r
-        return self
+    @property
+    def width(self) -> float:
+        return self.w
+
+    @property
+    def height(self) -> float:
+        return self.h
+
+    @property
+    def position(self) -> Vector:
+        return Vector(self.x, self.y)
+
+    @property
+    def size(self) -> Vector:
+        return Vector(self.w, self.h)
 
     @property
     def radius(self) -> float:
@@ -102,6 +117,17 @@ class RoundRect(Rect):
 
     def as_rect(self) -> Rect:
         return Rect(self.x, self.y, self.w, self.h)
+
+    def scale(self, scale: Union[float, "Vector"]) -> "RoundRect":
+        if isinstance(scale, Vector):
+            x1, x2 = sorted([self.x * scale.x, (self.x + self.w) * scale.x])
+            y1, y2 = sorted([self.y * scale.y, (self.y + self.h) * scale.y])
+            r = self.r * min(scale.x, scale.y)
+        else:
+            x1, x2 = sorted([self.x * scale, (self.x + self.w) * scale])
+            y1, y2 = sorted([self.y * scale, (self.y + self.h) * scale])
+            r = self.r * scale
+        return RoundRect(x1, y1, x2 - x1, y2 - y1, r)
 
 
 class Color(

@@ -4,8 +4,9 @@ import inspect
 import shlex
 from inspect import signature
 from pathlib import Path
+from typing import Callable, Dict
 
-import click.core
+import click
 from typer import Context
 
 from . import core
@@ -14,7 +15,7 @@ from .utils.logging import error, format_filename, info
 __all__ = ["run", "format_options"]
 
 
-COMMANDS = {
+COMMANDS: Dict[str, Callable] = {
     "load kle": core.KleFile.load,
     "load font": core.font.load,
     "load icons": core.icon.load,
@@ -40,22 +41,20 @@ def run(filepath: Path) -> None:
         error(IOError(f"cannot open command list {format_filename(filepath)}: {e.strerror}"))
 
 
-def run_line(context: core.Context, line: str) -> None:
+def run_line(context: core.Context, string: str) -> None:
 
-    line = shlex.split(line, comments=True)
+    line = shlex.split(string, comments=True)
 
     if len(line) == 0:
         return
 
-    command, func = None, None
     for cmd, fn in COMMANDS.items():
         cmd = cmd.split()
         if len(line) >= len(cmd) and line[: len(cmd)] == cmd:
             command = cmd
             func = fn
             break
-
-    if command is None:
+    else:
         raise ValueError(f"invalid command '{line[0]}'")
 
     info(f"executing command '{command}'", file=context.name)
@@ -83,7 +82,7 @@ def format_options(ctx: Context, formatter: click.HelpFormatter) -> None:
         ]
         cmd = f"{cmd} {' '.join(args)}"
 
-        items.append((cmd, inspect.cleandoc(fun.__doc__)))
+        items.append((cmd, inspect.cleandoc(fun.__doc__ if fun.__doc__ is not None else "")))
 
     with formatter.section("Commands"):
         formatter.write_dl(items)

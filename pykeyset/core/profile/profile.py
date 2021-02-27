@@ -55,11 +55,11 @@ class Profile:
     def legend_rect(self, key: Key, size: int) -> Rect:
 
         if size < 4:
-            rect = Rect(*self.text_rect.mod)
+            rect = Rect(*self.text_rect.mod)  # type: ignore  # TODO when we drop 3.6 support
         elif size == 4:
-            rect = Rect(*self.text_rect.symbol)
+            rect = Rect(*self.text_rect.symbol)  # type: ignore  # TODO when we drop 3.6 support
         else:
-            rect = Rect(*self.text_rect.alpha)
+            rect = Rect(*self.text_rect.alpha)  # type: ignore  # TODO when we drop 3.6 support
 
         if key.type == KeyType.NONE:
             rect = Rect(self.bottom.x, self.bottom.y, self.bottom.w, self.bottom.h)
@@ -77,11 +77,11 @@ class Profile:
 
     def legend_size(self, size: int) -> float:
         if size < 4:
-            return self.text_size.mod * (size / 3)
+            return self.text_size.mod * (size / 3)  # type: ignore  # TODO when we drop 3.6 support
         elif size == 4:
-            return self.text_size.symbol
+            return self.text_size.symbol  # type: ignore  # TODO when we drop 3.6 support
         else:
-            return self.text_size.alpha * (size / 5)
+            return self.text_size.alpha * (size / 5)  # type: ignore # TODO when we drop 3.6 support
 
     def draw_key_bottom(self, g: et.Element, size: Vector, color: Color) -> None:
         rect = self.bottom

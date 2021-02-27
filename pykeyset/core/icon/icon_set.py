@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from typing import Dict
+from typing import Dict, Optional
 
 from ...utils.types import Vector, VerticalAlign
 from .icon import Icon
@@ -19,7 +19,9 @@ class IconSet:
         """Returns the number of icons in the set"""
         return len(self._icons)
 
-    def icon(self, name: str, icon_size: float, font_size: float, valign: VerticalAlign) -> Icon:
+    def icon(
+        self, name: str, icon_size: float, font_size: float, valign: VerticalAlign
+    ) -> Optional[Icon]:
         """Returns a copy of the icon for the chosen name scaled to the given size, or None
         if the icon does not exist"""
 

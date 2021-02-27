@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from typing import Dict
+from typing import Dict, Optional
 
 from ...utils.path import Path
 from ...utils.types import Vector
@@ -9,7 +9,7 @@ from .kerning import Kerning
 
 
 class Font:
-    def __init__(self, name: str, em_size: int, cap_height: int, x_height: int, slope: int):
+    def __init__(self, name: str, em_size: float, cap_height: float, x_height: float, slope: float):
 
         self.name = name
 
@@ -26,27 +26,27 @@ class Font:
         replacement_path = (
             Path()
             .M(Vector(146, 0))
-            .a(Vector(73, 73), 0, 0, 1, Vector(-73, -73))
+            .a(Vector(73, 73), 0, False, True, Vector(-73, -73))
             .l(Vector(0, -580))
-            .a(Vector(73, 73), 0, 0, 1, Vector(73, -73))
+            .a(Vector(73, 73), 0, False, True, Vector(73, -73))
             .l(Vector(374, 0))
-            .a(Vector(73, 73), 0, 0, 1, Vector(73, 73))
+            .a(Vector(73, 73), 0, False, True, Vector(73, 73))
             .l(Vector(0, 580))
-            .a(Vector(73, 73), 0, 0, 1, Vector(-73, 73))
+            .a(Vector(73, 73), 0, False, True, Vector(-73, 73))
             .z()
             .M(Vector(283, -110))
-            .a(Vector(50, 50), 0, 0, 0, Vector(100, 0))
-            .a(Vector(50, 50), 0, 0, 0, Vector(-100, 0))
+            .a(Vector(50, 50), 0, False, False, Vector(100, 0))
+            .a(Vector(50, 50), 0, False, False, Vector(-100, 0))
             .z()
             .M(Vector(293, -236))
-            .a(Vector(40, 40), 0, 0, 0, Vector(80, 0))
-            .a(Vector(120, 108), 0, 0, 1, Vector(60, -94))
-            .a(Vector(200, 180), 0, 0, 0, Vector(100, -156))
-            .a(Vector(200, 180), 0, 0, 0, Vector(-400, 0))
-            .a(Vector(40, 40), 0, 0, 0, Vector(80, 0))
-            .a(Vector(120, 108), 0, 0, 1, Vector(240, 0))
-            .a(Vector(120, 108), 0, 0, 1, Vector(-60, 94))
-            .a(Vector(200, 180), 0, 0, 0, Vector(-100, 156))
+            .a(Vector(40, 40), 0, False, False, Vector(80, 0))
+            .a(Vector(120, 108), 0, False, True, Vector(60, -94))
+            .a(Vector(200, 180), 0, False, False, Vector(100, -156))
+            .a(Vector(200, 180), 0, False, False, Vector(-400, 0))
+            .a(Vector(40, 40), 0, False, False, Vector(80, 0))
+            .a(Vector(120, 108), 0, False, True, Vector(240, 0))
+            .a(Vector(120, 108), 0, False, True, Vector(-60, 94))
+            .a(Vector(200, 180), 0, False, False, Vector(-100, 156))
             .z()
         )
 
@@ -63,7 +63,7 @@ class Font:
         """Returns the number of glyphs in the font"""
         return len(self._glyphs)
 
-    def glyph(self, char: str, size: float) -> Glyph:
+    def glyph(self, char: str, size: float) -> Optional[Glyph]:
         """Returns a copy of the glyph for the chosen character scaled to the given size, or None
         if the Glyph does not exist in the font"""
 

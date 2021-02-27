@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from numbers import Real
-
 
 class Kerning:
     def __init__(self, cap_height):
         self.kern_dict = {}
         self.cap_height = cap_height
 
-    def get(self, lhs: str, rhs: str, size: Real) -> int:
+    def get(self, lhs: str, rhs: str, size: float) -> float:
         """Returns the kerning between the given pair of glyph names if set, otherwise returns the
         default value of 0"""
 
@@ -21,7 +19,7 @@ class Kerning:
 
         return kerning * size / self.cap_height
 
-    def set(self, lhs: str, rhs: str, kerning: int) -> None:
+    def set(self, lhs: str, rhs: str, kerning: float) -> None:
         """Sets the kerning between the given pair of glyph names"""
 
         if lhs not in self.kern_dict:

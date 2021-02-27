@@ -7,7 +7,7 @@ from ... import resources
 from .load import load_builtin, load_file
 from .profile import Profile
 
-__all__ = [Profile, load_builtin, load_file]
+__all__ = ["Profile", "load_builtin", "load_file"]
 
 
 # TODO this function is used by the cmdlist parser. Move it somewhere more appropriate?

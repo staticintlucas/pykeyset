@@ -31,7 +31,9 @@ VERBOSITY_MAP = {
 
 
 def error(
-    error: Exception, file: Optional[str] = None, prev_except: Optional[Exception] = None
+    error: Exception,
+    file: Optional[Union[str, Path]] = None,
+    prev_except: Optional[Exception] = None,
 ) -> NoReturn:
     """Handle an error in pykeyset code.
 
@@ -140,7 +142,9 @@ def format_filename(filename: Union[str, Path]) -> str:
     return f"[bold magenta]{filename}[/bold magenta]"
 
 
-def print_message(message: str, severity: Severity, filename: Optional[Path] = None) -> None:
+def print_message(
+    message: str, severity: Severity, filename: Optional[Union[str, Path]] = None
+) -> None:
 
     color = COLOR_MAP.get(severity, "magenta")
     prefix = severity.name.capitalize()

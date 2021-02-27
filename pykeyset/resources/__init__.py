@@ -3,34 +3,36 @@
 import sys
 from os import path
 from pathlib import Path
-from typing import ContextManager
+from typing import Optional
 
-if sys.version_info[:2] >= (3, 7):
+if sys.version_info >= (3, 7):
     import importlib.resources as ilr  # pragma: no cover
 else:
     import importlib_resources as ilr  # pragma: no cover
 
-import click.core
-import typer.core
+import click
+import typer
 
-from . import fonts, icons, profiles
+from . import fonts as _fonts
+from . import icons as _icons
+from . import profiles as _profiles
 
 
 class ResourcePath:
     """Yields the path to a resource (just like importlib.resources.path), but can be used
     multiple times"""
 
-    def __init__(self, package: ilr.Package, resource: ilr.Resource) -> ContextManager[Path]:
+    def __init__(self, package: ilr.Package, resource: ilr.Resource) -> None:
         self.package = package
         self.resource = resource
         self.context = None
 
-    def __enter__(self, *args, **kwargs):
+    def __enter__(self, *args, **kwargs) -> Path:
         assert self.context is None
         self.context = ilr.path(self.package, self.resource)
         return self.context.__enter__(*args, **kwargs)
 
-    def __exit__(self, *args, **kwargs):
+    def __exit__(self, *args, **kwargs) -> Optional[bool]:
         try:
             return self.context.__exit__(*args, **kwargs)
         finally:
@@ -38,21 +40,21 @@ class ResourcePath:
 
 
 fonts = {
-    path.splitext(res)[0]: ResourcePath(fonts, res)
-    for res in ilr.contents(fonts)
-    if ilr.is_resource(fonts, res) and res.endswith(".xml")
+    path.splitext(res)[0]: ResourcePath(_fonts, res)
+    for res in ilr.contents(_fonts)
+    if ilr.is_resource(_fonts, res) and res.endswith(".xml")
 }
 
 icons = {
-    path.splitext(res)[0]: ResourcePath(icons, res)
-    for res in ilr.contents(icons)
-    if ilr.is_resource(icons, res) and res.endswith(".xml")
+    path.splitext(res)[0]: ResourcePath(_icons, res)
+    for res in ilr.contents(_icons)
+    if ilr.is_resource(_icons, res) and res.endswith(".xml")
 }
 
 profiles = {
-    path.splitext(res)[0]: ResourcePath(profiles, res)
-    for res in ilr.contents(profiles)
-    if ilr.is_resource(profiles, res) and res.endswith(".toml")
+    path.splitext(res)[0]: ResourcePath(_profiles, res)
+    for res in ilr.contents(_profiles)
+    if ilr.is_resource(_profiles, res) and res.endswith(".toml")
 }
 
 

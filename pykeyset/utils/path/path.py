@@ -9,11 +9,11 @@ from .segment import ClosePath, CubicBezier, Line, Move, QuadraticBezier
 
 
 class Path:
-    def __init__(self, d: str = "") -> None:
+    def __init__(self, path: str = "") -> None:
 
         token = iter(
             t
-            for t in re.split(r"(-?\d+\.?\d*|[A-Za-z])", d)
+            for t in re.split(r"(-?\d+\.?\d*|[A-Za-z])", path)
             if len(t.strip()) > 0 and t.strip() != ","
         )
 
@@ -283,7 +283,7 @@ class Path:
         """SVG T path command"""
         return self.t(self._rel(d))
 
-    def A(self, r: Vector, xar: float, laf: float, sf: float, d: Vector) -> "Path":
+    def A(self, r: Vector, xar: float, laf: bool, sf: bool, d: Vector) -> "Path":
         """SVG A path command"""
         return self.a(r, xar, laf, sf, self._rel(d))
 
@@ -291,10 +291,10 @@ class Path:
         """SVG Z path command"""
         return self.z()
 
-    def transform(self, trns: str) -> None:
-        trns = re.sub(r",\s+", ",", trns).split()[::-1]
+    def transform(self, transform: str) -> None:
+        parts = re.sub(r",\s+", ",", transform).split()[::-1]
 
-        for t in trns:
+        for t in parts:
             try:
                 if t.startswith("scale("):
                     val = [float(v) for v in t[6:-1].split(",", 1)]
@@ -376,18 +376,18 @@ class Path:
                 d = self.d
             # Get the starting point of the path
             start = d[0].point
-            # Preallocate points
-            points = [None] * len(d)
-            points[0] = start
 
-            for i, seg in enumerate(d[1:], 1):
+            points = []
+            points.append(start)
+
+            for seg in d[1:]:
                 if isinstance(seg, Move):
                     start = seg.point
-                    points[i] = start
+                    points.append(start)
                 elif isinstance(seg, ClosePath):
-                    points[i] = start
+                    points.append(start)
                 else:
-                    points[i] = points[i - 1] + seg.point
+                    points.append(points[-1] + seg.point)
 
             minpt = Vector(*(min(d) for d in zip(*points)))
             maxpt = Vector(*(max(d) for d in zip(*points)))
@@ -395,7 +395,7 @@ class Path:
 
     def _updatebbox(self, point: Vector) -> None:
         if self._bbox is None:
-            self._bbox = Rect(*point, 0, 0)
+            self._bbox = Rect(point.x, point.y, 0, 0)
         else:
             pt1 = self._bbox.position
             pt2 = self._bbox.position + self._bbox.size

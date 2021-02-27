@@ -9,9 +9,10 @@ from pathlib import Path
 from time import perf_counter
 from typing import Any, List
 
-import click.core
+import click
 import rich.traceback
 import typer
+import typer.core
 from typer import Option
 
 from . import __version__, cmdlist, resources
@@ -31,7 +32,7 @@ HELP = {
     "quiet": "Show only fatal error messages in program output.",
 }
 
-starttime = None
+starttime = 0
 
 
 def print_version(value: bool) -> None:
