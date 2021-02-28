@@ -108,7 +108,7 @@ def test_key(profile, key_type, key_size, result_type):
                 h=TXT_RECT.symbol.h + 1000,
             ),
         ),
-        (4, Vector(1, 1), KeyType.NONE, BTM_RECT),
+        (4, Vector(1, 1), KeyType.NONE, BTM_RECT.as_rect()),
     ],
 )
 def test_legend_rect(profile, text_size, key_size, key_type, rect):
