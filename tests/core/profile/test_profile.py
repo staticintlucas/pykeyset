@@ -169,6 +169,25 @@ def test_draw_key_top(profile, key_type, profile_type, element_type):
     assert g.find(element_type) is not None
 
 
+@pytest.mark.parametrize(
+    "key_type, profile_type, element_types",
+    [
+        (KeyType.BAR, ProfileType.CYLINDRICAL, ("path", "rect")),
+        (KeyType.BUMP, ProfileType.CYLINDRICAL, ("path", "circle")),
+        (KeyType.SCOOP, ProfileType.CYLINDRICAL, ("path",)),
+    ],
+)
+def test_draw_homing_key_top(profile, key_type, profile_type, element_types):
+
+    profile.type = profile_type
+
+    g = et.Element("g")
+    profile.draw_key_top(g, key_type, Vector(1, 1), Color(0.8, 0.2, 0.2))
+
+    for i, type in enumerate(element_types):
+        assert g[i].tag == type
+
+
 def test_draw_iso_bottom(profile):
 
     g = et.Element("g")

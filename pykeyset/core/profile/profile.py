@@ -200,6 +200,40 @@ class Profile:
                 },
             )
 
+        if size == (1, 1):
+            if keytype == KeyType.BAR:
+
+                et.SubElement(
+                    g,
+                    "rect",
+                    {
+                        "fill": color.to_hex(),
+                        "stroke": color.highlight().to_hex(),
+                        "stroke-width": "10",
+                        "x": _format(500 - self.homing.bar.width / 2),
+                        "y": _format(500 - self.homing.bar.height / 2 + self.homing.bar.offset),
+                        "width": _format(self.homing.bar.width),
+                        "height": _format(self.homing.bar.height),
+                        "rx": _format(self.homing.bar.height / 2),
+                        "ry": _format(self.homing.bar.height / 2),
+                    },
+                )
+
+            elif keytype == KeyType.BUMP:
+
+                et.SubElement(
+                    g,
+                    "circle",
+                    {
+                        "fill": color.to_hex(),
+                        "stroke": color.highlight().to_hex(),
+                        "stroke-width": "10",
+                        "cx": _format(500),
+                        "cy": _format(500 + self.homing.bump.offset),
+                        "r": _format(self.homing.bump.radius),
+                    },
+                )
+
     def draw_iso_bottom(self, g: et.Element, color: Color) -> None:
         rect = self.bottom
         et.SubElement(
