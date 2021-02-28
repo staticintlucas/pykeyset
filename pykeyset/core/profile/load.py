@@ -181,7 +181,7 @@ def parse_legend_type(
     return Rect(x, y, width, height), size
 
 
-def parse_homing(homing_props: MutableMapping[str, Any]) -> HomingProperties:
+def parse_homing(homing_props: MutableMapping[str, Any], top_offset: float) -> HomingProperties:
     """Parses the properties defining the different kinds of homing keys, returning a
     HomingProperties instance"""
 
@@ -200,21 +200,21 @@ def parse_homing(homing_props: MutableMapping[str, Any]) -> HomingProperties:
     try:
         if not isinstance(homing_props["scoop"], MutableMapping):
             error(ProfileError("no 'scoop' section in section [homing]"))
-        scoop_props = parse_homing_scoop(homing_props["scoop"])
+        scoop_props = parse_homing_scoop(homing_props["scoop"], top_offset)
     except KeyError:
         pass  # Allow missing homing types
 
     try:
         if not isinstance(homing_props["bar"], MutableMapping):
             error(ProfileError("no 'bar' section in section [homing]"))
-        bar_props = parse_homing_bar(homing_props["bar"])
+        bar_props = parse_homing_bar(homing_props["bar"], top_offset)
     except KeyError:
         pass  # Allow missing homing types
 
     try:
         if not isinstance(homing_props["bump"], MutableMapping):
             error(ProfileError("no 'bump' section in section [homing]"))
-        bump_props = parse_homing_bump(homing_props["bump"])
+        bump_props = parse_homing_bump(homing_props["bump"], top_offset)
     except KeyError:
         pass  # Allow missing homing types
 
@@ -226,7 +226,7 @@ def parse_homing(homing_props: MutableMapping[str, Any]) -> HomingProperties:
     )
 
 
-def parse_homing_scoop(scoop_props: MutableMapping[str, Any]) -> HomingScoop:
+def parse_homing_scoop(scoop_props: MutableMapping[str, Any], _top_offset: float) -> HomingScoop:
     """Parses the properties for scooped homing keys, returning a HomingScoop object"""
 
     if "depth" not in scoop_props:
@@ -237,7 +237,7 @@ def parse_homing_scoop(scoop_props: MutableMapping[str, Any]) -> HomingScoop:
     return HomingScoop(milliunit(scoop_props["depth"]))
 
 
-def parse_homing_bar(bar_props: MutableMapping[str, Any]) -> HomingBar:
+def parse_homing_bar(bar_props: MutableMapping[str, Any], top_offset: float) -> HomingBar:
     """Parses the properties for barred homing keys, returning a HomingBar object"""
 
     for key in ("width", "height", "y-offset"):
@@ -249,12 +249,12 @@ def parse_homing_bar(bar_props: MutableMapping[str, Any]) -> HomingBar:
 
     width = milliunit(bar_props["width"])
     height = milliunit(bar_props["height"])
-    offset = milliunit(bar_props["y-offset"])
+    offset = milliunit(bar_props["y-offset"]) + top_offset
 
     return HomingBar(width, height, offset)
 
 
-def parse_homing_bump(bump_props: MutableMapping[str, Any]) -> HomingBump:
+def parse_homing_bump(bump_props: MutableMapping[str, Any], top_offset: float) -> HomingBump:
     """Parses the properties for bumped homing keys, returning a HomingBump object"""
 
     for key in ("radius", "y-offset"):
@@ -265,7 +265,7 @@ def parse_homing_bump(bump_props: MutableMapping[str, Any]) -> HomingBump:
             error(ProfileError(f"no '{key}' key in section [homing.bump]"))
 
     radius = milliunit(bump_props["radius"])
-    offset = milliunit(bump_props["y-offset"])
+    offset = milliunit(bump_props["y-offset"]) + top_offset
 
     return HomingBump(radius, offset)
 
@@ -282,7 +282,7 @@ def parse_profile(name: str, profile_props: MutableMapping[str, Any]) -> Profile
     bottom_rect = parse_bottom(profile_props["bottom"])
     top_rect, top_offset = parse_top(profile_props["top"])
     text_rect, text_size = parse_legend(profile_props["legend"], top_offset)
-    homing_props = parse_homing(profile_props["homing"])
+    homing_props = parse_homing(profile_props["homing"], top_offset)
 
     return Profile(
         name=name,

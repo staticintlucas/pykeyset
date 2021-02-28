@@ -296,7 +296,7 @@ def test_invalid_legend_type(dict):
 )
 def test_parse_homing(dict, expected):
 
-    result = parse_homing(dict)
+    result = parse_homing(dict, 0)
 
     assert expected.default == result.default
 
@@ -321,12 +321,12 @@ def test_parse_homing(dict, expected):
 def test_invalid_homing(dict):
 
     with pytest.raises(ProfileError):
-        _ = parse_homing(dict)
+        _ = parse_homing(dict, 0)
 
 
 def test_parse_homing_scoop():
 
-    result = parse_homing_scoop({"depth": 0.5})
+    result = parse_homing_scoop({"depth": 0.5}, 0)
 
     assert isclose(result.depth, 500 / 19.05)
 
@@ -341,12 +341,12 @@ def test_parse_homing_scoop():
 def test_invalid_homing_scoop(dict):
 
     with pytest.raises(ProfileError):
-        _ = parse_homing_scoop(dict)
+        _ = parse_homing_scoop(dict, 0)
 
 
 def test_parse_homing_bar():
 
-    result = parse_homing_bar({"width": 3, "height": 1, "y-offset": 5})
+    result = parse_homing_bar({"width": 3, "height": 1, "y-offset": 5}, 0)
 
     assert isclose(result.width, 3000 / 19.05)
     assert isclose(result.height, 1000 / 19.05)
@@ -363,12 +363,12 @@ def test_parse_homing_bar():
 def test_invalid_homing_bar(dict):
 
     with pytest.raises(ProfileError):
-        _ = parse_homing_bar(dict)
+        _ = parse_homing_bar(dict, 0)
 
 
 def test_parse_homing_bump():
 
-    result = parse_homing_bump({"radius": 0.5, "y-offset": 0.1})
+    result = parse_homing_bump({"radius": 0.5, "y-offset": 0.1}, 0)
 
     assert isclose(result.radius, 500 / 19.05)
     assert isclose(result.offset, 100 / 19.05)
@@ -384,7 +384,7 @@ def test_parse_homing_bump():
 def test_invalid_homing_bump(dict):
 
     with pytest.raises(ProfileError):
-        _ = parse_homing_bump(dict)
+        _ = parse_homing_bump(dict, 0)
 
 
 def test_parse_profile():
