@@ -122,7 +122,7 @@ class RoundRect(NamedTuple):
         if isinstance(scale, Vector):
             x1, x2 = sorted([self.x * scale.x, (self.x + self.w) * scale.x])
             y1, y2 = sorted([self.y * scale.y, (self.y + self.h) * scale.y])
-            r = self.r * min(scale.x, scale.y)
+            r = self.r * min(abs(scale.x), abs(scale.y))
         else:
             x1, x2 = sorted([self.x * scale, (self.x + self.w) * scale])
             y1, y2 = sorted([self.y * scale, (self.y + self.h) * scale])

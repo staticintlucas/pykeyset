@@ -107,6 +107,25 @@ def test_round_rect():
 
     assert round_rect.radius == round_rect.r
 
+    assert round_rect.position.x == round_rect.x
+    assert round_rect.position.y == round_rect.y
+    assert round_rect.size.x == round_rect.w
+    assert round_rect.size.y == round_rect.h
+
+    rect = round_rect.scale(Vector(-2, -1))
+    assert isclose(rect.x, -8)
+    assert isclose(rect.y, -6)
+    assert isclose(rect.w, 6)
+    assert isclose(rect.h, 4)
+    assert isclose(rect.r, 1)
+
+    rect = round_rect.scale(2)
+    assert isclose(rect.x, 2)
+    assert isclose(rect.y, 4)
+    assert isclose(rect.w, 6)
+    assert isclose(rect.h, 8)
+    assert isclose(rect.r, 2)
+
     rect = round_rect.as_rect()
 
     assert rect.x == round_rect.x
