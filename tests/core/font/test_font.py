@@ -10,7 +10,7 @@ from pykeyset.utils.path import Path
 
 def test_init():
 
-    font = Font("test", 1000, 600, 400, 0)
+    font = Font("test", 1000, 600, 400, 1200, 0, 0)
 
     assert font.name == "test"
     assert font.em_size == 1000
@@ -33,7 +33,7 @@ def test_init():
 
 def test_add_get_glyph():
 
-    font = Font("test", 1000, 600, 400, 0)
+    font = Font("test", 1000, 600, 400, 1200, 0, 0)
     assert len(font) == 0
 
     glyph = Glyph("A", Path(), 200)
