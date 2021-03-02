@@ -65,8 +65,8 @@ def parse_root(name: str, root: et.Element) -> Tuple[Font, Optional[float]]:
     for key, message in (
         ("slope", "Using default value (0)"),
         ("horiz-adv-x", "Value must be set per glyph"),
-        # TODO enable this when multiline legend support lands
-        # ("line-height", "Using em-size as a default"),
+        ("line-height", "Using em-size as a default"),
+        ("character-spacing", "Using default value (0)"),
     ):
         if key not in root.attrib:
             info(f"no '{key}' attribute in font {fmt_file(name)}. {message}")
@@ -78,9 +78,10 @@ def parse_root(name: str, root: et.Element) -> Tuple[Font, Optional[float]]:
     else:
         slope = float(root.get("slope", 0))
         advance = float(root.get("horiz-adv-x", 0)) if "horiz-adv-x" in root.attrib else None
-        # line_height = float(root.get("line-height", em_size))
+        line_height = float(root.get("line-height", em_size))
+        char_spacing = float(root.get("character-spacing", 0))
 
-    return Font(name, em_size, cap_height, x_height, slope), advance
+    return Font(name, em_size, cap_height, x_height, line_height, slope, char_spacing), advance
 
 
 def parse_glyph(glyph: et.Element, default_advance: Optional[float] = None) -> Glyph:

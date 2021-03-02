@@ -9,7 +9,16 @@ from .kerning import Kerning
 
 
 class Font:
-    def __init__(self, name: str, em_size: float, cap_height: float, x_height: float, slope: float):
+    def __init__(
+        self,
+        name: str,
+        em_size: float,
+        cap_height: float,
+        x_height: float,
+        line_height: float,
+        slope: float,
+        char_spacing: float,
+    ):
 
         self.name = name
 
@@ -18,7 +27,8 @@ class Font:
         self.cap_height = cap_height
         self.x_height = x_height
         self.slope = slope
-        # self.line_height = line_height  # TODO enable this when I enable multiline legend support
+        self.line_height = line_height
+        self.char_spacing = char_spacing
 
         # Glyph objects
         self._glyphs: Dict[str, Glyph] = {}
@@ -78,10 +88,14 @@ class Font:
             advance=glyph.advance * scale,
         )
 
+    def line_spacing(self, size: float) -> float:
+        return self.line_height * size / self.cap_height
+
     def add_glyph(self, glyph: Glyph) -> None:
         """Adds a glyph to the font. The glyph should have the same metrics as set when creating
         the Font object"""
 
+        glyph = glyph._replace(advance=glyph.advance + self.char_spacing)
         self._glyphs[glyph.name] = glyph
 
     def replacement(self, size: float) -> Glyph:

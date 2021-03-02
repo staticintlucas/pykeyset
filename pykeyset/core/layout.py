@@ -73,7 +73,7 @@ class Layout:
 
         if config().show_align:
             for size in set(key.legsize):
-                rect = ctx.profile.getlegendrect(key, size)
+                rect = ctx.profile.legend_rect(key, size)
                 g.append(self.drawlegendrect(key, rect))
 
         for i, (legend, size, color) in enumerate(zip(key.legend, key.legsize, key.fgcol)):
@@ -91,80 +91,95 @@ class Layout:
                 rect.x -= 250
                 rect.w += 250
 
-            legend = self.parselegend(legend)
-            prevlegend = [None] + legend
+            legendlist = self.parselegend(legend)
 
-            result = Path()
-            position = Vector(0, 0)
+            result = []
+            num_lines = len(legendlist)
 
-            for leg, prev in zip(legend, prevlegend):
+            for legend in legendlist:
+                prevlegend = [None] + legend
 
-                for icons in reversed(ctx.icons):
-                    icon = icons.icon(leg, 1000, size, valign)
-                    if icon is not None:
-                        path = icon.path
-                        advance = path.boundingbox.width
+                line_result = Path()
+                position = Vector(0, 0)
 
-                        path.translate(position)
-                        position = position._replace(x=position.x + advance)
-                        result.append(path)
+                for leg, prev in zip(legend, prevlegend):
 
-                        break
-                else:
-                    glyph = ctx.font.glyph(leg, size)
-                    if glyph is not None:
-                        path = glyph.path
-                        advance = glyph.advance
+                    for icons in reversed(ctx.icons):
+                        icon = icons.icon(leg, 1000, size, valign)
+                        if icon is not None:
+                            path = icon.path
+                            advance = path.boundingbox.width
 
-                        position = position._replace(
-                            x=position.x - ctx.font.kerning.get(prev, leg, size)
-                        )
-                        path.translate(position)
-                        position = position._replace(x=position.x + advance)
-                        result.append(path)
+                            path.translate(position)
+                            position = position._replace(x=position.x + advance)
+                            line_result.append(path)
 
-                    elif len(leg) > 1:
-                        warning(
-                            ValueError(f"no glyph for character '{leg}'"),
-                            "Drawing name literally instead",
-                        )
-
-                        prevl = [prev] + list(leg)
-                        for l, p in zip(leg, prevl):  # noqa: E741
-
-                            glyph = ctx.font.glyph(l, size)
-                            if glyph is not None:
-                                path = glyph.path
-                                advance = glyph.advance
-                            else:
-                                glyph = ctx.font.replacement(size)
-                                path = glyph.path
-                                advance = glyph.advance
-                                warning(
-                                    ValueError(f"no glyph for character '{l}'"),
-                                    "Using replacement glyph instead",
-                                )
+                            break
+                    else:
+                        glyph = ctx.font.glyph(leg, size)
+                        if glyph is not None:
+                            path = glyph.path
+                            advance = glyph.advance
 
                             position = position._replace(
-                                x=position.x - ctx.font.kerning.get(p, l, size)
+                                x=position.x - ctx.font.kerning.get(prev, leg, size)
                             )
                             path.translate(position)
                             position = position._replace(x=position.x + advance)
-                            result.append(path)
-                    else:
-                        glyph = ctx.font.replacement(size)
-                        path = glyph.path
-                        advance = glyph.advance
-                        warning(
-                            ValueError(f"no glyph for character '{leg}'"),
-                            "Using replacement glyph instead",
-                        )
+                            line_result.append(path)
 
-                        path.translate(position)
-                        position = position._replace(x=position.x + advance)
-                        result.append(path)
+                        elif len(leg) > 1:
+                            warning(
+                                ValueError(f"no glyph for character '{leg}'"),
+                                "Drawing name literally instead",
+                            )
 
-            legendsize = result.boundingbox
+                            prevl = [prev] + list(leg)
+                            for l, p in zip(leg, prevl):  # noqa: E741
+
+                                glyph = ctx.font.glyph(l, size)
+                                if glyph is not None:
+                                    path = glyph.path
+                                    advance = glyph.advance
+                                else:
+                                    glyph = ctx.font.replacement(size)
+                                    path = glyph.path
+                                    advance = glyph.advance
+                                    warning(
+                                        ValueError(f"no glyph for character '{l}'"),
+                                        "Using replacement glyph instead",
+                                    )
+
+                                position = position._replace(
+                                    x=position.x - ctx.font.kerning.get(p, l, size)
+                                )
+                                path.translate(position)
+                                position = position._replace(x=position.x + advance)
+                                line_result.append(path)
+                        else:
+                            glyph = ctx.font.replacement(size)
+                            path = glyph.path
+                            advance = glyph.advance
+                            warning(
+                                ValueError(f"no glyph for character '{leg}'"),
+                                "Using replacement glyph instead",
+                            )
+
+                            path.translate(position)
+                            position = position._replace(x=position.x + advance)
+                            line_result.append(path)
+
+                result.append(line_result)
+
+            resultpath = Path()
+            for i, leg in enumerate(result):
+                dims = leg.boundingbox
+                leg.translate(
+                    Vector(-dims.x - halign.value * dims.w, i * ctx.font.line_spacing(size))
+                )
+                resultpath.append(leg)
+
+            legendsize = resultpath.boundingbox
 
             if legendsize.w > rect.w:
                 warning(
@@ -175,19 +190,19 @@ class Layout:
                     "squishing legend to fit",
                 )
                 pos = Vector(legendsize.x, legendsize.y)
-                result.scale(Vector(rect.w / legendsize.w, 1))
-                legendsize = result.boundingbox
-            legendsize = legendsize._replace(h=size)
+                resultpath.scale(Vector(rect.w / legendsize.w, 1))
+                legendsize = resultpath.boundingbox
 
+            legendsize = legendsize._replace(h=size + (num_lines - 1) * ctx.font.line_spacing(size))
             pos = Vector(
                 rect.x - legendsize.x + halign.value * (rect.w - legendsize.w),
-                rect.y + legendsize.h + valign.value * (rect.h - legendsize.h),
+                rect.y + size + valign.value * (rect.h - legendsize.h),
             )
 
-            result.translate(pos)
+            resultpath.translate(pos)
 
             if config().show_align:
-                legendsize = result.boundingbox
+                legendsize = resultpath.boundingbox
                 et.SubElement(
                     g,
                     "rect",
@@ -206,7 +221,7 @@ class Layout:
                 g,
                 "path",
                 {
-                    "d": str(result),
+                    "d": str(resultpath),
                     "fill": color.to_hex(),
                     "stroke": "none",
                 },
@@ -251,13 +266,17 @@ class Layout:
 
     def parselegend(self, legend):
 
-        result = []
+        result = [[]]
 
         while len(legend) > 0:
 
+            if legend.startswith("<br") and ">" in legend[1:]:
+                result.append([])
+                legend = legend[legend.find(">") + 1 :]
+
             # Reduce {{ and }} to a single { and }
-            if legend.startswith("{{") or legend.startswith("}}"):
-                result.append(legend[0])
+            elif legend.startswith("{{") or legend.startswith("}}"):
+                result[-1].append(legend[0])
                 legend = legend[2:]
 
             # Parse {name} sequences in the text
@@ -266,16 +285,16 @@ class Layout:
 
                 # If there is no matching closing } or there is another { before the closing }
                 if end < 1 or "{" in legend[1:end]:
-                    result.append(legend[0])
+                    result[-1].append(legend[0])
                     legend = legend[1:]
 
                 else:
                     name = legend[0 : end + 1]
-                    result.append(name)
+                    result[-1].append(name)
                     legend = legend[end + 1 :]
 
             else:
-                result.append(legend[0])
+                result[-1].append(legend[0])
                 legend = legend[1:]
 
         return result
