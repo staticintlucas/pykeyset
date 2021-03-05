@@ -23,8 +23,8 @@ COMMANDS: Dict[str, Callable] = {
     "generate layout": core.Layout.layout,
     # "generate texture": # TODO generate a texture file (for renders, etc.)
     "save svg": core.save.as_svg,
-    # "save png": # TODO export the generated graphic as a PNG image
-    # "save ai": # TODO export the generated graphic as an Illustrator file
+    "save png": core.save.as_png,
+    "save ai": core.save.as_ai,
     "newfont": core.fontgen.fontgen,
 }
 

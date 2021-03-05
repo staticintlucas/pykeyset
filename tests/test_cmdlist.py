@@ -121,6 +121,8 @@ def test_format_options():
         load profile <file>       load a built in profile or a profile config file
         generate layout           generate a layout diagram from the loaded resources
         save svg <filename>       export the generated graphic as an SVG file
+        save png <filename>       export the generated graphic as a PNG file
+        save ai <filename>        export the generated graphic as an AI file (experimental)
         newfont <output> <input>  create a new XML font file from a source font
         """,
     )

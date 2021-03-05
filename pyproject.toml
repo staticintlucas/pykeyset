@@ -31,6 +31,7 @@ typer = {version = "^0.3.0", extras = ["all"]}
 click = "^7.1.1"
 enum-tools = "^0.6.1"
 rich = "^9.0.0"
+CairoSVG = "^2.5.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
