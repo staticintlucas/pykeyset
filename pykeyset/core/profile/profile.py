@@ -39,7 +39,7 @@ class Profile:
         if key.type == KeyType.NONE:
             pass  # do nothing
 
-        elif key.size == "iso":
+        elif key.size in ("iso_h", "iso_v"):
             self.draw_iso_bottom(g, key.bgcol)
             self.draw_iso_top(g, key.bgcol)
 
@@ -64,8 +64,10 @@ class Profile:
         if key.type == KeyType.NONE:
             rect = Rect(self.bottom.x, self.bottom.y, self.bottom.w, self.bottom.h)
 
-        if key.size == "iso":
+        if key.size == "iso_v":
             rect = rect._replace(x=rect.x + 250, w=rect.w + 250, h=rect.h + 1000)
+        elif key.size == "iso_h":
+            rect = rect._replace(w=rect.w + 500)
         elif key.size == "step":
             rect = rect._replace(w=rect.w + 250)
         else:
@@ -208,7 +210,7 @@ class Profile:
                     "rect",
                     {
                         "fill": color.to_hex(),
-                        "stroke": color.highlight().to_hex(),
+                        "stroke": color.highlight(0.25).to_hex(),
                         "stroke-width": "10",
                         "x": _format(500 - self.homing.bar.width / 2),
                         "y": _format(500 - self.homing.bar.height / 2 + self.homing.bar.offset),
@@ -226,7 +228,7 @@ class Profile:
                     "circle",
                     {
                         "fill": color.to_hex(),
-                        "stroke": color.highlight().to_hex(),
+                        "stroke": color.highlight(0.25).to_hex(),
                         "stroke-width": "10",
                         "cx": _format(500),
                         "cy": _format(500 + self.homing.bump.offset),

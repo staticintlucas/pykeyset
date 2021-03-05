@@ -74,7 +74,7 @@ class Layout:
         if config().show_align:
             for size in set(key.legsize):
                 rect = ctx.profile.legend_rect(key, size)
-                g.append(self.drawlegendrect(key, rect))
+                g.append(self.drawlegendrect(rect))
 
         for i, (legend, size, color) in enumerate(zip(key.legend, key.legsize, key.fgcol)):
 
@@ -86,10 +86,6 @@ class Layout:
 
             rect = ctx.profile.legend_rect(key, size)
             size = ctx.profile.legend_size(size)
-
-            if key.size == "iso" and valign == 0:
-                rect.x -= 250
-                rect.w += 250
 
             legendlist = self.parselegend(legend)
 
@@ -227,40 +223,20 @@ class Layout:
                 },
             )
 
-    def drawlegendrect(self, key, rect):
+    def drawlegendrect(self, rect):
 
-        if key.size == "iso":
-            result = et.Element(
-                "path",
-                {
-                    "d": str(
-                        Path()
-                        .M(Vector(rect.x - 250, rect.y))
-                        .h(rect.w + 250)
-                        .v(rect.h)
-                        .h(-rect.w)
-                        .v(-1)
-                        .h(-250)
-                        .z()
-                    ),
-                    "fill": "none",
-                    "stroke": "#f00",
-                    "stroke-width": _format(1000 / config().dpi / 0.75 / 3),
-                },
-            )
-        else:
-            result = et.Element(
-                "rect",
-                {
-                    "x": _format(rect.x),
-                    "y": _format(rect.y),
-                    "width": _format(rect.w),
-                    "height": _format(rect.h),
-                    "fill": "none",
-                    "stroke": "#f00",
-                    "stroke-width": _format(1000 / config().dpi / 0.75 / 3),
-                },
-            )
+        result = et.Element(
+            "rect",
+            {
+                "x": _format(rect.x),
+                "y": _format(rect.y),
+                "width": _format(rect.w),
+                "height": _format(rect.h),
+                "fill": "none",
+                "stroke": "#f00",
+                "stroke-width": _format(1000 / config().dpi / 0.75 / 3),
+            },
+        )
 
         return result
 

@@ -16,7 +16,9 @@ def test_init():
     assert font.em_size == 1000
     assert font.cap_height == 600
     assert font.x_height == 400
+    assert font.line_height == 1200
     assert font.slope == 0
+    assert font.char_spacing == 0
     assert font._glyphs == {}
 
     assert isinstance(font._replacement, Glyph)
@@ -55,3 +57,10 @@ def test_add_get_glyph():
     assert font.glyph("D", 600) is None
 
     assert isclose(font.replacement(726).advance, 638)
+
+
+def test_line_spacing():
+
+    font = Font("test", 1000, 600, 400, 1200, 0, 0)
+
+    assert isclose(font.line_spacing(10), 20)

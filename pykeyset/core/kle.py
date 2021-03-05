@@ -202,7 +202,10 @@ class KleFile:
         if _is_stepped_caps(props):
             size = "step"
         elif _is_iso_enter(props):
-            size = "iso"
+            if "iso_h" in props.p:
+                size = "iso_h"
+            else:
+                size = "iso_v"
             if props.x2 < 0:
                 pos = pos._replace(x=pos.x + props.x2)
         else:

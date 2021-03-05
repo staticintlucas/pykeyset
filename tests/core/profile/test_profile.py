@@ -65,7 +65,8 @@ def test_init(profile):
     "key_type, key_size, result_type",
     [
         (KeyType.NORM, Vector(1, 1), ("rect", "path")),
-        (KeyType.NORM, "iso", ("path", "path")),
+        (KeyType.NORM, "iso_h", ("path", "path")),
+        (KeyType.NORM, "iso_v", ("path", "path")),
         (KeyType.NORM, "step", ("rect", "path", "path")),
         (KeyType.NONE, Vector(1, 1), ()),
     ],
@@ -100,7 +101,7 @@ def test_key(profile, key_type, key_size, result_type):
         (4, "step", KeyType.NORM, TXT_RECT.symbol._replace(w=TXT_RECT.symbol.w + 250)),
         (
             4,
-            "iso",
+            "iso_v",
             KeyType.NORM,
             TXT_RECT.symbol._replace(
                 x=TXT_RECT.symbol.x + 250,
@@ -108,6 +109,7 @@ def test_key(profile, key_type, key_size, result_type):
                 h=TXT_RECT.symbol.h + 1000,
             ),
         ),
+        (4, "iso_h", KeyType.NORM, TXT_RECT.symbol._replace(w=TXT_RECT.symbol.w + 500)),
         (4, Vector(1, 1), KeyType.NONE, BTM_RECT.as_rect()),
     ],
 )
