@@ -136,17 +136,16 @@ class Profile:
             )
 
         else:
-
+            # curvature of the edges of the key top based on its depth. 0.381 is what "looks right",
+            # there's no other magic behind it
             curve = depth * 0.381
             gradtype = GradientType.SCOOP if keytype == KeyType.SCOOP else GradientType.KEY
 
-            # Calculate the radius of the arc for horizontal and vertical (for spherical) curved
-            # keytop edges using standard formula for segments of an arc using w/h as the widths
-            # and curve as the height
-            hr = (curve ** 2 + (width ** 2 / 4)) / (2 * curve)
-            vr = (curve ** 2 + (height ** 2 / 4)) / (2 * curve)
-
             if keytype == KeyType.SPACE:
+
+                # radius of the curved edges of either side of the top surface of the spacebar
+                vr = (curve ** 2 + (height ** 2 / 4)) / (2 * curve)
+
                 path = (
                     Path()
                     .M(Vector(rect.x, rect.y + rect.r))
@@ -163,6 +162,10 @@ class Profile:
                 gradtype = GradientType.SPACE
 
             elif self.type == ProfileType.CYLINDRICAL:
+
+                # radius of the curved edge at the bottom of the key top rectangle
+                hr = (curve ** 2 + (width ** 2 / 4)) / (2 * curve)
+
                 path = (
                     Path()
                     .M(Vector(rect.x, rect.y + rect.r))
@@ -177,19 +180,61 @@ class Profile:
                 )
 
             else:  # ProfileType.SPHERICAL
+
+                # radius of the curved edges of the key top rectangle
+                width = rect.w - 2 * rect.r
+                height = rect.h - 2 * rect.r
+                hr = (curve ** 2 + (width ** 2 / 4)) / (2 * curve)
+                vr = (curve ** 2 + (height ** 2 / 4)) / (2 * curve)
+
                 path = (
                     Path()
                     .M(Vector(rect.x, rect.y + rect.r))
                     .a(Vector(rect.r, rect.r), 0, False, True, Vector(rect.r, -rect.r))
-                    .a(Vector(hr, hr), 0, False, True, Vector(width, 0))
-                    .a(Vector(rect.r, rect.r), 0, False, True, Vector(rect.r, rect.r))
-                    .a(Vector(vr, vr), 0, False, True, Vector(0, height))
-                    .a(Vector(rect.r, rect.r), 0, False, True, Vector(-rect.r, rect.r))
-                    .a(Vector(hr, hr), 0, False, True, Vector(-width, 0))
-                    .a(Vector(rect.r, rect.r), 0, False, True, Vector(-rect.r, -rect.r))
-                    .a(Vector(vr, vr), 0, False, True, Vector(0, -height))
-                    .z()
                 )
+                if size.x > 1:
+                    (
+                        path.a(Vector(hr, hr), 0, False, True, Vector(width / 2, -curve))
+                        .h(1000 * (size.x - 1))
+                        .a(Vector(hr, hr), 0, False, True, Vector(width / 2, curve))
+                    )
+                else:
+                    path.a(Vector(hr, hr), 0, False, True, Vector(width, 0))
+
+                path.a(Vector(rect.r, rect.r), 0, False, True, Vector(rect.r, rect.r))
+
+                if size.y > 1:
+                    (
+                        path.a(Vector(vr, vr), 0, False, True, Vector(curve, height / 2))
+                        .v(1000 * (size.y - 1))
+                        .a(Vector(vr, vr), 0, False, True, Vector(-curve, height / 2))
+                    )
+                else:
+                    path.a(Vector(vr, vr), 0, False, True, Vector(0, height))
+
+                path.a(Vector(rect.r, rect.r), 0, False, True, Vector(-rect.r, rect.r))
+
+                if size.x > 1:
+                    (
+                        path.a(Vector(hr, hr), 0, False, True, Vector(-width / 2, curve))
+                        .h(-1000 * (size.x - 1))
+                        .a(Vector(hr, hr), 0, False, True, Vector(-width / 2, -curve))
+                    )
+                else:
+                    path.a(Vector(hr, hr), 0, False, True, Vector(-width, 0))
+
+                path.a(Vector(rect.r, rect.r), 0, False, True, Vector(-rect.r, -rect.r))
+
+                if size.y > 1:
+                    (
+                        path.a(Vector(vr, vr), 0, False, True, Vector(-curve, -height / 2))
+                        .v(-1000 * (size.y - 1))
+                        .a(Vector(vr, vr), 0, False, True, Vector(curve, -height / 2))
+                    )
+                else:
+                    path.a(Vector(vr, vr), 0, False, True, Vector(0, -height))
+
+                path.z()
 
             et.SubElement(
                 g,
@@ -296,15 +341,11 @@ class Profile:
 
         else:
 
-            # Calculate the radius of the arc for horizontal and vertical (for spherical) curved
-            # keytop edges using standard formula for segments of an arc using w/h as the widths
-            # and curve as the height
-            top_r, btm_r, lefttop_r, leftbtm_r, right_r = (
-                (curve ** 2 + (d ** 2 / 4)) / (2 * curve)
-                for d in (w_top, w_btm, h_lefttop, h_leftbtm, h_right)
-            )
-
             if self.type == ProfileType.CYLINDRICAL:
+
+                # radius of the curved edge at the bottom of the key top rectangle
+                hr = (curve ** 2 + (w_btm ** 2 / 4)) / (2 * curve)
+
                 path = (
                     Path()
                     .M(Vector(rect.x, rect.y + rect.r))
@@ -313,7 +354,7 @@ class Profile:
                     .a(Vector(rect.r, rect.r), 0, False, True, Vector(rect.r, rect.r))
                     .v(h_right)
                     .a(Vector(rect.r, rect.r), 0, False, True, Vector(-rect.r, rect.r))
-                    .a(Vector(btm_r, btm_r), 0, False, True, Vector(-w_btm, 0))
+                    .a(Vector(hr, hr), 0, False, True, Vector(-w_btm, 0))
                     .a(Vector(rect.r, rect.r), 0, False, True, Vector(-rect.r, -rect.r))
                     .v(-(h_leftbtm))
                     .a(Vector(rect.r, rect.r), 0, False, False, Vector(-rect.r, -rect.r))
@@ -324,21 +365,37 @@ class Profile:
                 )
 
             else:  # ProfileType.SPHERICAL
+
+                # radius of the curved edges of the key top rectangle
+                width = rect.w - 2 * rect.r
+                height = rect.h - 2 * rect.r
+                hr = (curve ** 2 + (width ** 2 / 4)) / (2 * curve)
+                vr = (curve ** 2 + (height ** 2 / 4)) / (2 * curve)
+
+                h_leftbtm = 1000 - curve / 2 - 2 * rect.r
+
                 path = (
                     Path()
                     .M(Vector(rect.x, rect.y + rect.r))
                     .a(Vector(rect.r, rect.r), 0, False, True, Vector(rect.r, -rect.r))
-                    .a(Vector(top_r, top_r), 0, False, True, Vector(w_top, 0))
+                    .a(Vector(hr, hr), 0, False, True, Vector(width / 2, -curve))
+                    .h(500)
+                    .a(Vector(hr, hr), 0, False, True, Vector(width / 2, curve))
                     .a(Vector(rect.r, rect.r), 0, False, True, Vector(rect.r, rect.r))
-                    .a(Vector(right_r, right_r), 0, False, True, Vector(0, h_right))
+                    .a(Vector(vr, vr), 0, False, True, Vector(curve, height / 2))
+                    .v(1000)
+                    .a(Vector(vr, vr), 0, False, True, Vector(-curve, height / 2))
                     .a(Vector(rect.r, rect.r), 0, False, True, Vector(-rect.r, rect.r))
-                    .a(Vector(btm_r, btm_r), 0, False, True, Vector(-w_btm, 0))
+                    .a(Vector(hr, hr), 0, False, True, Vector(-width / 2, curve))
+                    .h(-250)
+                    .a(Vector(hr, hr), 0, False, True, Vector(-width / 2, -curve))
                     .a(Vector(rect.r, rect.r), 0, False, True, Vector(-rect.r, -rect.r))
-                    .a(Vector(leftbtm_r, leftbtm_r), 0, False, True, Vector(0, -h_leftbtm))
+                    .a(Vector(vr, vr), 0, False, True, Vector(-curve, -height / 2))
+                    .v(-(h_leftbtm - height / 2))
                     .a(Vector(rect.r, rect.r), 0, False, False, Vector(-rect.r, -rect.r))
-                    .l(Vector(-(250 - 2 * rect.r), -curve / 3))
+                    .l(Vector(-(250 - 2 * rect.r - curve), -curve / 2))
                     .a(Vector(rect.r, rect.r), 0, False, True, Vector(-rect.r, -rect.r))
-                    .a(Vector(lefttop_r, lefttop_r), 0, False, True, Vector(0, -h_lefttop))
+                    .a(Vector(vr, vr), 0, False, True, Vector(0, -h_lefttop))
                     .z()
                 )
 
