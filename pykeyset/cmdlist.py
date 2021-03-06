@@ -24,6 +24,7 @@ COMMANDS: Dict[str, Callable] = {
     # "generate texture": # TODO generate a texture file (for renders, etc.)
     "save svg": core.save.as_svg,
     "save png": core.save.as_png,
+    "save pdf": core.save.as_pdf,
     "save ai": core.save.as_ai,
     "newfont": core.fontgen.fontgen,
 }

@@ -6,7 +6,7 @@ from ..utils.logging import error, format_filename, warning
 
 
 def as_svg(ctx, filename):
-    """export the generated graphic as an SVG file"""
+    """save the generated graphic as an SVG graphic"""
 
     if ctx.layout is None:
         error(ValueError("no layout has been generated"), file=ctx.name)
@@ -21,7 +21,7 @@ def as_svg(ctx, filename):
 
 
 def as_png(ctx, filename):
-    """export the generated graphic as a PNG file"""
+    """save the graphic as a PNG image (requires Cairo)"""
 
     if ctx.layout is None:
         error(ValueError("no layout has been generated"), file=ctx.name)
@@ -39,13 +39,8 @@ def as_png(ctx, filename):
         )
 
 
-def as_ai(ctx, filename):
-    """export the generated graphic as an AI file (experimental)"""
-
-    warning(
-        ValueError("saving AI is an experimental feature"),
-        "Please check that the generated files are correct",
-    )
+def as_pdf(ctx, filename):
+    """save the graphic as a PDF file (requires Cairo)"""
 
     if ctx.layout is None:
         error(ValueError("no layout has been generated"), file=ctx.name)
@@ -61,3 +56,14 @@ def as_ai(ctx, filename):
             IOError(f"cannot write to file {format_filename(filename)}: {e.strerror}"),
             file=ctx.name,
         )
+
+
+def as_ai(ctx, filename):
+    """save the graphic as an AI file (experimental; requires Cairo)"""
+
+    warning(
+        ValueError("saving AI is an experimental feature"),
+        "Please check that the generated files are correct",
+    )
+
+    as_pdf(ctx, filename)

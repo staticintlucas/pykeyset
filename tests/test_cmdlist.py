@@ -120,9 +120,10 @@ def test_format_options():
         load icons <file>         load built in icons or an XML icon/novelty file
         load profile <file>       load a built in profile or a profile config file
         generate layout           generate a layout diagram from the loaded resources
-        save svg <filename>       export the generated graphic as an SVG file
-        save png <filename>       export the generated graphic as a PNG file
-        save ai <filename>        export the generated graphic as an AI file (experimental)
+        save svg <filename>       save the generated graphic as an SVG graphic
+        save png <filename>       save the graphic as a PNG image (requires Cairo)
+        save pdf <filename>       save the graphic as a PDF file (requires Cairo)
+        save ai <filename>        save the graphic as an AI file (experimental; requires Cairo)
         newfont <output> <input>  create a new XML font file from a source font
         """,
     )
