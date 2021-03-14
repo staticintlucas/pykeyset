@@ -248,7 +248,7 @@ class KleFile:
         else:
             fgcol = 12 * [Color.from_hex(props.t)]
 
-        legsize = props.fa[:9]
+        legsize = kle_to_ord(props.fa, props.a)[:9]
 
         return (pos, size, type, legend, legsize, bgcol, fgcol)
 
@@ -273,6 +273,7 @@ class _Props:
         self.a = self.defaults["a"]  # alignment
         self.p = self.defaults["p"]  # profile info
         self.f = self.defaults["f"]  # font size
+        self.f2 = self.defaults["f2"]  # font size
         self.fa = self.defaults["fa"]  # per-legend font size
 
         self.maxw = 0
@@ -299,6 +300,7 @@ class _Props:
             "a": 4,
             "p": "",
             "f": 3,
+            "f2": 3,
             "fa": [3] * 12,
         }
 
@@ -321,9 +323,11 @@ class _Props:
         self.p = props.get("p", self.p)
         if "f" in props:
             self.f = props["f"]
+            self.f2 = self.f
             self.fa = [self.f] * 12
         if "f2" in props:
-            self.fa = [self.f] + [props["f2"]] * 11
+            self.f2 = props["f2"]
+            self.fa = [self.f] + [self.f2] * 11
         if "fa" in props:
             for i, f in enumerate(props["fa"]):
                 if f != 0:
