@@ -62,7 +62,17 @@ class Profile:
             rect = Rect(*self.text_rect.alpha)  # type: ignore  # TODO when we drop 3.6 support
 
         if key.type == KeyType.NONE:
-            rect = Rect(self.bottom.x, self.bottom.y, self.bottom.w, self.bottom.h)
+            margin = Vector(
+                rect.x - self.top.x,
+                rect.y - self.top.y,
+            )
+
+            rect = Rect(
+                self.bottom.x + margin.x,
+                self.bottom.y + margin.y,
+                self.bottom.w - 2 * margin.x,
+                self.bottom.h - 2 * margin.y,
+            )
 
         if key.size == "iso_v":
             rect = rect._replace(x=rect.x + 250, w=rect.w + 250, h=rect.h + 1000)
