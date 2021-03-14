@@ -110,7 +110,17 @@ def test_key(profile, key_type, key_size, result_type):
             ),
         ),
         (4, "iso_h", KeyType.NORM, TXT_RECT.symbol._replace(w=TXT_RECT.symbol.w + 500)),
-        (4, Vector(1, 1), KeyType.NONE, BTM_RECT.as_rect()),
+        (
+            4,
+            Vector(1, 1),
+            KeyType.NONE,
+            Rect(
+                BTM_RECT.x + (TXT_RECT.symbol.x - TOP_RECT.x),
+                BTM_RECT.y + (TXT_RECT.symbol.y - TOP_RECT.y),
+                BTM_RECT.w - 2 * (TXT_RECT.symbol.x - TOP_RECT.x),
+                BTM_RECT.h - 2 * (TXT_RECT.symbol.y - TOP_RECT.y),
+            ),
+        ),
     ],
 )
 def test_legend_rect(profile, text_size, key_size, key_type, rect):
