@@ -1,0 +1,35 @@
+type = 'spherical'
+depth = 0.6
+
+[bottom]
+width = 18.2
+height = 18.2
+radius = 0.25
+
+[top]
+width = 12.2
+height = 12.2
+radius = 1.25
+y-offset = -0.75
+
+[legend]
+width = 9.1
+height = 9.5
+y-offset = 0
+
+[legend.alpha]
+size = 4.1
+
+[legend.symbol]
+size = 3.9
+
+[legend.mod]
+size = 3.1
+
+[homing]
+default = 'bar'
+
+[homing.bar]
+width = 3.4
+height = 0.5
+y-offset = 5.5
