@@ -13,39 +13,22 @@ A Python-based tool to create pretty keyset layout diagrams using correct fonts 
 
 ## Warning
 
+**The source for the original pure-Python implementation is available in the v0.0.x branch.
+The main branch is currently a work-in-progress port to using the [keyset-rs] backend.**
+
 **This project is currently in the early stages of development.
-It currently supports exactly what I need for TA Origins, and not much else.
-At the moment it has only just over 75% test coverage, but this is continuously increasing.
-If you do find any bug or experience any crashes, please report them on the [GitHub repo][pykeyset].
+If you do find any bugs, please report them on the [GitHub repo][pykeyset].
 In future I hope to stabilise this project, add more extensive support for different profiles, fonts, file formats, etc; and have a more extensive API.**
 
 Feel free to help this project improve by opening bug reports, feature requests, etc; or contributing directly to the code by opening a pull request.
 
-## Example usage
-
-`pykeyset` uses commands to tell it what to do.
-The easiest way is to use it is to create a *.cmdlist* (command list) file.
-Each line of the command list is a command for pykeyset to execute.
-
-For example, a file called *example.cmdlist* contains the following commands:
-
-    load kle http://www.keyboard-layout-editor.com/#/gists/102f1fb614275f50e39d970d691e1030
-    load profile cherry
-    load font cherry
-    generate layout
-    save svg example.svg
-
-To execute the command list run:
-
-    pykeyset run example.cmdlist
-
-The output in *example.svg* is:
+## Example output
 
 ![example.svg](example/example.png)
 
 ## Python API
 
-Currently you *can* use `pykeyset` directly as a Python module, but as it is still in early development the API will probably change *a lot* until a 0.1 release.
+Currently you *can* use `pykeyset` directly as a Python module, but as it is still in early development the API will probably change *a lot* until a 0.5 release.
 After that there will be a relatively stable API, so you don't need to mess around with *.cmdlist* files if you're familiar with Python.
 
 ## Installation
@@ -60,14 +43,28 @@ Or to install the latest source directly from GitHub, run:
     cd pykeyset
     pip install .
 
-This project uses [Poetry] as it's dependency manager and build system.
+This project uses [Maturin] as its build system.
 To install this package locally for development, run:
 
-    poetry install
+    maturin develop
 
 To build the source distribution and wheel run:
 
-    poetry build
+    maturin build
+
+Additionally, for release builds the following platform-specific flags are added:
+
+* Linux:
+
+      maturin build --manylinux 2014 --release
+
+* MacOs:
+
+      maturin build --universal2 --release
+
+* Windows:
+
+      maturin build --release
 
 ## Contributing
 
@@ -85,8 +82,9 @@ The builtin `cherry` font is based on [Open Cherry] by Dakota Felder.
 [licence]: LICENCE
 [pypi]: https://pypi.org/project/pykeyset/
 [black]: https://github.com/psf/black
+[keyset-rs]: https://github.com/staticintlucas/keyset-rs
 [isort]: https://pycqa.github.io/isort/
-[Poetry]: https://python-poetry.org/
+[maturin]: https://github.com/PyO3/maturin/
 [open cherry]: https://github.com/dakotafelder/open-cherry
 [flake8]: https://flake8.pycqa.org/en/latest/
 [pre-commit]: https://pre-commit.com/
