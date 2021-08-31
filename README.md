@@ -76,6 +76,19 @@ To run these tools automatically when committing, install the [pre-commit] hook 
 
 The builtin `cherry` font is based on [Open Cherry] by Dakota Felder.
 
+## Licence
+
+This project is licensed under either of
+
+* Apache License, Version 2.0 ([LICENCE-APACHE] or [http://www.apache.org/licenses/LICENSE-2.0])
+* MIT license ([LICENCE-MIT] or [http://opensource.org/licenses/MIT])
+
+at your option.
+
+Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in
+this project by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without
+any additional terms or conditions.
+
 [pykeyset]: https://github.com/staticintlucas/pykeyset
 [actions]: https://github.com/staticintlucas/pykeyset/actions
 [coverage]: https://codecov.io/gh/staticintlucas/pykeyset
@@ -89,3 +102,7 @@ The builtin `cherry` font is based on [Open Cherry] by Dakota Felder.
 [flake8]: https://flake8.pycqa.org/en/latest/
 [pre-commit]: https://pre-commit.com/
 [`.pre-commit-config.yaml`]: .pre-commit-config.yaml
+[LICENCE-APACHE]: LICENCE-APACHE
+[http://www.apache.org/licenses/LICENSE-2.0]: http://www.apache.org/licenses/LICENSE-2.0
+[LICENCE-MIT]: LICENCE-MIT
+[http://opensource.org/licenses/MIT]: http://opensource.org/licenses/MIT
