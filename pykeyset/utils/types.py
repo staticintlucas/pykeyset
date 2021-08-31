@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import colorsys
 from enum import Enum
 from math import atan2, cos, sin, sqrt

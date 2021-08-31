@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from typing import Any, NamedTuple, Optional
 
 from . import Verbosity
@@ -41,6 +39,7 @@ def set_config(**kwargs: Any) -> None:
 
     if _config is None:
         reset_config()  # pragma: no cover
+        assert _config is not None  # For the sake of intellisense
 
     _config = _Config(
         show_align=kwargs.pop("show_align", _config.show_align),

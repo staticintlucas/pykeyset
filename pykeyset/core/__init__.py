@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from . import fontgen, save
 from .font import Font
 from .icon import IconSet

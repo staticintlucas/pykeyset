@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import inspect
 import shlex
 from inspect import signature

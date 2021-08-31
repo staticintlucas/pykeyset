@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import sys
 from enum import Enum
 from typing import Generic, NamedTuple, Optional, TypeVar
