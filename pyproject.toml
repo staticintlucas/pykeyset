@@ -1,66 +1,17 @@
-[tool.poetry]
+[build-system]
+requires = ["maturin>=0.11,<0.12"]
+build-backend = "maturin"
+
+[project]
 name = "pykeyset"
-version = "0.0.0"  # Placeholder for poetry-dynamic-versioning
-description = """\
-    A Python-based tool to create pretty keyset layout diagrams using correct fonts and icons."""
-license = "MIT"
-authors = ["Lucas Jansen <7199136+staticintlucas@users.noreply.github.com>"]
-readme = "README.md"
-repository = "https://github.com/staticintlucas/pykeyset"
-classifiers = [
-    "Development Status :: 3 - Alpha",
-    "Operating System :: OS Independent",
-    "Topic :: Utilities",
-    "Programming Language :: Python :: Implementation :: CPython",
-    # TODO no PyPy support because recordclass fails to compile
-    # "Programming Language :: Python :: Implementation :: PyPy",
-    # Manually add Python 3.6 classifier because Poetry doesn't automatically do it since we only
-    # support ^3.6.2
-    "Programming Language :: Python :: 3.6",
-]
 
-[tool.poetry.scripts]
+[project.scripts]
 pykeyset = "pykeyset.__main__:app"
-
-[tool.poetry.dependencies]
-python = "^3.6.2"
-toml = "^0.10.1"
-recordclass = "^0.14.0"
-importlib-resources = { version="^4.0", python="<3.7" }
-typer = {version = "^0.3.0", extras = ["all"]}
-click = "^7.1.1"
-enum-tools = "^0.6.1"
-rich = "^9.0.0"
-CairoSVG = "^2.5.1"
-
-[tool.poetry.dev-dependencies]
-pytest = "^5.2"
-pytest-cov = "^2.9.0"
-pre-commit = "^2.1.1"
-
-[tool.poetry-dynamic-versioning]
-enable = true
-vcs = "git"
-format-jinja = """\
-    v{{ base }}\
-    {% if stage is not none %}\
-        -{{ stage }}{{ revision }}\
-    {% endif %}\
-    {% if distance > 0 or dirty %}\
-        +{{ distance }}.g{{ commit }}\
-    {% endif %}\
-    {% if dirty %}\
-        .dirty\
-    {% endif %}"""
 
 [tool.black]
 line-length = 100
-target-version = ["py36", "py37", "py38"]  # TODO add 3.9 when black gets support
+target-version = ["py36", "py37", "py38", "py39"]
 
 [tool.isort]
 profile = "black"
 multi_line_output = 3
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"

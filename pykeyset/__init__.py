@@ -1,1 +1,10 @@
-__version__ = "0.0.0"  # Placeholder for poetry-dynamic-versioning
+from typing import Tuple
+
+import pykeyset_rust
+
+
+def version() -> Tuple[int, int, int]:
+    return pykeyset_rust.version()
+
+
+__version__ = "{}.{}.{}".format(*version())

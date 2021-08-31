@@ -1,9 +1,7 @@
 from typing import NamedTuple
 
-from ...utils.path import Path
-
 
 class Glyph(NamedTuple):
     name: str
-    path: Path
+    path: str
     advance: float
