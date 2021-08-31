@@ -1,5 +1,26 @@
 # Change Log
 
+## [v0.0.4](https://github.com/staticintlucas/pykeyset/releases/tag/v0.0.4)
+
+### New
+
+* Support for multiple font sizes per key (KLE `f2` and `fa` properties)
+* Support for multi-line legends
+* Allow for character spacing adjustments
+* Support exporting PNG, PDF, and AI (experimental) files
+
+### Changes
+
+* Improve how position of homing keys is calculated
+* Better support for ISO enters
+* Change the way spherical keys are drawn to better reflect the shape of most spherical profiles
+
+### Fixes
+
+* Change alignment of decals to prevent overlap with keys
+
+---
+
 ## [v0.0.3](https://github.com/staticintlucas/pykeyset/releases/tag/v0.0.3)
 
 ### Fixes
