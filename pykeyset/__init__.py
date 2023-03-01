@@ -1,4 +1,4 @@
-import pykeyset_impl as impl
+from . import pykeyset as impl
 
 __all__ = ["__version_info__", "__version__"]
 
