@@ -9,5 +9,5 @@ name = "pykeyset_impl"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = { version = "0.14", features = ["extension-module", "abi3-py36"] }
-konst = "0.2"
+pyo3 = { version = "0.18", features = ["extension-module", "abi3-py37"] }
+konst = "0.3"

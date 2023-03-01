@@ -1,12 +1,12 @@
 use pyo3::basic::CompareOp;
 use pyo3::types::PyTuple;
 use pyo3::prelude::*;
-use pyo3::{PyObjectProtocol, PySequenceProtocol, PyMappingProtocol, PyIterProtocol};
+
 use konst::primitive::parse_u8;
 use konst::result::unwrap_ctx;
 
-#[pyclass(module="pykeyset.impl", name="version_info")]
-#[derive(Debug, Clone, Copy)]
+// #[derive(Debug, Clone, Copy)]
+#[pyclass(mapping, module="pykeyset.impl", name="version_info")]
 pub struct Version {
     #[pyo3(get)]
     major: u8,
@@ -45,6 +45,9 @@ impl Version {
     }
 }
 
+#[pyclass]
+pub struct VersionIter(std::vec::IntoIter<PyObject>);
+
 #[pymethods]
 impl Version {
     pub fn count(&self, value: &PyAny) -> PyResult<PyObject> {
@@ -61,10 +64,7 @@ impl Version {
             self.as_tuple().call_method1(py, "index", (value, start, stop))
         })
     }
-}
 
-#[pyproto]
-impl PyObjectProtocol for Version {
     fn __str__(&self) -> String {
         if let Some(prerelease) = self.prerelease {
             format!("{}.{}.{}-{}", self.major, self.minor, self.patch, prerelease)
@@ -76,7 +76,7 @@ impl PyObjectProtocol for Version {
     fn __repr__(&self) -> String {
         let prerelease = self.prerelease.unwrap_or("None");
 
-        format!("pykeyset.impl.version_info(major={}, minor={}, patch={}, prerelease={})", self.major, self.minor, self.patch, prerelease)
+        format!("pykeyset.impl.version_info(major={}, minor={}, patch={}, releaselevel={})", self.major, self.minor, self.patch, prerelease)
     }
 
     fn __richcmp__(&self, value: &PyAny, op: CompareOp) -> PyResult<PyObject> {
@@ -92,17 +92,14 @@ impl PyObjectProtocol for Version {
             self.as_tuple().call_method1(py, name, (value, ))
         )
     }
-}
 
-#[pyproto]
-impl PySequenceProtocol for Version {
     fn __len__(&self) -> PyResult<usize> {
         Python::with_gil(|py|
             self.as_tuple().call_method0(py, "__len__")?.extract(py)
         )
     }
 
-    fn __getitem__(&self, key: isize) -> PyResult<PyObject> {
+    fn __getitem__(&self, key: &PyAny) -> PyResult<PyObject> {
         Python::with_gil(|py|
             self.as_tuple().call_method1(py, "__getitem__", (key, ))
         )
@@ -125,35 +122,14 @@ impl PySequenceProtocol for Version {
             self.as_tuple().call_method1(py, "__mul__", (value, ))
         )
     }
-}
 
-#[pyproto]
-impl PyMappingProtocol for Version {
-    fn __len__(&self) -> PyResult<usize> {
-        Python::with_gil(|py|
-            self.as_tuple().call_method0(py, "__len__")?.extract(py)
-        )
-    }
-
-    fn __getitem__(&self, key: &PyAny) -> PyResult<PyObject> {
-        Python::with_gil(|py|
-            self.as_tuple().call_method1(py, "__getitem__", (key, ))
-        )
-    }
-}
-
-#[pyclass]
-pub struct VersionIter(std::vec::IntoIter<PyObject>);
-
-#[pyproto]
-impl PyIterProtocol for Version {
     fn __iter__(slf: PyRef<Self>) -> VersionIter {
         VersionIter((&*slf).as_vec().into_iter())
     }
 }
 
-#[pyproto]
-impl PyIterProtocol for VersionIter {
+#[pymethods]
+impl VersionIter {
     fn __iter__(slf: PyRef<Self>) -> PyRef<Self> {
         slf
     }
