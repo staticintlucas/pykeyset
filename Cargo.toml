@@ -10,4 +10,3 @@ crate-type = ["cdylib"]
 
 [dependencies]
 pyo3 = { version = "0.18", features = ["extension-module", "abi3-py37"] }
-konst = "0.3"

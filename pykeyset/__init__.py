@@ -1,6 +1,2 @@
-from . import pykeyset as impl
-
-__all__ = ["__version_info__", "__version__"]
-
-__version_info__ = impl.version_info
-__version__ = str(__version_info__)
+from .pykeyset import *  # noqa: F401, F403
+from .pykeyset import __all__  # noqa: F401
