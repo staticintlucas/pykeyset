@@ -1,28 +1,35 @@
 use std::str::FromStr;
 use std::{error, fmt};
+use std::convert::Into;
 
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::pyclass::CompareOp;
-use pyo3::types::PyTuple;
+use pyo3::types::{PyTuple, PySequence};
 
+pub fn version() -> Result<Version, VersionError> {
+    Version::from_str(env!("CARGO_PKG_VERSION"))
+}
+
+// Error type errors parsing a version string
 #[derive(Debug, Clone)]
-pub struct InvalidVersion(String);
+pub struct VersionError(String);
 
-impl error::Error for InvalidVersion {}
+impl error::Error for VersionError {}
 
-impl fmt::Display for InvalidVersion {
+impl fmt::Display for VersionError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.0.fmt(f)
     }
 }
 
-impl From<InvalidVersion> for PyErr {
-    fn from(value: InvalidVersion) -> Self {
+impl From<VersionError> for PyErr {
+    fn from(value: VersionError) -> Self {
         PyValueError::new_err(value.0)
     }
 }
 
+// Release Level similar to what Python uses
 #[derive(Debug, Clone, Copy)]
 enum ReleaseLevel {
     Alpha,
@@ -32,14 +39,14 @@ enum ReleaseLevel {
 }
 
 impl FromStr for ReleaseLevel {
-    type Err = InvalidVersion;
+    type Err = VersionError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "alpha" => Ok(Self::Alpha),
             "beta" => Ok(Self::Beta),
             "candidate" => Ok(Self::Candidate),
             "final" => Ok(Self::Final),
-            _ => Err(InvalidVersion(format!("invalid release level '{s}'"))),
+            _ => Err(VersionError(format!("invalid release level '{s}'"))),
         }
     }
 }
@@ -58,12 +65,13 @@ impl fmt::Display for ReleaseLevel {
 
 impl IntoPy<PyObject> for ReleaseLevel {
     fn into_py(self, py: Python<'_>) -> PyObject {
-        format!("{}", self).into_py(py)
+        format!("{self}").into_py(py)
     }
 }
 
+// Reimplementation of sys.version_info's type
 #[pyclass(
-    mapping,
+    sequence,
     get_all,
     frozen,
     module = "pykeyset",
@@ -79,7 +87,8 @@ pub struct Version {
 }
 
 impl FromStr for Version {
-    type Err = InvalidVersion;
+    type Err = VersionError;
+
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         fn from_str_impl(s: &str) -> Option<Version> {
             let (major, rest) = s.split_once('.')?;
@@ -101,7 +110,7 @@ impl FromStr for Version {
             })
         }
 
-        from_str_impl(s).ok_or(InvalidVersion(format!("invalid version string {s}")))
+        from_str_impl(s).ok_or(VersionError(format!("invalid version string {s}")))
     }
 }
 
@@ -124,46 +133,25 @@ impl fmt::Display for Version {
 }
 
 impl Version {
-    fn as_vec(&self) -> Vec<PyObject> {
-        Python::with_gil(|py| {
-            vec![
+    fn as_tuple(&self, py:Python) -> Py<PyTuple> {
+        PyTuple::new(
+            py,
+            [
                 self.major.into_py(py),
                 self.minor.into_py(py),
                 self.patch.into_py(py),
                 self.releaselevel.into_py(py),
                 self.serial.into_py(py),
-            ]
-        })
-    }
-
-    fn as_tuple(&self) -> Py<PyTuple> {
-        Python::with_gil(|py| {
-            PyTuple::new(
-                py,
-                [
-                    self.major.into_py(py),
-                    self.minor.into_py(py),
-                    self.patch.into_py(py),
-                    self.releaselevel.into_py(py),
-                    self.serial.into_py(py),
-                ],
-            )
-            .into()
-        })
-    }
-
-    pub fn pykeyset() -> Result<Self, InvalidVersion> {
-        Self::from_str(env!("CARGO_PKG_VERSION"))
+            ],
+        )
+        .into()
     }
 }
 
-#[pyclass]
-pub struct VersionIter(std::vec::IntoIter<PyObject>);
-
 #[pymethods]
 impl Version {
-    pub fn count(&self, value: &PyAny) -> PyResult<PyObject> {
-        Python::with_gil(|py| self.as_tuple().call_method1(py, "count", (value,)))
+    pub fn count(&self, value: &PyAny) -> PyResult<usize> {
+        Python::with_gil(|py| self.as_tuple(py).as_ref(py).as_sequence().count(value))
     }
 
     pub fn index(
@@ -173,10 +161,12 @@ impl Version {
         stop: Option<&PyAny>,
     ) -> PyResult<PyObject> {
         Python::with_gil(|py| {
+            // TODO calling index here with call_method because PySequence::index doesn't take
+            // start/stop values
             let start = start.unwrap_or(0_isize.into_py(py).into_ref(py));
             let stop = stop.unwrap_or(isize::MAX.into_py(py).into_ref(py));
 
-            self.as_tuple()
+            self.as_tuple(py)
                 .call_method1(py, "index", (value, start, stop))
         })
     }
@@ -192,36 +182,24 @@ impl Version {
         )
     }
 
-    fn __richcmp__(&self, value: &PyAny, op: CompareOp) -> PyResult<PyObject> {
-        let name = match op {
-            CompareOp::Lt => "__lt__",
-            CompareOp::Le => "__le__",
-            CompareOp::Eq => "__eq__",
-            CompareOp::Ne => "__ne__",
-            CompareOp::Gt => "__gt__",
-            CompareOp::Ge => "__ge__",
-        };
-        Python::with_gil(|py| self.as_tuple().call_method1(py, name, (value,)))
+    fn __richcmp__(&self, other: PyObject, compare_op: CompareOp) -> PyResult<PyObject> {
+        Python::with_gil(|py| self.as_tuple(py).as_ref(py).rich_compare(other, compare_op).map(Into::into))
     }
 
-    fn __len__(&self) -> PyResult<usize> {
-        Python::with_gil(|py| self.as_tuple().call_method0(py, "__len__")?.extract(py))
+    fn __len__(&self) -> usize {
+        Python::with_gil(|py| self.as_tuple(py).as_ref(py).len())
     }
 
-    fn __getitem__(&self, key: &PyAny) -> PyResult<PyObject> {
-        Python::with_gil(|py| self.as_tuple().call_method1(py, "__getitem__", (key,)))
+    fn __getitem__(&self, index: usize) -> PyResult<PyObject> {
+        Python::with_gil(|py| self.as_tuple(py).as_ref(py).get_item(index).map(Into::into))
     }
 
-    fn __concat__(&self, value: PyObject) -> PyResult<PyObject> {
-        Python::with_gil(|py| self.as_tuple().call_method1(py, "__add__", (value,)))
+    fn __concat__(&self, other: &PySequence) -> PyResult<PyObject> {
+        Python::with_gil(|py| self.as_tuple(py).as_ref(py).as_sequence().concat(other)?.tuple().map(Into::into))
     }
 
-    fn __contains__(&self, key: PyObject) -> PyResult<bool> {
-        Python::with_gil(|py| {
-            self.as_tuple()
-                .call_method1(py, "__contains__", (key,))?
-                .extract(py)
-        })
+    fn __contains__(&self, value: PyObject) -> PyResult<bool> {
+        Python::with_gil(|py| self.as_tuple(py).as_ref(py).contains(value))
     }
 
     #[getter]
@@ -229,22 +207,11 @@ impl Version {
         ("major", "minor", "micro", "releaselevel", "serial")
     }
 
-    fn __repeat__(&self, value: isize) -> PyResult<PyObject> {
-        Python::with_gil(|py| self.as_tuple().call_method1(py, "__mul__", (value,)))
+    fn __repeat__(&self, count: usize) -> PyResult<PyObject> {
+        Python::with_gil(|py| self.as_tuple(py).as_ref(py).as_sequence().repeat(count)?.tuple().map(Into::into))
     }
 
-    fn __iter__(slf: PyRef<Self>) -> VersionIter {
-        VersionIter((*slf).as_vec().into_iter())
-    }
-}
-
-#[pymethods]
-impl VersionIter {
-    fn __iter__(slf: PyRef<Self>) -> PyRef<Self> {
-        slf
-    }
-
-    fn __next__(mut slf: PyRefMut<Self>) -> Option<PyObject> {
-        slf.0.next()
+    fn __iter__(&self) -> PyResult<PyObject> {
+        Python::with_gil(|py| self.as_tuple(py).as_ref(py).as_sequence().iter().map(Into::into))
     }
 }
