@@ -1,7 +1,7 @@
-from enum_tools import OrderedEnum
+from enum import IntEnum
 
 
-class Verbosity(OrderedEnum):
+class Verbosity(IntEnum):
     NONE = 0
     QUIET = 1
     NORMAL = 2
@@ -9,7 +9,7 @@ class Verbosity(OrderedEnum):
     DEBUG = 4
 
 
-class Severity(OrderedEnum):
+class Severity(IntEnum):
     DEBUG = 0
     INFO = 1
     WARNING = 2

@@ -1,8 +1,7 @@
+from collections import namedtuple
 from enum import Enum
 
-from recordclass import recordclass
-
-Key = recordclass("Key", ("pos", "size", "type", "legend", "legsize", "bgcol", "fgcol"))
+Key = namedtuple("Key", ("pos", "size", "type", "legend", "legsize", "bgcol", "fgcol"))
 KeyType = Enum("KeyType", ["NONE", "NORM", "DEFHOME", "SCOOP", "BAR", "BUMP", "SPACE"])
 
 
@@ -25,17 +24,14 @@ def kle_to_ord(legends, index):
 
 class KleFile:
     def __init__(self):
-
         raise NotImplementedError
 
     @staticmethod
     def _load_url(ctx, url):
-
         raise NotImplementedError
 
     @staticmethod
     def _load_file(ctx, path):
-
         raise NotImplementedError
 
     @classmethod
@@ -45,5 +41,4 @@ class KleFile:
         raise NotImplementedError
 
     def _parsekey(self, string, props):
-
         raise NotImplementedError

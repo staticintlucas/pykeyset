@@ -10,6 +10,11 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
+dependencies = [
+    "typer[all] ~= 0.3.0",
+    "click ~= 7.1",
+    "rich ~= 9.0",
+]
 
 [project.scripts]
 pykeyset = "pykeyset.__main__:app"
