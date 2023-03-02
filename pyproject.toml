@@ -11,9 +11,9 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
-    "typer[all] ~= 0.3.0",
-    "click ~= 7.1",
-    "rich ~= 9.0",
+    "typer ~= 0.7.0",
+    "click ~= 8.1",
+    "rich ~= 13.0",
 ]
 
 [project.scripts]
