@@ -134,7 +134,6 @@ class Color(
     NamedTuple("Color", [("r", float), ("g", float), ("b", float)])
 ):
     def __new__(cls, r: float, g: float, b: float):
-
         for key, val in zip("rgb", (r, g, b)):
             if not 0.0 <= val <= 1.0:
                 raise ValueError(f"invalid value for '{key}' for Color(): '{val}'")

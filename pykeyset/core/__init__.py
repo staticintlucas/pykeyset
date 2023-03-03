@@ -8,7 +8,6 @@ from .profile import Profile
 
 class Context:
     def __init__(self, name):
-
         self.name = name
         self.kle = None
         self.font = None

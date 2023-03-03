@@ -1,6 +1,5 @@
 class Kerning:
     def __init__(self, cap_height):
-
         raise NotImplementedError
 
     def get(self, lhs: str, rhs: str, size: float) -> float:

@@ -63,7 +63,6 @@ def callback(
         help=print_version.__doc__,
     ),
 ) -> None:
-
     rich.traceback.install()
 
     global starttime
@@ -96,7 +95,6 @@ def callback(
 
 
 def result_callback(exit_code: int, **kwargs: Any) -> None:
-
     global profiler
     if profiler is not None:
         profiler.disable()

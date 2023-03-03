@@ -143,7 +143,6 @@ def format_filename(filename: Union[str, Path]) -> str:
 def print_message(
     message: str, severity: Severity, filename: Optional[Union[str, Path]] = None
 ) -> None:
-
     color = COLOR_MAP.get(severity, "magenta")
     prefix = severity.name.capitalize()
 

@@ -29,7 +29,6 @@ COMMANDS: Dict[str, Callable] = {
 
 
 def run(filepath: Path) -> None:
-
     context = core.Context(filepath)
 
     try:
@@ -41,7 +40,6 @@ def run(filepath: Path) -> None:
 
 
 def run_line(context: core.Context, string: str) -> None:
-
     line = shlex.split(string, comments=True)
 
     if len(line) == 0:
@@ -70,10 +68,8 @@ def run_line(context: core.Context, string: str) -> None:
 
 
 def format_options(ctx: Context, formatter: click.HelpFormatter) -> None:
-
     items = []
     for cmd, fun in COMMANDS.items():
-
         empty = inspect.Parameter.empty
         args = [
             f"<{p.name}>" if p.default is empty else f"[{p.name}]"

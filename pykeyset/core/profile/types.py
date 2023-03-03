@@ -83,7 +83,6 @@ if sys.version_info >= (3, 7):  # pragma: no cover
     class TextTypeProperty(TextTypePropertyBase, Generic[T]):
         pass
 
-
 else:  # pragma: no cover
     from typing import GenericMeta
 

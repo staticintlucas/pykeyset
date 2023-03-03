@@ -6,7 +6,6 @@ from .icon import Icon
 
 class IconSet:
     def __init__(self, name: str, icon_size: float):
-
         raise NotImplementedError
 
     def __len__(self) -> int:

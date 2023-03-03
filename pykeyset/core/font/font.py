@@ -14,7 +14,6 @@ class Font:
         slope: float,
         char_spacing: float,
     ):
-
         raise NotImplementedError
 
     def __len__(self) -> int:
@@ -29,7 +28,6 @@ class Font:
         raise NotImplementedError
 
     def line_spacing(self, size: float) -> float:
-
         raise NotImplementedError
 
     def add_glyph(self, glyph: Glyph) -> None:
