@@ -1,14 +1,27 @@
+mod built;
+
+use std::collections::HashMap;
+use std::convert::Into;
 use std::str::FromStr;
 use std::{error, fmt};
-use std::convert::Into;
 
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::pyclass::CompareOp;
-use pyo3::types::{PyTuple, PySequence};
+use pyo3::types::{PySequence, PyTuple};
 
 pub fn version() -> Result<Version, VersionError> {
     Version::from_str(env!("CARGO_PKG_VERSION"))
+}
+
+pub fn dep_version(dep: &str) -> Result<Version, VersionError> {
+    Version::from_str(
+        built::DEPENDENCIES
+            .into_iter()
+            .collect::<HashMap<_, _>>()
+            .get(dep)
+            .ok_or(VersionError(format!("cannot determine version for {dep}")))?,
+    )
 }
 
 // Error type errors parsing a version string
@@ -95,7 +108,9 @@ impl FromStr for Version {
             let (minor, rest) = rest.split_once('.')?;
             let (patch, rest) = rest.split_once('-').unwrap_or((rest, ""));
 
-            let (releaselevel, serial) = if let Some(tuple) = rest.split_once('.') {
+            let (releaselevel, serial) = if rest.is_empty() {
+                ("final", "0")
+            } else if let Some(tuple) = rest.split_once('.') {
                 tuple
             } else {
                 rest.split_at(rest.find(char::is_numeric)?)
@@ -133,7 +148,7 @@ impl fmt::Display for Version {
 }
 
 impl Version {
-    fn as_tuple(&self, py:Python) -> Py<PyTuple> {
+    fn as_tuple(&self, py: Python) -> Py<PyTuple> {
         PyTuple::new(
             py,
             [
@@ -183,7 +198,12 @@ impl Version {
     }
 
     fn __richcmp__(&self, other: PyObject, compare_op: CompareOp) -> PyResult<PyObject> {
-        Python::with_gil(|py| self.as_tuple(py).as_ref(py).rich_compare(other, compare_op).map(Into::into))
+        Python::with_gil(|py| {
+            self.as_tuple(py)
+                .as_ref(py)
+                .rich_compare(other, compare_op)
+                .map(Into::into)
+        })
     }
 
     fn __len__(&self) -> usize {
@@ -195,7 +215,14 @@ impl Version {
     }
 
     fn __concat__(&self, other: &PySequence) -> PyResult<PyObject> {
-        Python::with_gil(|py| self.as_tuple(py).as_ref(py).as_sequence().concat(other)?.tuple().map(Into::into))
+        Python::with_gil(|py| {
+            self.as_tuple(py)
+                .as_ref(py)
+                .as_sequence()
+                .concat(other)?
+                .tuple()
+                .map(Into::into)
+        })
     }
 
     fn __contains__(&self, value: PyObject) -> PyResult<bool> {
@@ -208,10 +235,23 @@ impl Version {
     }
 
     fn __repeat__(&self, count: usize) -> PyResult<PyObject> {
-        Python::with_gil(|py| self.as_tuple(py).as_ref(py).as_sequence().repeat(count)?.tuple().map(Into::into))
+        Python::with_gil(|py| {
+            self.as_tuple(py)
+                .as_ref(py)
+                .as_sequence()
+                .repeat(count)?
+                .tuple()
+                .map(Into::into)
+        })
     }
 
     fn __iter__(&self) -> PyResult<PyObject> {
-        Python::with_gil(|py| self.as_tuple(py).as_ref(py).as_sequence().iter().map(Into::into))
+        Python::with_gil(|py| {
+            self.as_tuple(py)
+                .as_ref(py)
+                .as_sequence()
+                .iter()
+                .map(Into::into)
+        })
     }
 }
