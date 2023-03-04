@@ -1,12 +1,8 @@
-import sys
+from __future__ import annotations
+
+import importlib.resources as ilr
 from os import path
 from pathlib import Path
-from typing import Optional
-
-if sys.version_info >= (3, 7):
-    import importlib.resources as ilr  # pragma: no cover
-else:
-    import importlib_resources as ilr  # pragma: no cover
 
 import click
 import typer
@@ -30,7 +26,7 @@ class ResourcePath:
         self.context = ilr.path(self.package, self.resource)  # type: ignore
         return self.context.__enter__(*args, **kwargs)  # type: ignore
 
-    def __exit__(self, *args, **kwargs) -> Optional[bool]:
+    def __exit__(self, *args, **kwargs) -> bool | None:
         try:
             return self.context.__exit__(*args, **kwargs)  # type: ignore
         finally:

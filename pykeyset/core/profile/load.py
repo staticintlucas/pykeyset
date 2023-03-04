@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import pathlib
-from typing import Any, MutableMapping, Tuple
+from typing import Any, MutableMapping
 
 from ...utils.types import Rect, RoundRect
 from .profile import Profile
@@ -29,7 +31,7 @@ def load_file(path: pathlib.Path) -> Profile:
     raise NotImplementedError
 
 
-def parse_root(name: str, root: MutableMapping[str, Any]) -> Tuple[ProfileType, float]:
+def parse_root(name: str, root: MutableMapping[str, Any]) -> tuple[ProfileType, float]:
     """Gets the global properties of the Profile, returning a tuple containing the KeyType and the
     depth"""
 
@@ -42,7 +44,7 @@ def parse_bottom(bottom: MutableMapping[str, Any]) -> RoundRect:
     raise NotImplementedError
 
 
-def parse_top(top: MutableMapping[str, Any]) -> Tuple[RoundRect, float]:
+def parse_top(top: MutableMapping[str, Any]) -> tuple[RoundRect, float]:
     """Parses the properties of the key's top rectangle, returning a tuple containing RoundRect
     object and a float representing the y-offset"""
 
@@ -51,7 +53,7 @@ def parse_top(top: MutableMapping[str, Any]) -> Tuple[RoundRect, float]:
 
 def parse_legend(
     legend_props: MutableMapping[str, Any], top_offset: float
-) -> Tuple[TextTypeProperty[Rect], TextTypeProperty[float]]:
+) -> tuple[TextTypeProperty[Rect], TextTypeProperty[float]]:
     """Parses the properties of the key's legend alignment rectangles, returning a tuple containing
     TextTypeProperty[Rect] and TextTypeProperty[float] objects containing the rect and size,
     respectively"""
@@ -61,7 +63,7 @@ def parse_legend(
 
 def parse_legend_type(
     type: str, legend_props: MutableMapping[str, Any], top_offset: float
-) -> Tuple[Rect, float]:
+) -> tuple[Rect, float]:
     """Parses the properties of the key's legend alignment rectangle for a specific key type,
     returning a Rect object"""
 

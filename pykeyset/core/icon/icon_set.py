@@ -1,4 +1,4 @@
-from typing import Optional
+from __future__ import annotations
 
 from ...utils.types import VerticalAlign
 from .icon import Icon
@@ -15,7 +15,7 @@ class IconSet:
 
     def icon(
         self, name: str, icon_size: float, font_size: float, valign: VerticalAlign
-    ) -> Optional[Icon]:
+    ) -> Icon | None:
         """Returns a copy of the icon for the chosen name scaled to the given size, or None
         if the icon does not exist"""
 

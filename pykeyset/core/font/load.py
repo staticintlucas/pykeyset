@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import pathlib
 import xml.etree.ElementTree as et
-from typing import Optional, Tuple
 
 from .font import Font
 from .glyph import Glyph
@@ -22,20 +23,20 @@ def load_file(path: pathlib.Path) -> Font:
     raise NotImplementedError
 
 
-def parse_root(name: str, root: et.Element) -> Tuple[Font, Optional[float]]:
+def parse_root(name: str, root: et.Element) -> tuple[Font, float | None]:
     """Gets the global font properties from a font, returning a tuple containing an empty Font
     object and the advance (if set, otherwise None)"""
 
     raise NotImplementedError
 
 
-def parse_glyph(glyph: et.Element, default_advance: Optional[float] = None) -> Glyph:
+def parse_glyph(glyph: et.Element, default_advance: float | None = None) -> Glyph:
     """Parses a single glyph from an ElementTree Element"""
 
     raise NotImplementedError
 
 
-def parse_kerning(kern: et.Element) -> Tuple[str, str, float]:
+def parse_kerning(kern: et.Element) -> tuple[str, str, float]:
     """Parses a kerning value from an ElementTree Element"""
 
     raise NotImplementedError

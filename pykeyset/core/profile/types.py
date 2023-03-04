@@ -1,6 +1,7 @@
-import sys
+from __future__ import annotations
+
 from enum import Enum
-from typing import Generic, NamedTuple, Optional, TypeVar
+from typing import Generic, NamedTuple, TypeVar
 
 
 class ProfileType(Enum):
@@ -9,7 +10,7 @@ class ProfileType(Enum):
     FLAT = 2
 
     @staticmethod
-    def from_str(string: str) -> "ProfileType":
+    def from_str(string: str) -> ProfileType:
         try:
             return ProfileType[string.upper()]
         except KeyError:
@@ -28,7 +29,7 @@ class HomingType(Enum):
     BUMP = 2
 
     @staticmethod
-    def from_str(string: str) -> "HomingType":
+    def from_str(string: str) -> HomingType:
         try:
             return HomingType[string.upper()]
         except KeyError:
@@ -52,42 +53,15 @@ class HomingBump(NamedTuple):
 
 class HomingProperties(NamedTuple):
     default: HomingType
-    scoop: Optional[HomingScoop]
-    bar: Optional[HomingBar]
-    bump: Optional[HomingBump]
+    scoop: HomingScoop | None
+    bar: HomingBar | None
+    bump: HomingBump | None
 
-
-# Combining NamedTuple with Generic directly is not possible since NamedTuple performs a lot of
-# trickery under the hood, removing __class_getitem__ which makes generics work. Unless we want a
-# bunch of 'type is not subscriptable' errors for every type hint we need to create a NamedTuple
-# subclass and then use that as the base class for our type.
-#
-# Also, in Python 3.6 this solution fails due to a metaclass conflict between NamedTuple and
-# Generic, while on Python >= 3.7 Generic has no metaclass. So we handle 3.6 separately.
-#
-# TODO change this when we drop support for 3.6. NamedTuple works more nicely in >= 3.7 with a
-# `from __future__ import annotations`. Unfortunately we can't use that until we drop 3.6 support
-# since we can't conditionally import it and it doesn't exist in 3.6.
 
 T = TypeVar("T")
 
 
-class TextTypePropertyBase(NamedTuple):
-    alpha: T  # type: ignore
-    symbol: T  # type: ignore
-    mod: T  # type: ignore
-
-
-if sys.version_info >= (3, 7):  # pragma: no cover
-
-    class TextTypeProperty(TextTypePropertyBase, Generic[T]):
-        pass
-
-else:  # pragma: no cover
-    from typing import GenericMeta
-
-    class TextTypePropertyMeta(GenericMeta):
-        pass
-
-    class TextTypeProperty(TextTypePropertyBase, Generic[T], metaclass=TextTypePropertyMeta):
-        pass
+class TextTypeProperty(NamedTuple, Generic[T]):
+    alpha: T
+    symbol: T
+    mod: T

@@ -28,5 +28,14 @@ repos:
     rev: v1.0.1
     hooks:
     - id: mypy # TODO run with --strict ?
+  # - repo: https://github.com/PyCQA/pydocstyle
+  #   rev: 6.3.0
+  #   hooks:
+  #   - id: pydocstyle
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.3.1
+    hooks:
+    - id: pyupgrade
+      args: [--py37-plus]
 
 exclude: example/example.svg

@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import inspect
 import sys
 from pathlib import Path
 from types import TracebackType
-from typing import NoReturn, Optional, Union
+from typing import NoReturn
 
 import rich.console
 import typer
@@ -30,8 +32,8 @@ VERBOSITY_MAP = {
 
 def error(
     error: Exception,
-    file: Optional[Union[str, Path]] = None,
-    prev_except: Optional[Exception] = None,
+    file: str | Path | None = None,
+    prev_except: Exception | None = None,
 ) -> NoReturn:
     """Handle an error in pykeyset code.
 
@@ -68,8 +70,8 @@ def error(
 def warning(
     error: Exception,
     resolution: str,
-    file: Optional[str] = None,
-    prev_except: Optional[Exception] = None,
+    file: str | None = None,
+    prev_except: Exception | None = None,
 ) -> None:
     """Handle an warning in pykeyset code.
 
@@ -108,17 +110,17 @@ def warning(
                 raise error from prev_except  # pragma: no cover
 
 
-def info(message: str, file: Optional[str] = None):
+def info(message: str, file: str | None = None):
     if config().verbosity >= Verbosity.VERBOSE:
         print_message(message, Severity.INFO, file)
 
 
-def debug(message: str, file: Optional[str] = None):
+def debug(message: str, file: str | None = None):
     if config().verbosity >= Verbosity.DEBUG:
         print_message(message, Severity.DEBUG, file)
 
 
-def format_error(error: Exception, resolution: Optional[str] = None) -> str:
+def format_error(error: Exception, resolution: str | None = None) -> str:
     if isinstance(error, OSError):
         if error.filename is not None:
             filename = Path(error.filename).name
@@ -136,13 +138,11 @@ def format_error(error: Exception, resolution: Optional[str] = None) -> str:
     return result
 
 
-def format_filename(filename: Union[str, Path]) -> str:
+def format_filename(filename: str | Path) -> str:
     return f"[bold magenta]{filename}[/bold magenta]"
 
 
-def print_message(
-    message: str, severity: Severity, filename: Optional[Union[str, Path]] = None
-) -> None:
+def print_message(message: str, severity: Severity, filename: str | Path | None = None) -> None:
     color = COLOR_MAP.get(severity, "magenta")
     prefix = severity.name.capitalize()
 

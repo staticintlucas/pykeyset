@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import inspect
 import shlex
 from inspect import signature
 from pathlib import Path
-from typing import Callable, Dict
+from typing import Callable
 
 import click
 from typer import Context
@@ -13,7 +15,7 @@ from .utils.logging import error, format_filename, info
 __all__ = ["run", "format_options"]
 
 
-COMMANDS: Dict[str, Callable] = {
+COMMANDS: dict[str, Callable] = {
     "load kle": core.KleFile.load,
     "load font": core.font.load,
     "load icons": core.icon.load,
@@ -35,7 +37,7 @@ def run(filepath: Path) -> None:
         with filepath.open() as file:
             for line in file:
                 run_line(context, line)
-    except IOError as e:
+    except OSError as e:
         error(IOError(f"cannot open command list {format_filename(filepath)}: {e.strerror}"))
 
 

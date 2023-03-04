@@ -1,4 +1,4 @@
-from typing import Optional
+from __future__ import annotations
 
 from .glyph import Glyph
 
@@ -21,7 +21,7 @@ class Font:
 
         raise NotImplementedError
 
-    def glyph(self, char: str, size: float) -> Optional[Glyph]:
+    def glyph(self, char: str, size: float) -> Glyph | None:
         """Returns a copy of the glyph for the chosen character scaled to the given size, or None
         if the Glyph does not exist in the font"""
 

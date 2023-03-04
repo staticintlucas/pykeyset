@@ -1,4 +1,6 @@
-from typing import Any, NamedTuple, Optional
+from __future__ import annotations
+
+from typing import Any, NamedTuple
 
 from . import Verbosity
 
@@ -9,7 +11,7 @@ class _Config(NamedTuple):
     show_align: bool
     dpi: int
     profile: bool
-    color: Optional[bool]
+    color: bool | None
     verbosity: Verbosity
     raise_warnings: bool
     is_script: bool

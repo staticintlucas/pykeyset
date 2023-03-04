@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import colorsys
 from enum import Enum
 from math import atan2, cos, sin, sqrt
-from typing import NamedTuple, Union
+from typing import NamedTuple
 
 
 class VerticalAlign(Enum):
@@ -28,28 +30,28 @@ class Vector(NamedTuple):
     def angle(self) -> float:
         return atan2(self.y, self.x)
 
-    def __neg__(self) -> "Vector":
+    def __neg__(self) -> Vector:
         return Vector(-self.x, -self.y)
 
-    def __add__(self, other: "Vector") -> "Vector":  # type: ignore
+    def __add__(self, other: Vector) -> Vector:  # type: ignore
         return Vector(self.x + other.x, self.y + other.y)
 
-    def __sub__(self, other: "Vector") -> "Vector":
+    def __sub__(self, other: Vector) -> Vector:
         return Vector(self.x - other.x, self.y - other.y)
 
-    def __mul__(self, other: Union[float, "Vector"]) -> "Vector":  # type: ignore
+    def __mul__(self, other: float | Vector) -> Vector:  # type: ignore
         if isinstance(other, Vector):
             return Vector(self.x * other.x, self.y * other.y)
         else:
             return Vector(self.x * other, self.y * other)
 
-    def __truediv__(self, other: Union[float, "Vector"]) -> "Vector":
+    def __truediv__(self, other: float | Vector) -> Vector:
         if isinstance(other, Vector):
             return Vector(self.x / other.x, self.y / other.y)
         else:
             return Vector(self.x / other, self.y / other)
 
-    def rotate(self, angle: float) -> "Vector":
+    def rotate(self, angle: float) -> Vector:
         c, s = cos(angle), sin(angle)
         return Vector(self.x * c - self.y * s, self.x * s + self.y * c)
 
@@ -76,7 +78,7 @@ class Rect(NamedTuple):
     def size(self) -> Vector:
         return Vector(self.w, self.h)
 
-    def scale(self, scale: Union[float, "Vector"]) -> "Rect":
+    def scale(self, scale: float | Vector) -> Rect:
         if isinstance(scale, Vector):
             x1, x2 = sorted([self.x * scale.x, (self.x + self.w) * scale.x])
             y1, y2 = sorted([self.y * scale.y, (self.y + self.h) * scale.y])
@@ -116,7 +118,7 @@ class RoundRect(NamedTuple):
     def as_rect(self) -> Rect:
         return Rect(self.x, self.y, self.w, self.h)
 
-    def scale(self, scale: Union[float, "Vector"]) -> "RoundRect":
+    def scale(self, scale: float | Vector) -> RoundRect:
         if isinstance(scale, Vector):
             x1, x2 = sorted([self.x * scale.x, (self.x + self.w) * scale.x])
             y1, y2 = sorted([self.y * scale.y, (self.y + self.h) * scale.y])
@@ -141,7 +143,7 @@ class Color(
         return super().__new__(cls, r, g, b)
 
     @staticmethod
-    def from_hex(color: str) -> "Color":
+    def from_hex(color: str) -> Color:
         col = color.lstrip("#")
 
         try:
@@ -159,19 +161,19 @@ class Color(
     def to_hex(self) -> str:
         return "#" + "".join(f"{int(c * 255 + 0.5):02x}" for c in (self.r, self.g, self.b))
 
-    def lighter(self, val: float = 0.15) -> "Color":
+    def lighter(self, val: float = 0.15) -> Color:
         if not 0.0 <= val <= 1.0:
             raise ValueError(f"invalid value for 'val' in call to Color.lighter(): '{val}'")
 
         return Color(*(val + (1 - val) * c for c in self))
 
-    def darker(self, val: float = 0.15) -> "Color":
+    def darker(self, val: float = 0.15) -> Color:
         if not 0.0 <= val <= 1.0:
             raise ValueError(f"invalid value for 'val' in call to Color.lighter(): '{val}'")
 
         return Color(*((1 - val) * c for c in self))
 
-    def highlight(self, lum: float = 0.15) -> "Color":
+    def highlight(self, lum: float = 0.15) -> Color:
         if not 0.0 <= lum <= 0.5:
             raise ValueError(f"invalid value for 'val' in call to Color.lighter(): '{lum}'")
 

@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 
+from __future__ import annotations
+
 import cProfile
 import os.path
 import pstats
 import sys
 from pathlib import Path
 from time import perf_counter
-from typing import Any, List
+from typing import Any
 
 import click
 import rich.traceback
@@ -128,7 +130,7 @@ class RunCommand(typer.core.TyperCommand):
 
 @app.command(options_metavar="[options]", no_args_is_help=True, cls=RunCommand)
 def run(
-    cmdlists: List[Path] = typer.Argument(
+    cmdlists: list[Path] = typer.Argument(
         None,
         metavar="<cmdlist> ...",
         show_default=False,
