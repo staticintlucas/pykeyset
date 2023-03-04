@@ -8,20 +8,48 @@ use std::{error, fmt};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::pyclass::CompareOp;
-use pyo3::types::{PySequence, PyTuple};
+use pyo3::types::{PySequence, PyTuple, PyDict};
 
 pub fn version() -> Result<Version, VersionError> {
-    Version::from_str(env!("CARGO_PKG_VERSION"))
+    Version::from_str(built::PKG_VERSION)
 }
 
-pub fn dep_version(dep: &str) -> Result<Version, VersionError> {
-    Version::from_str(
-        built::DEPENDENCIES
-            .into_iter()
-            .collect::<HashMap<_, _>>()
-            .get(dep)
-            .ok_or(VersionError(format!("cannot determine version for {dep}")))?,
-    )
+pub fn build_info(py: Python) -> PyResult<&PyDict> {
+    let dependencies: HashMap<_,_> = built::DEPENDENCIES.into_iter().collect();
+
+    let build = PyDict::new(py);
+    build.set_item("compiler", {
+        let clr = PyDict::new(py);
+        clr.set_item("name", built::RUSTC)?;
+        clr.set_item("version", built::RUSTC_VERSION)?;
+        clr.set_item("host", built::HOST)?;
+        clr
+    })?;
+    build.set_item("target", {
+        let tgt = PyDict::new(py);
+        tgt.set_item("triple", built::TARGET)?;
+        tgt.set_item("arch", built::CFG_TARGET_ARCH)?;
+        tgt.set_item("endianness", built::CFG_ENDIAN)?;
+        tgt.set_item("os", built::CFG_OS)?;
+        tgt.set_item("family", built::CFG_FAMILY)?;
+        tgt.set_item("env", built::CFG_ENV)?;
+        tgt
+    })?;
+    build.set_item("config", {
+        let cfg = PyDict::new(py);
+        cfg.set_item("profile", built::PROFILE)?;
+        cfg.set_item("optimization", built::OPT_LEVEL)?;
+        cfg.set_item("debug", built::DEBUG)?;
+        cfg
+    })?;
+    build.set_item("dependencies", {
+        let deps = PyDict::new(py);
+        // Don't list all dependencies, just the important ones
+        // deps.set_item("keyset-rs", dependencies["keyset-rs"])?;
+        deps.set_item("pyo3", dependencies["pyo3"])?;
+        deps
+    })?;
+    Ok(build)
 }
 
 // Error type errors parsing a version string
