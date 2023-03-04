@@ -31,13 +31,13 @@ class Vector(NamedTuple):
     def __neg__(self) -> "Vector":
         return Vector(-self.x, -self.y)
 
-    def __add__(self, other: "Vector") -> "Vector":
+    def __add__(self, other: "Vector") -> "Vector":  # type: ignore
         return Vector(self.x + other.x, self.y + other.y)
 
     def __sub__(self, other: "Vector") -> "Vector":
         return Vector(self.x - other.x, self.y - other.y)
 
-    def __mul__(self, other: Union[float, "Vector"]) -> "Vector":
+    def __mul__(self, other: Union[float, "Vector"]) -> "Vector":  # type: ignore
         if isinstance(other, Vector):
             return Vector(self.x * other.x, self.y * other.y)
         else:

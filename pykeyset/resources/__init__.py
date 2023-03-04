@@ -27,12 +27,12 @@ class ResourcePath:
 
     def __enter__(self, *args, **kwargs) -> Path:
         assert self.context is None
-        self.context = ilr.path(self.package, self.resource)
-        return self.context.__enter__(*args, **kwargs)
+        self.context = ilr.path(self.package, self.resource)  # type: ignore
+        return self.context.__enter__(*args, **kwargs)  # type: ignore
 
     def __exit__(self, *args, **kwargs) -> Optional[bool]:
         try:
-            return self.context.__exit__(*args, **kwargs)
+            return self.context.__exit__(*args, **kwargs)  # type: ignore
         finally:
             self.context = None
 

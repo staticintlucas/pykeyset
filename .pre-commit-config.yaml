@@ -24,5 +24,9 @@ repos:
     rev: 6.0.0
     hooks:
     - id: flake8
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.0.1
+    hooks:
+    - id: mypy # TODO run with --strict ?
 
 exclude: example/example.svg

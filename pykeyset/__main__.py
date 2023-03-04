@@ -14,7 +14,7 @@ import typer
 import typer.core
 from typer import Option
 
-from . import __version__, cmdlist, resources
+from . import __version__, cmdlist, resources  # type: ignore
 from .utils import Verbosity
 from .utils.config import set_config
 
@@ -31,7 +31,7 @@ HELP = {
     "quiet": "Show only fatal error messages in program output.",
 }
 
-starttime = 0
+starttime = 0.0
 
 
 def print_version(value: bool) -> None:

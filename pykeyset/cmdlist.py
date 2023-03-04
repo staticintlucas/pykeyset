@@ -45,8 +45,8 @@ def run_line(context: core.Context, string: str) -> None:
     if len(line) == 0:
         return
 
-    for cmd, fn in COMMANDS.items():
-        cmd = cmd.split()
+    for c, fn in COMMANDS.items():
+        cmd = c.split()
         if len(line) >= len(cmd) and line[: len(cmd)] == cmd:
             command = cmd
             func = fn
