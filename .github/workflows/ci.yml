@@ -20,6 +20,7 @@ jobs:
   build-linux:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         target: [x86_64, i686, aarch64]
     steps:
@@ -40,6 +41,7 @@ jobs:
   build-win:
     runs-on: windows-latest
     strategy:
+      fail-fast: false
       matrix:
         target: [x86_64, i686, aarch64]
     steps:
@@ -59,6 +61,7 @@ jobs:
   build-macos:
     runs-on: macos-latest
     strategy:
+      fail-fast: false
       matrix:
         target: [x86_64, aarch64]
     steps:
