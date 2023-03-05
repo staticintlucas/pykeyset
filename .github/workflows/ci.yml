@@ -43,20 +43,23 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [x86_64, i686, aarch64]
+        target:
+          - arch: x86_64
+            python: x64
+          - arch: i686
+            python: x86 # This works around PyO3 requiring 32-bit Python even though it's not used
+          - arch: aarch64
+            python: x64
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
           python-version: '3.11'
+          architecture: ${{ matrix.target.python }}
       - uses: PyO3/maturin-action@v1
         with:
-          target: ${{ matrix.target }}
+          target: ${{ matrix.target.arch }}
           args: --release --out dist
-        env:
-          # treat all windows targets as if they're cross compiling so it doesn't try to link to
-          # the installed Python interpreter but uses python3-dll-a to generate import libs
-          PYO3_CROSS_LIB_DIR: target/python3-dll
       # - uses: actions/upload-artifact@v3
       #   with:
       #     name: wheels
