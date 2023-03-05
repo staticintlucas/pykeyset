@@ -53,6 +53,10 @@ jobs:
         with:
           target: ${{ matrix.target }}
           args: --release --out dist
+          env:
+            # treat all windows targets as if they're cross compiling so it doesn't try to link to
+            # the installed Python interpreter but uses python3-dll-a to generate import libs
+            PYO3_CROSS_LIB_DIR: target/python3-dll
       # - uses: actions/upload-artifact@v3
       #   with:
       #     name: wheels
