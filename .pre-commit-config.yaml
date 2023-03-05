@@ -21,7 +21,7 @@ repos:
     hooks:
     - id: black
   - repo: https://github.com/PyCQA/flake8
-    rev: 6.0.0
+    rev: 5.0.4 # This is the last version to support Python 3.7
     hooks:
     - id: flake8
   - repo: https://github.com/pre-commit/mirrors-mypy
