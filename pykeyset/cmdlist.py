@@ -9,7 +9,7 @@ from typing import Callable
 import click
 from typer import Context
 
-from . import core
+from . import core  # type: ignore
 from .utils.logging import error, format_filename, info
 
 __all__ = ["run", "format_options"]
