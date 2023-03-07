@@ -1,5 +1,5 @@
-use pyo3::prelude::*;
 use pyo3::exceptions::PyNotImplementedError;
+use pyo3::prelude::*;
 
 use super::Context;
 
@@ -18,7 +18,16 @@ pub struct Profile {}
 #[pymethods]
 impl Profile {
     #[new]
-    fn new(_name: String, _type: PyObject, _depth: PyObject, _bottom_rect: PyObject, _top_rect: PyObject, _text_rect: PyObject, _text_size: PyObject, _homing: PyObject) -> PyResult<Self> {
+    fn new(
+        _name: String,
+        _type: PyObject,
+        _depth: PyObject,
+        _bottom_rect: PyObject,
+        _top_rect: PyObject,
+        _text_rect: PyObject,
+        _text_size: PyObject,
+        _homing: PyObject,
+    ) -> PyResult<Self> {
         Err(PyNotImplementedError::new_err(()))
     }
 
@@ -38,7 +47,13 @@ impl Profile {
         Err(PyNotImplementedError::new_err(()))
     }
 
-    fn draw_key_top(&self, _g: PyObject, _keytype: PyObject, _size: PyObject, _color: PyObject) -> PyResult<()> {
+    fn draw_key_top(
+        &self,
+        _g: PyObject,
+        _keytype: PyObject,
+        _size: PyObject,
+        _color: PyObject,
+    ) -> PyResult<()> {
         Err(PyNotImplementedError::new_err(()))
     }
 
@@ -54,7 +69,12 @@ impl Profile {
         Err(PyNotImplementedError::new_err(()))
     }
 
-    fn add_gradient(&self, _gradtype: PyObject, _color: PyObject, _depth: PyObject) -> PyResult<()> {
+    fn add_gradient(
+        &self,
+        _gradtype: PyObject,
+        _color: PyObject,
+        _depth: PyObject,
+    ) -> PyResult<()> {
         Err(PyNotImplementedError::new_err(()))
     }
 }

@@ -8,14 +8,14 @@ use std::{error, fmt};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::pyclass::CompareOp;
-use pyo3::types::{PySequence, PyTuple, PyDict};
+use pyo3::types::{PyDict, PySequence, PyTuple};
 
 pub fn version() -> Result<Version, VersionError> {
     Version::from_str(built::PKG_VERSION)
 }
 
 pub fn build_info(py: Python) -> PyResult<&PyDict> {
-    let dependencies: HashMap<_,_> = built::DEPENDENCIES.into_iter().collect();
+    let dependencies: HashMap<_, _> = built::DEPENDENCIES.into_iter().collect();
 
     let build = PyDict::new(py);
     build.set_item("compiler", {

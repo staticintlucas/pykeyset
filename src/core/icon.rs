@@ -1,5 +1,5 @@
-use pyo3::prelude::*;
 use pyo3::exceptions::PyNotImplementedError;
+use pyo3::prelude::*;
 
 use super::Context;
 
@@ -36,7 +36,13 @@ impl IconSet {
     }
 
     /// Returns a copy of the icon for the chosen name scaled to the given size, or None if the icon does not exist
-    fn icon(&self, _name: String, _icon_size: PyObject, _font_size: PyObject, _valign: PyObject) -> PyResult<Icon> {
+    fn icon(
+        &self,
+        _name: String,
+        _icon_size: PyObject,
+        _font_size: PyObject,
+        _valign: PyObject,
+    ) -> PyResult<Icon> {
         Err(PyNotImplementedError::new_err(()))
     }
 
