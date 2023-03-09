@@ -238,8 +238,10 @@ impl Version {
         Python::with_gil(|py| self.as_tuple(py).as_ref(py).len())
     }
 
-    fn __getitem__(&self, index: usize) -> PyResult<PyObject> {
-        Python::with_gil(|py| self.as_tuple(py).as_ref(py).get_item(index).map(Into::into))
+    fn __getitem__(&self, index: PyObject) -> PyResult<PyObject> {
+        // TODO calling __getitem__ with call_method because PyTuple::get_item doesn't take
+        // a slice object
+        Python::with_gil(|py| self.as_tuple(py).call_method1(py, "__getitem__", (index,)))
     }
 
     fn __concat__(&self, other: &PySequence) -> PyResult<PyObject> {
