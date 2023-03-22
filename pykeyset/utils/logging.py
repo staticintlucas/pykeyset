@@ -9,8 +9,8 @@ from typing import NoReturn
 import rich.console
 import typer
 
-from .utils import Severity, Verbosity
-from .utils.config import config
+from . import Severity, Verbosity
+from .config import config
 
 __all__ = ["error", "warning", "info", "debug"]
 
