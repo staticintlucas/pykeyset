@@ -1,5 +1,21 @@
 # Change Log
 
+## Unreleased
+
+### New
+
+* Use [keyset-rs](staticintlucas/keyset-rs) as the backend
+
+### Changes
+
+* Drop Python 3.6 support
+* Support parsing TTF and OTF font files instead of our own XML format.
+  The old XML format is no longer supported
+* Change profile format to map from KLE font sizes to actual font sizes/margins.
+  This means the `[legend.alpha]`, `[legend.symbol]`, and `[legend.mod]` should be replaced with
+  `[legend.5]`, `[legend.4]`, and `[legend.3]`, respectively
+* Replace `homing.bump.radius` with `homing.bump.diameter` in profile files
+
 ## [v0.0.4](https://github.com/staticintlucas/pykeyset/releases/tag/v0.0.4)
 
 ### New
@@ -18,6 +34,12 @@
 ### Fixes
 
 * Change alignment of decals to prevent overlap with keys
+
+### Built in resources
+
+Profiles: `cherry`, `kat`  \
+Fonts: `cherry`  \
+Icons: `cherry` (incomplete)
 
 ---
 
