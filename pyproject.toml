@@ -26,3 +26,6 @@ target-version = ["py37", "py38", "py39", "py310", "py311"]
 [tool.isort]
 profile = "black"
 multi_line_output = 3
+
+[tool.maturin]
+features = ["pyo3/extension-module", "pyo3/abi3-py37", "pyo3/generate-import-lib"]

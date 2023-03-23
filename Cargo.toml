@@ -9,7 +9,7 @@ name = "pykeyset"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = { version = "0.18", features = ["extension-module", "abi3-py37", "generate-import-lib"] }
+pyo3 = "0.18"
 
 [build-dependencies]
 built = { version = "0.6", default-features = false }
