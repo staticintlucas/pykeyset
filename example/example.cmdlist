@@ -1,5 +1,5 @@
 # Make sure to use quotes around a KLE URL so the # isn't interpreted as a comment
-load kle "http://www.keyboard-layout-editor.com/#/gists/102f1fb614275f50e39d970d691e1030"
+load kle "http://www.keyboard-layout-editor.com/#/gists/489ffb1fc5e069d2738d5ccbebc89d46"
 load profile cherry
 load font cherry
 generate layout
