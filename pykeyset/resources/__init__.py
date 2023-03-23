@@ -36,7 +36,7 @@ class ResourcePath:
 fonts = {
     path.splitext(res)[0]: ResourcePath(_fonts, res)
     for res in ilr.contents(_fonts)
-    if ilr.is_resource(_fonts, res) and res.endswith(".xml")
+    if ilr.is_resource(_fonts, res) and res.endswith(".ttf")
 }
 
 icons = {

@@ -12,19 +12,19 @@ height = 13.91
 radius = 1.52
 y-offset = -1.62
 
-[legend.alpha]
+[legend.5]
 size = 4.84
 width = 9.45
 height = 11.54
 y-offset = 0
 
-[legend.symbol]
+[legend.4]
 size = 3.18
 width = 9.53
 height = 9.56
 y-offset = 0.40
 
-[legend.mod]
+[legend.3]
 size = 2.28
 width = 9.45
 height = 11.30
@@ -42,5 +42,5 @@ height = 0.4
 y-offset = 5.05
 
 [homing.bump]
-radius = 0.2
+diameter = 0.4
 y-offset = -0.2

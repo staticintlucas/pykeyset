@@ -1,7 +1,7 @@
 [package]
 name = "pykeyset"
 version = "0.1.0-alpha0"
-authors = ["Lucas Jansen <7199136+staticintlucas@users.noreply.github.com>"]
+authors = ["Lucas Jansen"]
 edition = "2021"
 
 [lib]
@@ -9,7 +9,11 @@ name = "pykeyset"
 crate-type = ["cdylib"]
 
 [dependencies]
+keyset-rs = { git = "https://github.com/staticintlucas/keyset-rs" }
 pyo3 = "0.18"
 
 [build-dependencies]
 built = { version = "0.6", default-features = false }
+
+[package.metadata.maturin]
+name = "pykeyset._impl"

@@ -14,31 +14,29 @@ from .utils.logging import error, format_filename, info
 
 __all__ = ["run", "format_options"]
 
-
 COMMANDS: dict[str, Callable] = {
-    "load kle": core.KleFile.load,
+    "load kle": core.layout.load,
     "load font": core.font.load,
     "load icons": core.icon.load,
     "load profile": core.profile.load,
-    "generate layout": core.Layout.layout,
+    "generate layout": core.layout.layout,
     # "generate texture": # TODO generate a texture file (for renders, etc.)
     "save svg": core.save.as_svg,
     "save png": core.save.as_png,
     "save pdf": core.save.as_pdf,
     "save ai": core.save.as_ai,
-    "newfont": core.fontgen.fontgen,
 }
 
 
 def run(filepath: Path) -> None:
-    context = core.Context(filepath)
+    context = core.Context(str(filepath))
 
     try:
         with filepath.open() as file:
             for line in file:
                 run_line(context, line)
     except OSError as e:
-        error(IOError(f"cannot open command list {format_filename(filepath)}: {e.strerror}"))
+        error(OSError(f"cannot open command list {format_filename(filepath)}: {e.strerror}"))
 
 
 def run_line(context: core.Context, string: str) -> None:
@@ -56,7 +54,7 @@ def run_line(context: core.Context, string: str) -> None:
     else:
         raise ValueError(f"invalid command '{line[0]}'")
 
-    info(f"executing command '{command}'", file=context.name)
+    info(f"executing command '{' '.join(command)}'", file=context.name)
 
     num_args = len(signature(func).parameters) - 1  # Subtract one for the context
     args = line[len(command) :]

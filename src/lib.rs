@@ -4,7 +4,7 @@ mod version;
 use pyo3::prelude::*;
 
 #[pymodule]
-fn pykeyset(py: Python, m: &PyModule) -> PyResult<()> {
+fn _impl(py: Python, m: &PyModule) -> PyResult<()> {
     let version = version::version()?;
 
     m.add("__version_info__", version)?;
@@ -16,7 +16,7 @@ fn pykeyset(py: Python, m: &PyModule) -> PyResult<()> {
 
     // Work around https://github.com/PyO3/pyo3/issues/759
     let sys_modules = py.import("sys")?.getattr("modules")?;
-    sys_modules.set_item("pykeyset.core", core)?;
+    sys_modules.set_item("pykeyset._impl.core", core)?;
 
     Ok(())
 }
