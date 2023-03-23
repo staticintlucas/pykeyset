@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import inspect
-import sys
 from pathlib import Path
 from types import TracebackType
 from typing import NoReturn
@@ -57,8 +56,7 @@ def error(
         raise typer.Exit(1)
 
     else:
-        # Create a traceback from frame (Python >= 3.7 only)
-        if frame is not None and sys.version_info >= (3, 7):
+        if frame is not None:
             tb = TracebackType(
                 tb_next=None, tb_frame=frame, tb_lasti=frame.f_lasti, tb_lineno=frame.f_lineno
             )
@@ -100,8 +98,7 @@ def warning(
             raise typer.Exit(1)
 
         else:
-            # Create a traceback from frame (Python >= 3.7 only)
-            if frame is not None and sys.version_info >= (3, 7):
+            if frame is not None:
                 tb = TracebackType(
                     tb_next=None, tb_frame=frame, tb_lasti=frame.f_lasti, tb_lineno=frame.f_lineno
                 )
