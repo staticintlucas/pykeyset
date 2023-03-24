@@ -2,14 +2,13 @@
 
 A Python-based tool to create pretty keyset layout diagrams using correct fonts and icons.
 
-[![Build Status](https://img.shields.io/github/workflow/status/staticintlucas/pykeyset/Build?style=flat-square)][actions]
-[![Test Status](https://img.shields.io/github/workflow/status/staticintlucas/pykeyset/Tests?label=tests&style=flat-square)][actions]
-[![Test coverage](https://img.shields.io/codecov/c/github/staticintlucas/pykeyset?style=flat-square)][coverage]
-[![Python Version](https://img.shields.io/pypi/pyversions/pykeyset?style=flat-square)][pypi]
+[![Build Status](https://img.shields.io/github/actions/workflow/status/staticintlucas/pykeyset/ci.yml?branch=main&style=flat-square)][actions]<!--
+[![Test Status](https://img.shields.io/github/actions/workflow/status/staticintlucas/pykeyset/ci.yml?branch=main&label=tests&style=flat-square)][actions]
+[![Test coverage](https://img.shields.io/codecov/c/github/staticintlucas/pykeyset?style=flat-square)][coverage]-->
+[![Python Version](https://img.shields.io/badge/python-3.7%2B-blue?style=flat-square)][pypi]
 [![Code style](https://img.shields.io/badge/code_style-black-black?style=flat-square)][black]
 [![PyPI](https://img.shields.io/pypi/v/pykeyset?style=flat-square)][pypi]
 [![PyPI downloads](https://img.shields.io/pypi/dm/pykeyset?style=flat-square)][pypi]
-[![License](https://img.shields.io/github/license/staticintlucas/pykeyset?style=flat-square)][licence]
 
 ## Warning
 
