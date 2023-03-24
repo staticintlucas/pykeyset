@@ -1,15 +1,17 @@
 from __future__ import annotations
 
-import importlib.resources as ilr
+import sys
 from os import path
 from pathlib import Path
 
+# We use the new API introduced in Python 3.9, otherwise use the backport
+if sys.version_info >= (3, 9):
+    import importlib.resources as ilr
+else:
+    import importlib_resources as ilr
+
 import click
 import typer
-
-from . import fonts as _fonts
-from . import icons as _icons
-from . import profiles as _profiles
 
 
 class ResourcePath:
@@ -34,21 +36,21 @@ class ResourcePath:
 
 
 fonts = {
-    path.splitext(res)[0]: ResourcePath(_fonts, res)
-    for res in ilr.contents(_fonts)
-    if ilr.is_resource(_fonts, res) and res.endswith(".ttf")
+    path.splitext(res.name)[0]: res
+    for res in (ilr.files(__package__) / "fonts").iterdir()
+    if res.is_file() and res.name.endswith(".ttf")
 }
 
 icons = {
-    path.splitext(res)[0]: ResourcePath(_icons, res)
-    for res in ilr.contents(_icons)
-    if ilr.is_resource(_icons, res) and res.endswith(".xml")
+    path.splitext(res.name)[0]: res
+    for res in (ilr.files(__package__) / "icons").iterdir()
+    if res.is_file() and res.name.endswith(".xml")
 }
 
 profiles = {
-    path.splitext(res)[0]: ResourcePath(_profiles, res)
-    for res in ilr.contents(_profiles)
-    if ilr.is_resource(_profiles, res) and res.endswith(".toml")
+    path.splitext(res.name)[0]: res
+    for res in (ilr.files(__package__) / "profiles").iterdir()
+    if res.is_file() and res.name.endswith(".toml")
 }
 
 

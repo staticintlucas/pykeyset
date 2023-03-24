@@ -30,10 +30,9 @@ def load_builtin(name: str) -> Profile:
     if name not in resources.profiles:
         error(ValueError(f"no built in profile called {format_filename(name)}"))
 
-    with resources.profiles[name] as file:
-        # Note: no try/except here since we know this path exists and we assume builtin fonts never
-        # fail to parse (and we should load each of them with our unit tests)
-        return Profile(file.read_text())
+    # Note: no try/except here since we know this path exists and we assume builtin fonts never
+    # fail to parse (and we should load each of them with our unit tests)
+    return Profile(resources.profiles[name].read_text())
 
 
 def load_file(path: Path) -> Profile:

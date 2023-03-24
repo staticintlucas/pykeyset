@@ -30,10 +30,9 @@ def load_builtin(name: str) -> Font:
     if name not in resources.fonts:
         error(ValueError(f"no built in font called {fmt_file(name)}"))
 
-    with resources.fonts[name] as file:
-        # Note: no try/except here since we know this path exists and we assume builtin fonts never
-        # fail to parse (and we should load each of them with our unit tests)
-        return Font(file.read_bytes())
+    # Note: no try/except here since we know this path exists and we assume builtin fonts never
+    # fail to parse (and we should load each of them with our unit tests)
+    return Font(resources.fonts[name].read_bytes())
 
 
 def load_file(path: Path) -> Font:
