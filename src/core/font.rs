@@ -9,13 +9,13 @@ pub fn module<'p>(py: Python<'p>) -> PyResult<&'p PyModule> {
 
 #[pyclass(module = "pykeyset._impl.core.font")]
 #[derive(Debug, Clone)]
-pub struct Font(pub keyset_rs::Font);
+pub struct Font(pub keyset::Font);
 
 #[pymethods]
 impl Font {
     #[new]
     fn new(ttf: &[u8]) -> PyResult<Self> {
-        match keyset_rs::Font::from_ttf(ttf) {
+        match keyset::Font::from_ttf(ttf) {
             Ok(font) => Ok(Self(font)),
             Err(error) => Err(PyValueError::new_err(error.to_string())),
         }

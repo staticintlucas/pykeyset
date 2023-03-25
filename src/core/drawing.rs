@@ -1,6 +1,6 @@
 use pyo3::prelude::*;
 
-use keyset_rs::ToSvg;
+use keyset::ToSvg;
 
 use super::font::Font;
 use super::layout::Layout;
@@ -20,8 +20,8 @@ pub struct Drawing(pub String);
 impl Drawing {
     #[new]
     fn new(layout: Layout, profile: Profile, font: Font) -> PyResult<Self> {
-        let options = keyset_rs::DrawingOptions::default();
-        let drawing = keyset_rs::Drawing::new(layout.0, profile.0, font.0, options);
+        let options = keyset::DrawingOptions::default();
+        let drawing = keyset::Drawing::new(layout.0, profile.0, font.0, options);
         Ok(Self(drawing.to_svg()))
     }
 

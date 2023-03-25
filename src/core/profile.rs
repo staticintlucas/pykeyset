@@ -9,13 +9,13 @@ pub fn module<'p>(py: Python<'p>) -> PyResult<&'p PyModule> {
 
 #[pyclass(module = "pykeyset._impl.core.profile")]
 #[derive(Debug, Clone)]
-pub struct Profile(pub keyset_rs::Profile);
+pub struct Profile(pub keyset::Profile);
 
 #[pymethods]
 impl Profile {
     #[new]
     fn new(toml: &str) -> PyResult<Self> {
-        match keyset_rs::Profile::from_toml(toml) {
+        match keyset::Profile::from_toml(toml) {
             Ok(profile) => Ok(Self(profile)),
             Err(error) => Err(PyValueError::new_err(error.to_string())),
         }

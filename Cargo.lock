@@ -126,9 +126,9 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "453ad9f582a441959e5f0d088b02ce04cfe8d51a8eaf077f12ac6d3e94164ca6"
 
 [[package]]
-name = "keyset-rs"
+name = "keyset"
 version = "0.1.0"
-source = "git+https://github.com/staticintlucas/keyset-rs#ee66ca8545d5ef07ae28ca692a70a172c137b49e"
+source = "git+https://github.com/staticintlucas/keyset-rs#6d945629fbc3cc24d185f1ec54c4a013497b81c0"
 dependencies = [
  "array-init",
  "interp",
@@ -247,7 +247,7 @@ name = "pykeyset"
 version = "0.1.0-alpha0"
 dependencies = [
  "built",
- "keyset-rs",
+ "keyset",
  "pyo3",
 ]
 

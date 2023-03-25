@@ -9,7 +9,7 @@ name = "pykeyset"
 crate-type = ["cdylib"]
 
 [dependencies]
-keyset-rs = { git = "https://github.com/staticintlucas/keyset-rs" }
+keyset = { git = "https://github.com/staticintlucas/keyset-rs" }
 pyo3 = "0.18"
 
 [build-dependencies]
