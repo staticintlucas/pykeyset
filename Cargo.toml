@@ -5,7 +5,6 @@ authors = ["Lucas Jansen"]
 edition = "2021"
 
 [lib]
-name = "pykeyset"
 crate-type = ["cdylib"]
 
 [dependencies]
