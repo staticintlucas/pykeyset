@@ -17,7 +17,7 @@ __all__ = ["run", "format_options"]
 COMMANDS: dict[str, Callable] = {
     "load kle": core.layout.load,
     "load font": core.font.load,
-    "load icons": core.icon.load,
+    # "load icons": core.icon.load, # TODO staticintlucas/keyset-rs#7
     "load profile": core.profile.load,
     "generate layout": core.layout.layout,
     # "generate texture": # TODO generate a texture file (for renders, etc.)
