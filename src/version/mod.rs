@@ -45,7 +45,7 @@ pub fn build_info(py: Python) -> PyResult<&PyDict> {
     build.set_item("dependencies", {
         let deps = PyDict::new(py);
         // Don't list all dependencies, just the important ones
-        // deps.set_item("keyset-rs", dependencies["keyset-rs"])?;
+        deps.set_item("keyset-rs", dependencies["keyset"])?;
         deps.set_item("pyo3", dependencies["pyo3"])?;
         deps
     })?;
