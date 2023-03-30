@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## [v0.1.0](https://github.com/staticintlucas/pykeyset/releases/tag/v0.1.0)
 
 ### New
 
@@ -10,11 +10,17 @@
 
 * Drop Python 3.6 support
 * Support parsing TTF and OTF font files instead of our own XML format.
-  The old XML format is no longer supported
+* Remove support for the old XML font and icon formats.
+  A TTF/OTF font (which can contain icon outlines) should be used instead
 * Change profile format to map from KLE font sizes to actual font sizes/margins.
   This means the `[legend.alpha]`, `[legend.symbol]`, and `[legend.mod]` should be replaced with
   `[legend.5]`, `[legend.4]`, and `[legend.3]`, respectively
 * Replace `homing.bump.radius` with `homing.bump.diameter` in profile files
+* Remove key top gradients as they weren't very pretty
+
+### Built in resources
+
+* Profiles: `cherry`, `kat`
 
 ## [v0.0.4](https://github.com/staticintlucas/pykeyset/releases/tag/v0.0.4)
 
@@ -37,9 +43,9 @@
 
 ### Built in resources
 
-Profiles: `cherry`, `kat`  \
-Fonts: `cherry`  \
-Icons: `cherry` (incomplete)
+* Profiles: `cherry`, `kat`
+* Fonts: `cherry`
+* Icons: `cherry` (incomplete)
 
 ---
 
@@ -51,9 +57,9 @@ Icons: `cherry` (incomplete)
 
 ### Built in resources
 
-Profiles: `cherry`  \
-Fonts: `cherry`  \
-Icons: `cherry` (incomplete)
+* Profiles: `cherry`
+* Fonts: `cherry`
+* Icons: `cherry` (incomplete)
 
 ---
 
@@ -86,9 +92,9 @@ Icons: `cherry` (incomplete)
 
 ### Built in resources
 
-Profiles: `cherry`  \
-Fonts: `cherry`  \
-Icons: `cherry` (incomplete)
+* Profiles: `cherry`
+* Fonts: `cherry`
+* Icons: `cherry` (incomplete)
 
 ---
 
@@ -103,9 +109,9 @@ Icons: `cherry` (incomplete)
 
 ### Built in resources
 
-Profiles: `cherry`  \
-Fonts: `cherry`  \
-Icons: `cherry` (incomplete)
+* Profiles: `cherry`
+* Fonts: `cherry`
+* Icons: `cherry` (incomplete)
 
 ---
 

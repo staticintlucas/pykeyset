@@ -2,13 +2,16 @@
 
 A Python-based tool to create pretty keyset layout diagrams using correct fonts and icons.
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/staticintlucas/pykeyset/ci.yml?branch=main&style=flat-square)][actions]<!--
-[![Test Status](https://img.shields.io/github/actions/workflow/status/staticintlucas/pykeyset/ci.yml?branch=main&label=tests&style=flat-square)][actions]
-[![Test coverage](https://img.shields.io/codecov/c/github/staticintlucas/pykeyset?style=flat-square)][coverage]-->
-[![Python Version](https://img.shields.io/badge/python-3.7%2B-blue?style=flat-square)][pypi]
-[![Code style](https://img.shields.io/badge/code_style-black-black?style=flat-square)][black]
-[![PyPI](https://img.shields.io/pypi/v/pykeyset?style=flat-square)][pypi]
-[![PyPI downloads](https://img.shields.io/pypi/dm/pykeyset?style=flat-square)][pypi]
+[![Build Status][build-status]][actions]
+[![PyPI Version][pypi-version]][pypi]
+[![PyPI Downloads][pypi-downloads]][pypi]
+
+[build-status]: https://img.shields.io/github/actions/workflow/status/staticintlucas/pykeyset/ci.yml?branch=main&style=flat-square
+[pypi-version]: https://img.shields.io/pypi/v/pykeyset?style=flat-square
+[pypi-downloads]: https://img.shields.io/endpoint?style=flat-square&url=https%3A%2F%2Frunkit.io%2Fstaticintlucas%2Fpykeyset-downloads%2F1.0.2
+
+[actions]: https://github.com/staticintlucas/pykeyset/actions
+[pypi]: https://pypi.org/project/pykeyset/
 
 ## Warning
 
@@ -20,6 +23,9 @@ If you do find any bugs, please report them on the [GitHub repo][pykeyset].
 In future I hope to stabilise this project, add more extensive support for different profiles, fonts, file formats, etc; and have a more extensive API.**
 
 Feel free to help this project improve by opening bug reports, feature requests, etc; or contributing directly to the code by opening a pull request.
+
+[keyset-rs]: https://github.com/staticintlucas/keyset-rs
+[pykeyset]: https://github.com/staticintlucas/pykeyset
 
 ## Example output
 
@@ -49,38 +55,30 @@ To install this package locally for development, run:
 
 To build the source distribution and wheel run:
 
-    maturin build
+    maturin build --release
 
-Additionally, for release builds the following platform-specific flags are added:
+Additionally, Linux releases should be compiled with `--manylinux 2014`
 
-* Linux:
-
-      maturin build --manylinux 2014 --release
-
-* MacOs:
-
-      maturin build --universal2 --release
-
-* Windows:
-
-      maturin build --release
+[pypi]: https://pypi.org/project/pykeyset/
+[maturin]: https://github.com/PyO3/maturin
 
 ## Contributing
 
 `pykeyset` uses [Black] and [isort] for formatting, and all code must pass [Flake8]'s checks.
 These are checked by GitHub on all pull requests.
-To run these tools automatically when committing, install the [pre-commit] hook in [`.pre-commit-config.yaml`].
+To run these tools automatically when committing, install the [pre-commit] hook in *[.pre-commit-config.yaml](.pre-commit-config.yaml)*.
 
-## Credits
-
-The builtin `cherry` font is based on [Open Cherry] by Dakota Felder.
+[black]: https://github.com/psf/black
+[isort]: https://pycqa.github.io/isort/
+[flake8]: https://flake8.pycqa.org/en/latest/
+[pre-commit]: https://pre-commit.com/
 
 ## Licence
 
 This project is licensed under either of
 
-* Apache License, Version 2.0 ([LICENCE-APACHE] or [http://www.apache.org/licenses/LICENSE-2.0])
-* MIT license ([LICENCE-MIT] or [http://opensource.org/licenses/MIT])
+* Apache License, Version 2.0 ([LICENCE-APACHE](LICENCE-APACHE) or [http://www.apache.org/licenses/LICENSE-2.0][apache-licence])
+* MIT license ([LICENCE-MIT](LICENCE-MIT) or [http://opensource.org/licenses/MIT][mit-licence])
 
 at your option.
 
@@ -88,20 +86,5 @@ Unless you explicitly state otherwise, any contribution intentionally submitted 
 this project by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without
 any additional terms or conditions.
 
-[pykeyset]: https://github.com/staticintlucas/pykeyset
-[actions]: https://github.com/staticintlucas/pykeyset/actions
-[coverage]: https://codecov.io/gh/staticintlucas/pykeyset
-[licence]: LICENCE
-[pypi]: https://pypi.org/project/pykeyset/
-[black]: https://github.com/psf/black
-[keyset-rs]: https://github.com/staticintlucas/keyset-rs
-[isort]: https://pycqa.github.io/isort/
-[maturin]: https://github.com/PyO3/maturin/
-[open cherry]: https://github.com/dakotafelder/open-cherry
-[flake8]: https://flake8.pycqa.org/en/latest/
-[pre-commit]: https://pre-commit.com/
-[`.pre-commit-config.yaml`]: .pre-commit-config.yaml
-[LICENCE-APACHE]: LICENCE-APACHE
-[http://www.apache.org/licenses/LICENSE-2.0]: http://www.apache.org/licenses/LICENSE-2.0
-[LICENCE-MIT]: LICENCE-MIT
-[http://opensource.org/licenses/MIT]: http://opensource.org/licenses/MIT
+[apache-licence]: http://www.apache.org/licenses/LICENSE-2.0
+[mit-licence]: http://opensource.org/licenses/MIT
