@@ -38,7 +38,7 @@ jobs:
           name: wheels
           path: dist
 
-  build-win:
+  build-windows:
     runs-on: windows-latest
     strategy:
       fail-fast: false
