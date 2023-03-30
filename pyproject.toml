@@ -30,3 +30,4 @@ multi_line_output = 3
 
 [tool.maturin]
 features = ["pyo3/extension-module", "pyo3/abi3-py37", "pyo3/generate-import-lib"]
+module-name = "pykeyset._impl"

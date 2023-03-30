@@ -13,6 +13,3 @@ pyo3 = "0.18"
 
 [build-dependencies]
 built = { version = "0.6", default-features = false }
-
-[package.metadata.maturin]
-name = "pykeyset._impl"
