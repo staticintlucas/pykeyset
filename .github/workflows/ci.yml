@@ -32,11 +32,11 @@ jobs:
         with:
           target: ${{ matrix.target }}
           args: --release --out dist
-          manylinux: auto
-      # - uses: actions/upload-artifact@v3
-      #   with:
-      #     name: wheels
-      #     path: dist
+          manylinux: 2014
+      - uses: actions/upload-artifact@v3
+        with:
+          name: wheels
+          path: dist
 
   build-win:
     runs-on: windows-latest
@@ -60,10 +60,10 @@ jobs:
         with:
           target: ${{ matrix.target.arch }}
           args: --release --out dist
-      # - uses: actions/upload-artifact@v3
-      #   with:
-      #     name: wheels
-      #     path: dist
+      - uses: actions/upload-artifact@v3
+        with:
+          name: wheels
+          path: dist
 
   build-macos:
     runs-on: macos-latest
@@ -80,35 +80,35 @@ jobs:
         with:
           target: ${{ matrix.target }}
           args: --release --out dist
-      # - uses: actions/upload-artifact@v3
-      #   with:
-      #     name: wheels
-      #     path: dist
+      - uses: actions/upload-artifact@v3
+        with:
+          name: wheels
+          path: dist
 
-  # build-sdist:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: PyO3/maturin-action@v1
-  #       with:
-  #         command: sdist
-  #         args: --out dist
-  #     - uses: actions/upload-artifact@v3
-  #       with:
-  #         name: wheels
-  #         path: dist
+  build-sdist:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: PyO3/maturin-action@v1
+        with:
+          command: sdist
+          args: --out dist
+      - uses: actions/upload-artifact@v3
+        with:
+          name: wheels
+          path: dist
 
-  # release:
-  #   runs-on: ubuntu-latest
-  #   if: "startsWith(github.ref, 'refs/tags/')"
-  #   needs: [lint, build-linux, build-windows, build-macos, build-sdist]
-  #   steps:
-  #     - uses: actions/download-artifact@v3
-  #       with:
-  #         name: wheels
-  #     - uses: PyO3/maturin-action@v1
-  #       env:
-  #         MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
-  #       with:
-  #         command: upload
-  #         args: --skip-existing *
+  release:
+    runs-on: ubuntu-latest
+    if: "startsWith(github.ref, 'refs/tags/')"
+    needs: [lint, build-linux, build-windows, build-macos, build-sdist]
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: wheels
+      - uses: PyO3/maturin-action@v1
+        env:
+          MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+        with:
+          command: upload
+          args: --skip-existing *
