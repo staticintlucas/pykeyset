@@ -2,13 +2,9 @@
 
 from __future__ import annotations
 
-import cProfile
 import os.path
-import pstats
 import sys
 from pathlib import Path
-from time import perf_counter
-from typing import Any
 
 import click
 import rich.traceback
@@ -19,21 +15,17 @@ from typer import Option
 from . import __version__, cmdlist, resources  # type: ignore
 from .utils import Verbosity
 from .utils.config import set_config
-
-profiler = None
-PROFILE_FILE = "pykeyset_profile.txt"
+from .utils.logging import warning
 
 HELP = {
     "align": "Show alignment boundaries in output graphics.",
     "dpi": "Set the DPI used when generating output graphics.",
-    "profile": f"Profile program execution. Saved to {PROFILE_FILE}.",
-    "color": "Enable / disable colored text output.  [default: auto]",
+    "profile": "[dim]This option has no effect.[/dim] [yellow bold](deprecated)[/yellow bold]",
+    "color": "Enable / disable colored text output. [dim]\\[default: auto][/dim]",
     "debug": "Show extra debug information messages.",
     "verbose": "Show all information output messages.",
     "quiet": "Show only fatal error messages in program output.",
 }
-
-starttime = 0.0
 
 
 def print_version(value: bool) -> None:
@@ -67,14 +59,6 @@ def callback(
 ) -> None:
     rich.traceback.install()
 
-    global starttime
-    starttime = perf_counter()
-
-    if profile:
-        global profiler
-        profiler = cProfile.Profile()
-        profiler.enable()
-
     if debug:
         verbosity = Verbosity.DEBUG
         rich.traceback.install(show_locals=True)
@@ -95,20 +79,11 @@ def callback(
         is_script=True,
     )
 
-
-def result_callback(exit_code: int, **kwargs: Any) -> None:
-    global profiler
-    if profiler is not None:
-        profiler.disable()
-
-        if exit_code == 0:
-            with open(PROFILE_FILE, "w") as f:
-                stats = pstats.Stats(profiler, stream=f)
-                stats.strip_dirs().sort_stats("tottime").print_stats()
-
-    if exit_code == 0:
-        endtime = perf_counter()
-        typer.secho(f"Completed in {endtime - starttime:.3f} s", fg=typer.colors.GREEN, bold=True)
+    if profile:
+        warning(
+            DeprecationWarning("The --profexec option is deprecated and has no effect"),
+            "It will be removed in a future release",
+        )
 
 
 app = typer.Typer(
@@ -117,7 +92,7 @@ app = typer.Typer(
     options_metavar="[options]",
     subcommand_metavar="<command> [args ...]",
     callback=callback,
-    result_callback=result_callback,
+    rich_markup_mode="rich",
 )
 
 
