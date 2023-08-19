@@ -250,7 +250,7 @@ impl Version {
                 .as_ref(py)
                 .as_sequence()
                 .concat(other)?
-                .tuple()
+                .to_tuple()
                 .map(Into::into)
         })
     }
@@ -270,7 +270,7 @@ impl Version {
                 .as_ref(py)
                 .as_sequence()
                 .repeat(count)?
-                .tuple()
+                .to_tuple()
                 .map(Into::into)
         })
     }

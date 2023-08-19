@@ -21,7 +21,7 @@ def layout(ctx):
     elif ctx.profile is None:
         error(ValueError("no profile is loaded"))
 
-    ctx.drawing = Drawing(ctx.layout, ctx.profile, ctx.font).to_svg()
+    ctx.drawing = Drawing(ctx.layout, ctx.profile, ctx.font)
 
 
 def load(ctx, file: str):

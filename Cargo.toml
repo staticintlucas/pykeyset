@@ -8,8 +8,8 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-keyset = "0.1"
-pyo3 = "0.18"
+keyset = "0.2"
+pyo3 = "0.19"
 
 [build-dependencies]
 built = { version = "0.6", default-features = false }

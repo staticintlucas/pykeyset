@@ -13,7 +13,7 @@ def as_svg(ctx: Context, filename: str):
         error(ValueError("no layout has been generated"), file=ctx.name)
 
     try:
-        Path(filename).write_text(ctx.drawing)
+        Path(filename).write_text(ctx.drawing.to_svg())
     except OSError as e:
         error(
             OSError(f"cannot write to file {format_filename(filename)}: {e.strerror}"),
@@ -22,17 +22,13 @@ def as_svg(ctx: Context, filename: str):
 
 
 def as_png(ctx: Context, filename: str):
-    """save the graphic as a PNG image (requires Cairo)"""
+    """save the graphic as a PNG image"""
 
     if ctx.drawing is None:
         error(ValueError("no layout has been generated"), file=ctx.name)
 
-    # TODO how does this fail if cairo is not installed?
-    from cairosvg import svg2png
-
     try:
-        svg2png(bytestring=ctx.drawing, write_to=filename, background_color="#fff")
-
+        Path(filename).write_bytes(ctx.drawing.to_png())
     except OSError as e:
         error(
             OSError(f"cannot write to file {format_filename(filename)}: {e.strerror}"),
@@ -41,17 +37,13 @@ def as_png(ctx: Context, filename: str):
 
 
 def as_pdf(ctx: Context, filename: str):
-    """save the graphic as a PDF file (requires Cairo)"""
+    """save the graphic as a PDF file"""
 
     if ctx.drawing is None:
         error(ValueError("no layout has been generated"), file=ctx.name)
 
-    # TODO how does this fail if cairo is not installed?
-    from cairosvg import svg2pdf
-
     try:
-        svg2pdf(bytestring=ctx.drawing, write_to=filename, background_color="#fff")
-
+        Path(filename).write_bytes(ctx.drawing.to_pdf())
     except OSError as e:
         error(
             OSError(f"cannot write to file {format_filename(filename)}: {e.strerror}"),
@@ -59,12 +51,16 @@ def as_pdf(ctx: Context, filename: str):
         )
 
 
-def as_ai(ctx, filename):
+def as_ai(ctx: Context, filename: str):
     """save the graphic as an AI file (experimental; requires Cairo)"""
 
-    warning(
-        ValueError("saving AI is an experimental feature"),
-        "Please check that the generated files are correct",
-    )
+    if ctx.drawing is None:
+        error(ValueError("no layout has been generated"), file=ctx.name)
 
-    as_pdf(ctx, filename)
+    try:
+        Path(filename).write_bytes(ctx.drawing.to_ai())
+    except OSError as e:
+        error(
+            OSError(f"cannot write to file {format_filename(filename)}: {e.strerror}"),
+            file=ctx.name,
+        )
