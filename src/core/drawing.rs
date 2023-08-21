@@ -1,4 +1,5 @@
 use pyo3::prelude::*;
+use pyo3::types::PyBytes;
 
 use super::font::Font;
 use super::layout::Layout;
@@ -27,15 +28,18 @@ impl Drawing {
         Ok(self.0.to_svg())
     }
 
-    fn to_png(&self) -> PyResult<Vec<u8>> {
-        Ok(self.0.to_png(96.))
+    fn to_png(&self) -> PyResult<Py<PyBytes>> {
+        let result = self.0.to_png(96.);
+        Ok(Python::with_gil(|py| PyBytes::new(py, &result).into()))
     }
 
-    fn to_pdf(&self) -> PyResult<Vec<u8>> {
-        Ok(self.0.to_pdf())
+    fn to_pdf(&self) -> PyResult<Py<PyBytes>> {
+        let result = self.0.to_pdf();
+        Ok(Python::with_gil(|py| PyBytes::new(py, &result).into()))
     }
 
-    fn to_ai(&self) -> PyResult<Vec<u8>> {
-        Ok(self.0.to_ai())
+    fn to_ai(&self) -> PyResult<Py<PyBytes>> {
+        let result = self.0.to_ai();
+        Ok(Python::with_gil(|py| PyBytes::new(py, &result).into()))
     }
 }
