@@ -1,22 +1,14 @@
-# pykeyset
+# pykeyset &emsp; [![Build Status]][actions]&thinsp;[![PyPI Version]][pypi]
 
 A Python-based tool to create pretty keyset layout diagrams using correct fonts and icons.
 
-[![Build Status][build-status]][actions]
-[![PyPI Version][pypi-version]][pypi]
-[![PyPI Downloads][pypi-downloads]][pypi]
-
-[build-status]: https://img.shields.io/github/actions/workflow/status/staticintlucas/pykeyset/ci.yml?branch=main&style=flat-square
-[pypi-version]: https://img.shields.io/pypi/v/pykeyset?style=flat-square
-[pypi-downloads]: https://img.shields.io/endpoint?style=flat-square&url=https%3A%2F%2Frunkit.io%2Fstaticintlucas%2Fpykeyset-downloads%2F1.0.2
-
+<!-- TODO add coverage badge -->
+[build status]: https://img.shields.io/github/actions/workflow/status/staticintlucas/pykeyset/ci.yml?branch=main&style=flat-square
+[pypi version]: https://img.shields.io/pypi/v/pykeyset?style=flat-square
 [actions]: https://github.com/staticintlucas/pykeyset/actions
 [pypi]: https://pypi.org/project/pykeyset/
 
 ## Warning
-
-**The source for the original pure-Python implementation is available in the v0.0.x branch.
-The main branch is currently a work-in-progress port to using the [keyset-rs] backend.**
 
 **This project is currently in the early stages of development.
 If you do find any bugs, please report them on the [GitHub repo][pykeyset].
@@ -24,12 +16,12 @@ In future I hope to stabilise this project, add more extensive support for diffe
 
 Feel free to help this project improve by opening bug reports, feature requests, etc; or contributing directly to the code by opening a pull request.
 
-[keyset-rs]: https://github.com/staticintlucas/keyset-rs
 [pykeyset]: https://github.com/staticintlucas/pykeyset
 
 ## Example output
 
-![example.svg](example/example.png)
+<!-- Use absolute links because relative won't work properly in PyPI -->
+![example.svg](https://raw.githubusercontent.com/staticintlucas/pykeyset/main/example/example.png)
 
 ## Python API
 
