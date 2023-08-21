@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ..utils.logging import error, format_filename, warning
+from ..utils.logging import error, format_filename
 from .ctx import Context
 
 

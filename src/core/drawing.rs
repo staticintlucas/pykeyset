@@ -24,7 +24,9 @@ impl Drawing {
         let mut options = keyset::DrawingOptions::default();
         options.profile(profile.0).font(font.0);
         Ok(Self {
-            keys: layout.0, opts: options })
+            keys: layout.0,
+            opts: options,
+        })
     }
 
     fn to_svg(&self) -> PyResult<String> {
