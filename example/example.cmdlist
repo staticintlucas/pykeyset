@@ -4,3 +4,4 @@ load profile cherry
 load font cherry
 generate layout
 save svg example.svg
+save png example.png
