@@ -1,5 +1,18 @@
 # Change Log
 
+## [v0.1.1](https://github.com/staticintlucas/pykeyset/releases/tag/v0.1.1)
+
+### Changes
+
+* Upgrade to [keyset-rs](staticintlucas/keyset-rs) 0.2 under the hood
+  * New default font size which better matches KLE
+  * Automatic squishing of legends that don't otherwise fit (and associated warning)
+  * Add PNG, PDF, and AI output formats
+
+### Fixes
+
+* Fix bug in ISO enter positioning (or more generally keys with negative `x2` or `y2` in KLE)
+
 ## [v0.1.0](https://github.com/staticintlucas/pykeyset/releases/tag/v0.1.0)
 
 ### New
