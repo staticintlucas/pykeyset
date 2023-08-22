@@ -1,13 +1,7 @@
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
-pub fn module<'p>(py: Python<'p>) -> PyResult<&'p PyModule> {
-    let font = PyModule::new(py, "font")?;
-    font.add_class::<Font>()?;
-    Ok(font)
-}
-
-#[pyclass(module = "pykeyset._impl.core.font")]
+#[pyclass(module = "pykeyset._impl")]
 #[derive(Debug, Clone)]
 pub struct Font(pub keyset::Font);
 

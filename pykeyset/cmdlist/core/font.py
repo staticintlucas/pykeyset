@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 
 from ... import resources
-from ..._impl.font import Font
+from ..._impl import Font
 from ..logging import error
 from ..logging import format_filename as fmt_file
 

@@ -9,8 +9,6 @@ from typing import NoReturn
 import rich.console
 import typer
 
-from .config import config
-
 
 class Verbosity(IntEnum):
     NONE = 0
@@ -62,6 +60,8 @@ def error(
     if frame is not None:
         frame = frame.f_back
 
+    from .config import config
+
     conf = config()
 
     if conf.verbosity >= Verbosity.QUIET:
@@ -98,6 +98,8 @@ def warning(
     if frame is not None:
         frame = frame.f_back
 
+    from .config import config
+
     conf = config()
 
     if conf.verbosity >= Verbosity.NORMAL:
@@ -124,11 +126,15 @@ def warning(
 
 
 def info(message: str, file: str | None = None):
+    from .config import config
+
     if config().verbosity >= Verbosity.VERBOSE:
         print_message(message, Severity.INFO, file)
 
 
 def debug(message: str, file: str | None = None):
+    from .config import config
+
     if config().verbosity >= Verbosity.DEBUG:
         print_message(message, Severity.DEBUG, file)
 
@@ -158,6 +164,8 @@ def format_filename(filename: str | Path) -> str:
 def print_message(message: str, severity: Severity, filename: str | Path | None = None) -> None:
     color = COLOR_MAP.get(severity, "magenta")
     prefix = severity.name.capitalize()
+
+    from .config import config
 
     console = rich.console.Console(force_terminal=config().color, stderr=True)
     console.print(f"[{color} bold]{prefix}:[/{color} bold] {message}")

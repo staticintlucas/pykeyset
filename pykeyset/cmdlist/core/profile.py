@@ -4,7 +4,7 @@ import os.path
 from pathlib import Path
 
 from ... import resources
-from ..._impl.profile import Profile
+from ..._impl import Profile
 from ..logging import error, format_filename
 
 __all__ = ["Profile", "load_builtin", "load_file"]

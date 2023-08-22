@@ -6,8 +6,7 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlparse
 
 # from . import Context
-from ..._impl.drawing import Drawing
-from ..._impl.layout import Layout
+from ..._impl import Drawing, Layout
 from ..logging import error, format_filename
 
 
