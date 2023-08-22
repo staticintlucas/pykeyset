@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import inspect
+from enum import IntEnum
 from pathlib import Path
 from types import TracebackType
 from typing import NoReturn
@@ -8,8 +9,23 @@ from typing import NoReturn
 import rich.console
 import typer
 
-from . import Severity, Verbosity
 from .config import config
+
+
+class Verbosity(IntEnum):
+    NONE = 0
+    QUIET = 1
+    NORMAL = 2
+    VERBOSE = 3
+    DEBUG = 4
+
+
+class Severity(IntEnum):
+    DEBUG = 0
+    INFO = 1
+    WARNING = 2
+    ERROR = 3
+
 
 __all__ = ["error", "warning", "info", "debug"]
 

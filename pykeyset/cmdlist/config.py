@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, NamedTuple
 
-from . import Verbosity
+from .logging import Verbosity
 
 __all__ = ["config", "set_config", "reset_config"]
 

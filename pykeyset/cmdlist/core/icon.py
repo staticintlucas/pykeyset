@@ -3,8 +3,8 @@ from __future__ import annotations
 import os.path
 from pathlib import Path
 
-from .. import resources
-from ..utils.logging import error
+from ... import resources
+from ..logging import error
 
 __all__ = ["IconSet", "Icon", "load_builtin", "load_file"]
 

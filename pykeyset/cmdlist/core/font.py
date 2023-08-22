@@ -3,10 +3,10 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from .. import resources
-from .._impl.font import Font
-from ..utils.logging import error
-from ..utils.logging import format_filename as fmt_file
+from ... import resources
+from ..._impl.font import Font
+from ..logging import error
+from ..logging import format_filename as fmt_file
 
 __all__ = ["Font", "load_builtin", "load_file"]
 

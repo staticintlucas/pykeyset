@@ -12,10 +12,9 @@ import typer
 import typer.core
 from typer import Option
 
-from . import __version__, cmdlist, resources  # type: ignore
-from .utils import Verbosity
-from .utils.config import set_config
-from .utils.logging import warning
+from . import __version__, cmdlist, resources
+from .cmdlist.config import set_config
+from .cmdlist.logging import Verbosity, warning
 
 HELP = {
     "align": "Show alignment boundaries in output graphics.",

@@ -3,9 +3,9 @@ from __future__ import annotations
 import os.path
 from pathlib import Path
 
-from .. import resources
-from .._impl.profile import Profile
-from ..utils.logging import error, format_filename
+from ... import resources
+from ..._impl.profile import Profile
+from ..logging import error, format_filename
 
 __all__ = ["Profile", "load_builtin", "load_file"]
 

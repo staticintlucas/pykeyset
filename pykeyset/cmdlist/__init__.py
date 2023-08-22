@@ -10,7 +10,7 @@ import click
 from typer import Context
 
 from . import core  # type: ignore
-from .utils.logging import error, format_filename, info
+from .logging import error, format_filename, info
 
 __all__ = ["run", "format_options"]
 
