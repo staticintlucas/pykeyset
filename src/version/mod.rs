@@ -18,12 +18,14 @@ pub fn build_info(py: Python) -> PyResult<&PyDict> {
     let dependencies: HashMap<_, _> = built::DEPENDENCIES.into_iter().collect();
 
     let build = PyDict::new(py);
-    build.set_item("compiler", {
-        let clr = PyDict::new(py);
-        clr.set_item("name", built::RUSTC)?;
-        clr.set_item("version", built::RUSTC_VERSION)?;
-        clr.set_item("host", built::HOST)?;
-        clr
+    build.set_item("build", {
+        let bld = PyDict::new(py);
+        bld.set_item("version", built::RUSTC_VERSION)?;
+        bld.set_item("host", built::HOST)?;
+        bld.set_item("profile", built::PROFILE)?;
+        bld.set_item("optimization", built::OPT_LEVEL)?;
+        bld.set_item("debug", built::DEBUG)?;
+        bld
     })?;
     build.set_item("target", {
         let tgt = PyDict::new(py);
@@ -34,13 +36,6 @@ pub fn build_info(py: Python) -> PyResult<&PyDict> {
         tgt.set_item("family", built::CFG_FAMILY)?;
         tgt.set_item("env", built::CFG_ENV)?;
         tgt
-    })?;
-    build.set_item("config", {
-        let cfg = PyDict::new(py);
-        cfg.set_item("profile", built::PROFILE)?;
-        cfg.set_item("optimization", built::OPT_LEVEL)?;
-        cfg.set_item("debug", built::DEBUG)?;
-        cfg
     })?;
     build.set_item("dependencies", {
         let deps = PyDict::new(py);
