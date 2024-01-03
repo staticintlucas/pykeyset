@@ -7,14 +7,15 @@ use super::profile::Profile;
 
 #[pyclass(module = "pykeyset._impl")]
 #[derive(Debug, Clone)]
-pub struct Drawing(keyset::Drawing);
+pub struct Drawing(keyset::drawing::Drawing);
 
 #[pymethods]
 impl Drawing {
     #[new]
     fn new(layout: Layout, profile: Profile, font: Font) -> PyResult<Self> {
-        let mut options = keyset::DrawingOptions::default();
-        options.profile(profile.0).font(font.0);
+        let options = keyset::drawing::Options::default()
+            .profile(&profile.0)
+            .font(&font.0);
         Ok(Self(options.draw(&layout.0)))
     }
 
