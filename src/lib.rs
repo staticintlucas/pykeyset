@@ -4,12 +4,12 @@ mod version;
 use pyo3::prelude::*;
 
 #[pymodule]
-fn _impl(py: Python, m: &PyModule) -> PyResult<()> {
+fn _impl(m: &Bound<'_, PyModule>) -> PyResult<()> {
     let version = version::version()?;
 
     m.add("__version_info__", version)?;
     m.add("__version__", version.to_string())?;
-    m.add("__build__", version::build_info(py)?)?;
+    m.add("__build__", version::build_info(m.py())?)?;
 
     m.add_class::<core::Font>()?;
     // m.add_class::<core::icon::Icon>()?;

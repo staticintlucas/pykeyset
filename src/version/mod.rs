@@ -1,25 +1,24 @@
 mod built;
 
 use std::collections::HashMap;
-use std::convert::Into;
 use std::str::FromStr;
 use std::{error, fmt};
 
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::pyclass::CompareOp;
-use pyo3::types::{PyDict, PySequence, PyTuple};
+use pyo3::types::{PyDict, PyIterator, PySequence, PyTuple};
 
 pub fn version() -> Result<Version, VersionError> {
     Version::from_str(built::PKG_VERSION)
 }
 
-pub fn build_info(py: Python) -> PyResult<&PyDict> {
+pub fn build_info<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
     let dependencies: HashMap<_, _> = built::DEPENDENCIES.into_iter().collect();
 
-    let build = PyDict::new(py);
+    let build = PyDict::new_bound(py);
     build.set_item("build", {
-        let bld = PyDict::new(py);
+        let bld = PyDict::new_bound(py);
         bld.set_item("version", built::RUSTC_VERSION)?;
         bld.set_item("host", built::HOST)?;
         bld.set_item("profile", built::PROFILE)?;
@@ -28,7 +27,7 @@ pub fn build_info(py: Python) -> PyResult<&PyDict> {
         bld
     })?;
     build.set_item("target", {
-        let tgt = PyDict::new(py);
+        let tgt = PyDict::new_bound(py);
         tgt.set_item("triple", built::TARGET)?;
         tgt.set_item("arch", built::CFG_TARGET_ARCH)?;
         tgt.set_item("endianness", built::CFG_ENDIAN)?;
@@ -38,7 +37,7 @@ pub fn build_info(py: Python) -> PyResult<&PyDict> {
         tgt
     })?;
     build.set_item("dependencies", {
-        let deps = PyDict::new(py);
+        let deps = PyDict::new_bound(py);
         // Don't list all dependencies, just the important ones
         deps.set_item("keyset-rs", dependencies["keyset"])?;
         deps.set_item("pyo3", dependencies["pyo3"])?;
@@ -170,88 +169,91 @@ impl fmt::Display for Version {
     }
 }
 
-impl Version {
-    fn as_tuple(&self, py: Python) -> Py<PyTuple> {
-        PyTuple::new(
-            py,
+trait VerConv<'py> {
+    fn to_tuple(&self) -> Bound<'py, PyTuple>;
+}
+
+impl<'py> VerConv<'py> for Bound<'py, Version> {
+    fn to_tuple(&self) -> Bound<'py, PyTuple> {
+        PyTuple::new_bound(
+            self.py(),
             [
-                self.major.into_py(py),
-                self.minor.into_py(py),
-                self.patch.into_py(py),
-                self.releaselevel.into_py(py),
-                self.serial.into_py(py),
+                self.get().major.into_py(self.py()),
+                self.get().minor.into_py(self.py()),
+                self.get().patch.into_py(self.py()),
+                self.get().releaselevel.into_py(self.py()),
+                self.get().serial.into_py(self.py()),
             ],
         )
-        .into()
     }
 }
 
 #[pymethods]
 impl Version {
-    pub fn count(&self, value: &PyAny) -> PyResult<usize> {
-        Python::with_gil(|py| self.as_tuple(py).as_ref(py).as_sequence().count(value))
+    pub fn count(slf: &Bound<'_, Self>, value: &PyAny) -> PyResult<usize> {
+        slf.to_tuple().as_sequence().count(value)
     }
 
-    pub fn index(
-        &self,
-        value: &PyAny,
-        start: Option<&PyAny>,
-        stop: Option<&PyAny>,
-    ) -> PyResult<PyObject> {
-        Python::with_gil(|py| {
-            // TODO calling index here with call_method because PySequence::index doesn't take
-            // start/stop values
-            let start = start.unwrap_or(0_isize.into_py(py).into_ref(py));
-            let stop = stop.unwrap_or(isize::MAX.into_py(py).into_ref(py));
+    pub fn index<'py>(
+        slf: &Bound<'py, Self>,
+        value: &Bound<'_, PyAny>,
+        start: Option<&Bound<'_, PyAny>>,
+        stop: Option<&Bound<'_, PyAny>>,
+    ) -> PyResult<Bound<'py, PyAny>> {
+        // TODO calling index here with call_method because PySequence::index doesn't take
+        // start/stop values
+        let zero = Python::with_gil(|py| 0_usize.into_py(py));
+        let max = Python::with_gil(|py| usize::MAX.into_py(py));
+        let start = start.unwrap_or(zero.bind(value.py()));
+        let stop = stop.unwrap_or(max.bind(value.py()));
 
-            self.as_tuple(py)
-                .call_method1(py, "index", (value, start, stop))
-        })
+        slf.to_tuple().call_method1("index", (value, start, stop))
     }
 
     fn __str__(&self) -> String {
-        format!("{self}")
+        self.to_string()
     }
 
     fn __repr__(&self) -> String {
+        let Self {
+            major,
+            minor,
+            patch,
+            releaselevel,
+            serial,
+        } = self;
         format!(
-            "pykeyset.__version_info__(major={}, minor={}, patch={}, releaselevel='{}', serial={})",
-            self.major, self.minor, self.patch, self.releaselevel, self.serial
+            "pykeyset.__version_info__(major={major}, minor={minor}, patch={patch}, releaselevel='{releaselevel}', serial={serial})",
         )
     }
 
-    fn __richcmp__(&self, other: PyObject, compare_op: CompareOp) -> PyResult<PyObject> {
-        Python::with_gil(|py| {
-            self.as_tuple(py)
-                .as_ref(py)
-                .rich_compare(other, compare_op)
-                .map(Into::into)
-        })
+    fn __richcmp__<'py>(
+        slf: &Bound<'py, Self>,
+        other: &Bound<'_, PyAny>,
+        compare_op: CompareOp,
+    ) -> PyResult<Bound<'py, PyAny>> {
+        slf.to_tuple().rich_compare(other, compare_op)
     }
 
-    fn __len__(&self) -> usize {
-        Python::with_gil(|py| self.as_tuple(py).as_ref(py).len())
+    fn __len__(slf: &Bound<'_, Self>) -> usize {
+        slf.to_tuple().len()
     }
 
-    fn __getitem__(&self, index: PyObject) -> PyResult<PyObject> {
+    fn __getitem__<'py>(slf: &Bound<'py, Self>, index: &PyAny) -> PyResult<Bound<'py, PyAny>> {
         // TODO calling __getitem__ with call_method because PyTuple::get_item doesn't take
-        // a slice object
-        Python::with_gil(|py| self.as_tuple(py).call_method1(py, "__getitem__", (index,)))
+        // a slice object (note: we just need a bit of logic and call either get_item or get_slice)
+        slf.to_tuple().call_method1("__getitem__", (index,))
     }
 
-    fn __concat__(&self, other: &PySequence) -> PyResult<PyObject> {
-        Python::with_gil(|py| {
-            self.as_tuple(py)
-                .as_ref(py)
-                .as_sequence()
-                .concat(other)?
-                .to_tuple()
-                .map(Into::into)
-        })
+    fn __concat__<'py>(
+        slf: &Bound<'py, Self>,
+        other: &Bound<'_, PySequence>,
+    ) -> PyResult<Bound<'py, PyTuple>> {
+        slf.to_tuple().as_sequence().concat(other)?.to_tuple()
     }
 
-    fn __contains__(&self, value: PyObject) -> PyResult<bool> {
-        Python::with_gil(|py| self.as_tuple(py).as_ref(py).contains(value))
+    fn __contains__(slf: &Bound<'_, Self>, value: &PyAny) -> PyResult<bool> {
+        slf.to_tuple().contains(value)
     }
 
     #[getter]
@@ -259,24 +261,11 @@ impl Version {
         ("major", "minor", "micro", "releaselevel", "serial")
     }
 
-    fn __repeat__(&self, count: usize) -> PyResult<PyObject> {
-        Python::with_gil(|py| {
-            self.as_tuple(py)
-                .as_ref(py)
-                .as_sequence()
-                .repeat(count)?
-                .to_tuple()
-                .map(Into::into)
-        })
+    fn __repeat__<'py>(slf: &Bound<'py, Self>, count: usize) -> PyResult<Bound<'py, PyTuple>> {
+        slf.to_tuple().as_sequence().repeat(count)?.to_tuple()
     }
 
-    fn __iter__(&self) -> PyResult<PyObject> {
-        Python::with_gil(|py| {
-            self.as_tuple(py)
-                .as_ref(py)
-                .as_sequence()
-                .iter()
-                .map(Into::into)
-        })
+    fn __iter__<'py>(slf: &Bound<'py, Self>) -> PyResult<Bound<'py, PyIterator>> {
+        slf.to_tuple().as_sequence().iter()
     }
 }
