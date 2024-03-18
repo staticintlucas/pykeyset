@@ -26,13 +26,10 @@ jobs:
         target: [x86_64, i686, aarch64]
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
       - uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.target }}
-          args: --release --out dist
+          args: --release --out dist -i python3.11 # Install a modern python so we're not stuck with 3.7
           manylinux: 2014
           before-script-linux: |
             pip install fonttools==4.43.0
