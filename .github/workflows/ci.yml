@@ -29,10 +29,10 @@ jobs:
       - uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.target }}
-          args: --release --out dist -i python3.11 # Install a modern python so we're not stuck with 3.7
+          args: --release --out dist
           manylinux: 2014
           before-script-linux: |
-            pip install fonttools==4.43.0
+            python3.11 -m pip install fonttools==4.43.0
       - uses: actions/upload-artifact@v3
         with:
           name: wheels
