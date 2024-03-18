@@ -1,13 +1,14 @@
 mod built;
 
 use std::collections::HashMap;
+use std::ffi::c_long;
 use std::str::FromStr;
 use std::{error, fmt};
 
-use pyo3::exceptions::PyValueError;
-use pyo3::prelude::*;
+use pyo3::exceptions::{PyTypeError, PyValueError};
 use pyo3::pyclass::CompareOp;
-use pyo3::types::{PyDict, PyIterator, PySequence, PyTuple};
+use pyo3::types::{PyDict, PyIterator, PySequence, PySlice, PySliceIndices, PyTuple};
+use pyo3::{intern, prelude::*};
 
 pub fn version() -> Result<Version, VersionError> {
     Version::from_str(built::PKG_VERSION)
@@ -199,15 +200,75 @@ impl Version {
         value: &Bound<'_, PyAny>,
         start: Option<&Bound<'_, PyAny>>,
         stop: Option<&Bound<'_, PyAny>>,
-    ) -> PyResult<Bound<'py, PyAny>> {
-        // TODO calling index here with call_method because PySequence::index doesn't take
-        // start/stop values
-        let zero = Python::with_gil(|py| 0_usize.into_py(py));
-        let max = Python::with_gil(|py| usize::MAX.into_py(py));
-        let start = start.unwrap_or(zero.bind(value.py()));
-        let stop = stop.unwrap_or(max.bind(value.py()));
+    ) -> PyResult<usize> {
+        let tuple = slf.to_tuple();
+        let ilen = isize::try_from(tuple.len()).unwrap_or(isize::MAX);
 
-        slf.to_tuple().call_method1("index", (value, start, stop))
+        let start = if let Some(start) = start {
+            let istart = if let Ok(start) = start.extract::<isize>() {
+                start
+            } else if start.hasattr("__index__")? {
+                let index = start.call_method0("__index__")?;
+                index
+                    .extract::<isize>()
+                    .or(Err(PyTypeError::new_err(format!(
+                        "__index__ returned non-int (type {})",
+                        typename(&index)
+                    ))))?
+            } else {
+                Err(PyTypeError::new_err(format!(
+                    "slice indices must be integers or have an __index__ method"
+                )))?
+            };
+
+            usize::try_from(if istart < 0 {
+                isize::max(istart + ilen, 0)
+            } else {
+                istart
+            })
+            .expect("istart should always be >0")
+        } else {
+            0
+        };
+
+        let stop = if let Some(stop) = stop {
+            let istop = if let Ok(stop) = stop.extract::<isize>() {
+                stop
+            } else if stop.hasattr("__index__")? {
+                let index = stop.call_method0("__index__")?;
+                index
+                    .extract::<isize>()
+                    .or(Err(PyTypeError::new_err(format!(
+                        "__index__ returned non-int (type {})",
+                        typename(&index)
+                    ))))?
+            } else {
+                Err(PyTypeError::new_err(format!(
+                    "slice indices must be integers or have an __index__ method"
+                )))?
+            };
+
+            usize::try_from(if istop < 0 {
+                isize::max(istop + ilen, 0)
+            } else {
+                istop
+            })
+            .expect("istop should always be >0")
+        } else {
+            usize::MAX
+        };
+
+        tuple
+            .get_slice(start, stop)
+            .index(value)
+            .map(|index| start + index)
+            .map_err(|e| {
+                if e.is_instance_of::<PyValueError>(tuple.py()) {
+                    PyValueError::new_err("tuple.index(x): x not in tuple")
+                } else {
+                    e
+                }
+            })
     }
 
     fn __str__(&self) -> String {
@@ -239,10 +300,64 @@ impl Version {
         slf.to_tuple().len()
     }
 
-    fn __getitem__<'py>(slf: &Bound<'py, Self>, index: &PyAny) -> PyResult<Bound<'py, PyAny>> {
-        // TODO calling __getitem__ with call_method because PyTuple::get_item doesn't take
-        // a slice object (note: we just need a bit of logic and call either get_item or get_slice)
-        slf.to_tuple().call_method1("__getitem__", (index,))
+    fn __getitem__<'py>(
+        slf: &Bound<'py, Self>,
+        index: Bound<'_, PyAny>,
+    ) -> PyResult<Bound<'py, PyAny>> {
+        // Yes I know there is a lot of conversion to/from isize/usize/c_long here, but that should
+        // all be simplified when https://github.com/PyO3/pyo3/pull/3761 is merged
+        let tuple = slf.to_tuple();
+        let len = tuple.len();
+        let ilen = isize::try_from(len).expect("length should be < isize::MAX");
+        let llen = c_long::try_from(len).expect("length should be < c_long::MAX");
+
+        if let Ok(slice) = index.downcast::<PySlice>() {
+            let indices = slice.indices(llen)?;
+
+            let PySliceIndices {
+                start, stop, step, ..
+            } = indices;
+
+            let result = if let Ok(ustep) = usize::try_from(step) {
+                PyTuple::new_bound(
+                    slf.py(),
+                    (start..stop).step_by(ustep).map(|idx| {
+                        let idx = usize::try_from(idx).expect("index should not be negative");
+                        tuple.get_item(idx).expect("get_item should always succeed")
+                    }),
+                )
+            } else {
+                let ustep = usize::try_from(-step).expect("negating a negative is always positive");
+                PyTuple::new_bound(
+                    slf.py(),
+                    (start..stop).rev().step_by(ustep).map(|idx| {
+                        let idx = usize::try_from(idx).expect("index should not be negative");
+                        tuple.get_item(idx).expect("get_item should always succeed")
+                    }),
+                )
+            };
+
+            Ok(result.into_any())
+        } else {
+            let idx = if let Ok(idx) = index.extract::<isize>() {
+                idx
+            } else if index.hasattr("__index__")? {
+                let idx = index.call_method0("__index__")?;
+                idx.extract::<isize>().or(Err(PyTypeError::new_err(format!(
+                    "__index__ returned non-int (type {})",
+                    typename(&idx)
+                ))))?
+            } else {
+                Err(PyTypeError::new_err(format!(
+                    "tuple indices must be integers or slices, not {}",
+                    typename(&index)
+                )))?
+            };
+
+            let idx = if idx < 0 { idx + ilen } else { idx };
+
+            tuple.get_item(usize::try_from(idx).unwrap_or(isize::MAX as usize))
+        }
     }
 
     fn __concat__<'py>(
@@ -268,4 +383,11 @@ impl Version {
     fn __iter__<'py>(slf: &Bound<'py, Self>) -> PyResult<Bound<'py, PyIterator>> {
         slf.to_tuple().as_sequence().iter()
     }
+}
+
+fn typename(slf: &Bound<'_, PyAny>) -> String {
+    slf.get_type()
+        .getattr(intern!(slf.py(), "__name__"))
+        .map(|n| n.to_string())
+        .unwrap_or("None".into())
 }
