@@ -14,7 +14,7 @@ pub fn version() -> Result<Version, VersionError> {
     Version::from_str(built::PKG_VERSION)
 }
 
-pub fn build_info<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
+pub fn build_info(py: Python) -> PyResult<Bound<'_, PyDict>> {
     let dependencies: HashMap<_, _> = built::DEPENDENCIES.into_iter().collect();
 
     let build = PyDict::new_bound(py);
@@ -195,8 +195,8 @@ impl Version {
         slf.to_tuple().as_sequence().count(value)
     }
 
-    pub fn index<'py>(
-        slf: &Bound<'py, Self>,
+    pub fn index(
+        slf: &Bound<'_, Self>,
         value: &Bound<'_, PyAny>,
         start: Option<&Bound<'_, PyAny>>,
         stop: Option<&Bound<'_, PyAny>>,
@@ -216,9 +216,9 @@ impl Version {
                         typename(&index)
                     ))))?
             } else {
-                Err(PyTypeError::new_err(format!(
-                    "slice indices must be integers or have an __index__ method"
-                )))?
+                Err(PyTypeError::new_err(
+                    "slice indices must be integers or have an __index__ method",
+                ))?
             };
 
             usize::try_from(if istart < 0 {
@@ -243,9 +243,9 @@ impl Version {
                         typename(&index)
                     ))))?
             } else {
-                Err(PyTypeError::new_err(format!(
-                    "slice indices must be integers or have an __index__ method"
-                )))?
+                Err(PyTypeError::new_err(
+                    "slice indices must be integers or have an __index__ method",
+                ))?
             };
 
             usize::try_from(if istop < 0 {

@@ -44,9 +44,7 @@ repos:
       args: [--all, --, --check]
       pass_filenames: false
     - id: cargo-check
-      pass_filenames: false
-    # - id: clippy
-    #   args: [--, -D, warnings]
-    #   pass_filenames: false
+    - id: clippy
+      args: [--, -D, warnings]
 
 exclude: example/example.svg
