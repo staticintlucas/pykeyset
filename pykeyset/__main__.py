@@ -19,7 +19,6 @@ from .cmdlist.logging import Verbosity, warning
 HELP = {
     "align": "Show alignment boundaries in output graphics.",
     "dpi": "Set the DPI used when generating output graphics.",
-    "profile": "[dim]This option has no effect.[/dim] [yellow bold](deprecated)[/yellow bold]",
     "color": "Enable / disable colored text output. [dim]\\[default: auto][/dim]",
     "debug": "Show extra debug information messages.",
     "verbose": "Show all information output messages.",
@@ -42,7 +41,6 @@ def print_version(value: bool) -> None:
 def callback(
     show_align: bool = Option(False, "--show-align", show_default=False, help=HELP["align"]),
     dpi: int = Option(96, "-d", "--dpi", metavar="<number>", help=HELP["dpi"]),
-    profile: bool = Option(False, "--profexec", show_default=False, help=HELP["profile"]),
     color: bool = Option(None, "--color/--no-color", show_default=False, help=HELP["color"]),
     debug: bool = Option(False, "--debug", show_default=False, help=HELP["debug"]),
     verbose: bool = Option(False, "-v", "--verbose", show_default=False, help=HELP["verbose"]),
@@ -58,6 +56,14 @@ def callback(
 ) -> None:
     rich.traceback.install()
 
+    warning(
+        DeprecationWarning(
+            "The pykeyset command line application and use of cmdlist files is "
+            "deprecated in favour of using the Python API"
+        ),
+        "It will be removed in a future release",
+    )
+
     if debug:
         verbosity = Verbosity.DEBUG
         rich.traceback.install(show_locals=True)
@@ -71,18 +77,11 @@ def callback(
     set_config(
         show_align=show_align,
         dpi=dpi,
-        profile=profile,
         color=color,
         verbosity=verbosity,
         raise_warnings=False,
         is_script=True,
     )
-
-    if profile:
-        warning(
-            DeprecationWarning("The --profexec option is deprecated and has no effect"),
-            "It will be removed in a future release",
-        )
 
 
 app = typer.Typer(

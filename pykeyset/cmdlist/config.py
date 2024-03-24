@@ -10,7 +10,6 @@ __all__ = ["config", "set_config", "reset_config"]
 class _Config(NamedTuple):
     show_align: bool
     dpi: int
-    profile: bool
     color: bool | None
     verbosity: Verbosity
     raise_warnings: bool
@@ -46,7 +45,6 @@ def set_config(**kwargs: Any) -> None:
     _config = _Config(
         show_align=kwargs.pop("show_align", _config.show_align),
         dpi=kwargs.pop("dpi", _config.dpi),
-        profile=kwargs.pop("profile", _config.profile),
         color=kwargs.pop("color", _config.color),
         verbosity=kwargs.pop("verbosity", _config.verbosity),
         raise_warnings=kwargs.pop("raise_warnings", _config.raise_warnings),
@@ -65,7 +63,6 @@ def reset_config() -> None:
     _config = _Config(
         show_align=False,
         dpi=96,
-        profile=False,
         color=None,
         verbosity=Verbosity.NONE,
         raise_warnings=False,
