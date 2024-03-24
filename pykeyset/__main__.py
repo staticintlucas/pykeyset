@@ -33,7 +33,7 @@ def print_version(value: bool) -> None:
     if value:
         typer.echo(
             f"{os.path.basename(sys.argv[0])} version {__version__}\n"
-            "Copyright (c) 2020-2023 Lucas Jansen",
+            "Copyright (c) 2020-2024 Lucas Jansen",
             err=True,
         )
         raise typer.Exit()
