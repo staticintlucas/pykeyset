@@ -7,9 +7,9 @@ use pyo3::prelude::*;
 fn _impl(m: &Bound<'_, PyModule>) -> PyResult<()> {
     let version = version::version()?;
 
-    m.add("__version_info__", version)?;
-    m.add("__version__", version.to_string())?;
-    m.add("__build__", version::build_info(m.py())?)?;
+    m.add("version_info", version)?;
+    m.add("version", version.to_string())?;
+    m.add_function(wrap_pyfunction!(version::build_info, m)?)?;
 
     m.add_class::<core::Font>()?;
     // m.add_class::<core::icon::Icon>()?;
