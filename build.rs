@@ -10,8 +10,36 @@ fn main() -> Result<(), Box<dyn Error>> {
     // Write build.rs
     built::write_built_file_with_opts(Some(&manifest_dir), &file)?;
 
+    // Check that pyo3's version matches pyo3-build-config's version (else it gives bad results)
+    check_pyo3_vers(&manifest_dir)?;
+
     // Add pyo3 info to build.rs
     write_pyo3_file(&file)?;
+
+    Ok(())
+}
+
+fn check_pyo3_vers(manifest_dir: &Path) -> Result<(), Box<dyn Error>> {
+    let lockfile = cargo_lock::Lockfile::load(manifest_dir.join("Cargo.lock"))?;
+
+    let deps = lockfile.packages;
+
+    let pyo3_ver = deps
+        .iter()
+        .find(|p| p.name.as_str() == "pyo3")
+        .expect("pyo3 not found in Cargo.lock")
+        .version
+        .clone();
+
+    for dep in deps {
+        if dep.name.as_str().starts_with("pyo3") {
+            assert_eq!(
+                dep.version, pyo3_ver,
+                "mismatching {} version {}, expected {}",
+                dep.name, dep.version, pyo3_ver
+            );
+        }
+    }
 
     Ok(())
 }
