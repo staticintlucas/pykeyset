@@ -4,7 +4,6 @@ use std::str::FromStr;
 use std::{error, fmt};
 
 use pyo3::exceptions::{PyTypeError, PyValueError};
-use pyo3::intern;
 use pyo3::prelude::*;
 use pyo3::pyclass::CompareOp;
 use pyo3::types::{PyIterator, PySequence, PySlice, PySliceIndices, PyTuple};
@@ -173,22 +172,13 @@ impl Version {
         start: Option<&Bound<'_, PyAny>>,
         stop: Option<&Bound<'_, PyAny>>,
     ) -> PyResult<usize> {
-        let index_attr = intern!(slf.py(), "__index__");
-
         let tuple = slf.to_tuple();
         let ilen = isize::try_from(tuple.len()).unwrap_or(isize::MAX);
 
         let start = if let Some(start) = start {
+            // Note extract takes care of calling __index__ if required
             let istart = if let Ok(start) = start.extract::<isize>() {
                 start
-            } else if start.hasattr(index_attr)? {
-                let index = start.call_method0(index_attr)?;
-                index
-                    .extract::<isize>()
-                    .or(Err(PyTypeError::new_err(format!(
-                        "__index__ returned non-int (type {})",
-                        typename(&index)
-                    ))))?
             } else {
                 Err(PyTypeError::new_err(
                     "slice indices must be integers or have an __index__ method",
@@ -206,16 +196,9 @@ impl Version {
         };
 
         let stop = if let Some(stop) = stop {
+            // Note extract takes care of calling __index__ if required
             let istop = if let Ok(stop) = stop.extract::<isize>() {
                 stop
-            } else if stop.hasattr(index_attr)? {
-                let index = stop.call_method0(index_attr)?;
-                index
-                    .extract::<isize>()
-                    .or(Err(PyTypeError::new_err(format!(
-                        "__index__ returned non-int (type {})",
-                        typename(&index)
-                    ))))?
             } else {
                 Err(PyTypeError::new_err(
                     "slice indices must be integers or have an __index__ method",
@@ -278,10 +261,8 @@ impl Version {
         slf: &Bound<'py, Self>,
         index: Bound<'_, PyAny>,
     ) -> PyResult<Bound<'py, PyAny>> {
-        let index_attr = intern!(slf.py(), "__index__");
-
-        // Yes I know there is a lot of conversion to/from isize/usize/c_long here, but that should
-        // all be simplified when https://github.com/PyO3/pyo3/pull/3761 is merged
+        // TODO: Yes I know there is a lot of conversion to/from isize/usize/c_long here, but that
+        // should all be simplified when https://github.com/PyO3/pyo3/pull/3761 is merged
         let tuple = slf.to_tuple();
         let len = tuple.len();
         let ilen = isize::try_from(len).expect("length should be < isize::MAX");
@@ -315,18 +296,13 @@ impl Version {
 
             Ok(result.into_any())
         } else {
+            // Note extract takes care of calling __index__ if required
             let idx = if let Ok(idx) = index.extract::<isize>() {
                 idx
-            } else if index.hasattr(index_attr)? {
-                let idx = index.call_method0(index_attr)?;
-                idx.extract::<isize>().or(Err(PyTypeError::new_err(format!(
-                    "__index__ returned non-int (type {})",
-                    typename(&idx)
-                ))))?
             } else {
                 Err(PyTypeError::new_err(format!(
                     "tuple indices must be integers or slices, not {}",
-                    typename(&index)
+                    index.get_type().getattr("__name__")?
                 )))?
             };
 
@@ -419,11 +395,4 @@ pub fn build_info(py: Python) -> String {
         "#
     )
     .unindent()
-}
-
-fn typename(slf: &Bound<'_, PyAny>) -> String {
-    slf.get_type()
-        .getattr(intern!(slf.py(), "__name__"))
-        .map(|n| n.to_string())
-        .unwrap_or("None".into())
 }
