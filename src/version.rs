@@ -77,13 +77,7 @@ impl IntoPy<PyObject> for ReleaseLevel {
 }
 
 // Reimplementation of sys.version_info's type
-#[pyclass(
-    sequence,
-    get_all,
-    frozen,
-    module = "pykeyset",
-    name = "__version_info__"
-)]
+#[pyclass(sequence, get_all, frozen, module = "pykeyset", name = "version_info")]
 #[derive(Debug, Clone, Copy)]
 pub struct Version {
     major: u8,
@@ -232,17 +226,19 @@ impl Version {
         self.to_string()
     }
 
-    fn __repr__(&self) -> String {
-        let Self {
+    fn __repr__(slf: &Bound<'_, Self>) -> PyResult<String> {
+        let typename = slf.get_type().name()?.into_owned();
+        let &Self {
             major,
             minor,
             patch,
             releaselevel,
             serial,
-        } = self;
-        format!(
-            "pykeyset.__version_info__(major={major}, minor={minor}, patch={patch}, releaselevel='{releaselevel}', serial={serial})",
-        )
+        } = slf.get();
+        Ok(format!(
+            "{typename}(major={major}, minor={minor}, patch={patch}, \
+                releaselevel='{releaselevel}', serial={serial})",
+        ))
     }
 
     fn __richcmp__<'py>(
