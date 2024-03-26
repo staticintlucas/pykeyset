@@ -12,6 +12,9 @@ fn _impl(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(version::build_info, m)?)?;
 
     m.add_class::<core::Font>()?;
+    m.add_class::<core::Glyph>()?;
+    m.add_class::<core::Path>()?;
+    m.add_class::<core::Rect>()?;
     // m.add_class::<core::icon::Icon>()?;
     // m.add_class::<core::icon::IconSet>()?;
     m.add_class::<core::Layout>()?;
