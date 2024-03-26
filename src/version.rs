@@ -156,7 +156,7 @@ impl<'py> VerConv<'py> for Bound<'py, Version> {
 
 #[pymethods]
 impl Version {
-    pub fn count(slf: &Bound<'_, Self>, value: &PyAny) -> PyResult<usize> {
+    pub fn count(slf: &Bound<'_, Self>, value: &Bound<'_, PyAny>) -> PyResult<usize> {
         slf.to_tuple().as_sequence().count(value)
     }
 
@@ -315,7 +315,7 @@ impl Version {
         slf.to_tuple().as_sequence().concat(other)?.to_tuple()
     }
 
-    fn __contains__(slf: &Bound<'_, Self>, value: &PyAny) -> PyResult<bool> {
+    fn __contains__(slf: &Bound<'_, Self>, value: &Bound<'_, PyAny>) -> PyResult<bool> {
         slf.to_tuple().contains(value)
     }
 
