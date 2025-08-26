@@ -14,7 +14,7 @@ impl Drawing {
     #[new]
     fn new(layout: Layout, profile: Profile, font: Font) -> PyResult<Self> {
         let options = keyset::drawing::Template {
-            profile : profile.0,
+            profile: profile.0,
             font: font.0,
             ..Default::default()
         };
