@@ -8,10 +8,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python: [3.8, 3.11] # TODO pypy ?
+        python: [3.8, 3.13] # TODO pypy ?
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
       - run: pip install fonttools==4.43.0
@@ -25,15 +25,15 @@ jobs:
       matrix:
         target: [x86_64, i686, aarch64]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       - uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.target }}
           args: --release --out dist
           manylinux: 2014
           before-script-linux: |
-            python3.11 -m pip install fonttools==4.43.0
-      - uses: actions/upload-artifact@v3
+            python3.13 -m pip install fonttools==4.43.0
+      - uses: actions/upload-artifact@v4
         with:
           name: wheels
           path: dist
@@ -51,17 +51,17 @@ jobs:
           - arch: aarch64
             python: x64
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.13'
           architecture: ${{ matrix.target.python }}
       - run: pip install fonttools==4.43.0
       - uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.target.arch }}
           args: --release --out dist
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: wheels
           path: dist
@@ -73,16 +73,16 @@ jobs:
       matrix:
         target: [x86_64, aarch64]
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.13'
       - run: pip install fonttools==4.43.0
       - uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.target }}
           args: --release --out dist
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: wheels
           path: dist
@@ -90,12 +90,12 @@ jobs:
   build-sdist:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       - uses: PyO3/maturin-action@v1
         with:
           command: sdist
           args: --out dist
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: wheels
           path: dist
