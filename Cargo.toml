@@ -7,6 +7,9 @@ edition = "2021"
 [lib]
 crate-type = ["cdylib"]
 
+[features]
+experimental-inspect = ["pyo3/experimental-inspect"]
+
 [dependencies]
 keyset = { git = "https://github.com/staticintlucas/keyset-rs", rev = "200da18" }
 pyo3 = { version = "0.25", features = ["extension-module", "abi3-py38"] }

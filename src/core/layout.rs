@@ -3,7 +3,7 @@ use pyo3::prelude::*;
 
 #[pyclass(module = "pykeyset._impl")]
 #[derive(Debug, Clone)]
-pub struct Layout(pub Vec<keyset::key::Key>);
+pub struct Layout(pub Box<[keyset::key::Key]>);
 
 #[pymethods]
 impl Layout {

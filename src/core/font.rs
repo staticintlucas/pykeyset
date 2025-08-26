@@ -4,7 +4,7 @@ use pyo3::types::PyString;
 
 #[pyclass(module = "pykeyset._impl", frozen)]
 #[derive(Debug, Clone)]
-pub struct Font(pub(super) keyset::font::Font);
+pub struct Font(pub(super) keyset::Font);
 
 #[pymethods]
 impl Font {
@@ -20,113 +20,56 @@ impl Font {
 
     #[getter]
     fn family<'py>(slf: &Bound<'py, Self>) -> Bound<'py, PyString> {
-        PyString::new_bound(slf.py(), slf.get().0.family())
+        PyString::new(slf.py(), slf.get().0.family())
     }
 
     #[getter]
     fn name<'py>(slf: &Bound<'py, Self>) -> Bound<'py, PyString> {
-        PyString::new_bound(slf.py(), slf.get().0.name())
+        PyString::new(slf.py(), slf.get().0.name())
     }
 
     #[getter]
-    fn em_size(&self) -> f64 {
-        self.0.em_size()
+    fn em_size(&self) -> f32 {
+        self.0.em_size().0
     }
 
     #[getter]
-    fn cap_height(&self) -> f64 {
-        self.0.cap_height()
+    fn cap_height(&self) -> f32 {
+        self.0.cap_height().0
     }
 
     #[getter]
-    fn x_height(&self) -> f64 {
-        self.0.x_height()
+    fn x_height(&self) -> f32 {
+        self.0.x_height().0
     }
 
     #[getter]
-    fn ascender(&self) -> f64 {
-        self.0.ascender()
+    fn ascender(&self) -> f32 {
+        self.0.ascender().0
     }
 
     #[getter]
-    fn descender(&self) -> f64 {
-        self.0.descender()
+    fn descender(&self) -> f32 {
+        self.0.descender().0
     }
 
     #[getter]
-    fn line_gap(&self) -> f64 {
-        self.0.line_gap()
+    fn line_gap(&self) -> f32 {
+        self.0.line_gap().0
     }
 
     #[getter]
-    fn line_height(&self) -> f64 {
-        self.0.line_height()
+    fn line_height(&self) -> f32 {
+        self.0.line_height().0
     }
 
     #[getter]
-    fn slope(&self) -> Option<f64> {
-        self.0.slope()
+    fn slope(&self) -> f32 {
+        self.0.slope().to_degrees()
     }
 
     #[getter]
     fn num_glyphs(&self) -> usize {
         self.0.num_glyphs()
     }
-
-    fn glyph(&self, char: char) -> Option<Glyph> {
-        self.0.glyph(char).map(Glyph)
-    }
-
-    fn glyph_or_default(&self, char: char) -> Glyph {
-        Glyph(self.0.glyph_or_default(char))
-    }
-
-    fn notdef(&self) -> Glyph {
-        Glyph(self.0.notdef())
-    }
-
-    fn kerning(&self, left: char, right: char) -> f64 {
-        self.0.kerning(left, right)
-    }
-}
-
-#[pyclass(module = "pykeyset._impl", frozen)]
-#[derive(Debug, Clone)]
-pub struct Glyph(keyset::font::Glyph);
-
-#[pymethods]
-impl Glyph {
-    #[getter]
-    fn path(&self) -> Path {
-        Path
-    }
-
-    #[getter]
-    fn bounds(&self) -> Rect {
-        let r = self.0.bounds;
-        Rect {
-            x: r.min_x(),
-            y: r.min_y(),
-            w: r.width(),
-            h: r.height(),
-        }
-    }
-
-    #[getter]
-    fn advance(&self) -> f64 {
-        self.0.advance
-    }
-}
-
-#[pyclass(module = "pykeyset._impl", frozen)]
-#[derive(Debug, Clone)]
-pub struct Path;
-
-#[pyclass(module = "pykeyset._impl", frozen, get_all)]
-#[derive(Debug, Clone)]
-pub struct Rect {
-    x: f64,
-    y: f64,
-    w: f64,
-    h: f64,
 }

@@ -1,12 +1,13 @@
 use std::collections::HashMap;
-use std::ffi::c_long;
 use std::str::FromStr;
 use std::{error, fmt};
 
 use pyo3::exceptions::{PyTypeError, PyValueError};
+#[cfg(feature = "experimental-inspect")]
+use pyo3::inspect::types::TypeInfo;
 use pyo3::prelude::*;
 use pyo3::pyclass::CompareOp;
-use pyo3::types::{PyIterator, PySequence, PySlice, PySliceIndices, PyTuple};
+use pyo3::types::{PyIterator, PySequence, PySlice, PySliceIndices, PyString, PyTuple};
 use unindent::Unindent;
 
 mod built {
@@ -70,9 +71,18 @@ impl fmt::Display for ReleaseLevel {
     }
 }
 
-impl IntoPy<PyObject> for ReleaseLevel {
-    fn into_py(self, py: Python<'_>) -> PyObject {
-        format!("{self}").into_py(py)
+impl<'py> IntoPyObject<'py> for ReleaseLevel {
+    type Target = PyString;
+    type Output = Bound<'py, Self::Target>;
+    type Error = std::convert::Infallible;
+
+    fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
+        format!("{self}").into_pyobject(py)
+    }
+
+    #[cfg(feature = "experimental-inspect")]
+    fn type_output() -> TypeInfo {
+        TypeInfo::builtin("str")
     }
 }
 
@@ -85,6 +95,21 @@ pub struct Version {
     patch: u8,
     releaselevel: ReleaseLevel,
     serial: u8,
+}
+
+type VersionTuple = (u8, u8, u8, ReleaseLevel, u8);
+
+impl Version {
+    fn to_tuple(self) -> VersionTuple {
+        let Self {
+            major,
+            minor,
+            patch,
+            releaselevel,
+            serial,
+        } = self;
+        (major, minor, patch, releaselevel, serial)
+    }
 }
 
 impl FromStr for Version {
@@ -135,29 +160,14 @@ impl fmt::Display for Version {
     }
 }
 
-trait VerConv<'py> {
-    fn to_tuple(&self) -> Bound<'py, PyTuple>;
-}
-
-impl<'py> VerConv<'py> for Bound<'py, Version> {
-    fn to_tuple(&self) -> Bound<'py, PyTuple> {
-        PyTuple::new_bound(
-            self.py(),
-            [
-                self.get().major.into_py(self.py()),
-                self.get().minor.into_py(self.py()),
-                self.get().patch.into_py(self.py()),
-                self.get().releaselevel.into_py(self.py()),
-                self.get().serial.into_py(self.py()),
-            ],
-        )
-    }
-}
-
 #[pymethods]
 impl Version {
     pub fn count(slf: &Bound<'_, Self>, value: &Bound<'_, PyAny>) -> PyResult<usize> {
-        slf.to_tuple().as_sequence().count(value)
+        slf.get()
+            .to_tuple()
+            .into_pyobject(slf.py())?
+            .as_sequence()
+            .count(value)
     }
 
     pub fn index(
@@ -166,7 +176,7 @@ impl Version {
         start: Option<&Bound<'_, PyAny>>,
         stop: Option<&Bound<'_, PyAny>>,
     ) -> PyResult<usize> {
-        let tuple = slf.to_tuple();
+        let tuple = slf.get().to_tuple().into_pyobject(slf.py())?;
         let ilen = isize::try_from(tuple.len()).unwrap_or(isize::MAX);
 
         let start = if let Some(start) = start {
@@ -227,7 +237,7 @@ impl Version {
     }
 
     fn __repr__(slf: &Bound<'_, Self>) -> PyResult<String> {
-        let typename = slf.get_type().name()?.into_owned();
+        let typename = slf.get_type().name()?;
         let &Self {
             major,
             minor,
@@ -243,14 +253,17 @@ impl Version {
 
     fn __richcmp__<'py>(
         slf: &Bound<'py, Self>,
-        other: &Bound<'_, PyAny>,
+        other: &Bound<'py, PyAny>,
         compare_op: CompareOp,
     ) -> PyResult<Bound<'py, PyAny>> {
-        slf.to_tuple().rich_compare(other, compare_op)
+        slf.get()
+            .to_tuple()
+            .into_pyobject(slf.py())?
+            .rich_compare(other, compare_op)
     }
 
-    fn __len__(slf: &Bound<'_, Self>) -> usize {
-        slf.to_tuple().len()
+    fn __len__(slf: &Bound<'_, Self>) -> PyResult<usize> {
+        Ok(slf.get().to_tuple().into_pyobject(slf.py())?.len())
     }
 
     fn __getitem__<'py>(
@@ -259,35 +272,34 @@ impl Version {
     ) -> PyResult<Bound<'py, PyAny>> {
         // TODO: Yes I know there is a lot of conversion to/from isize/usize/c_long here, but that
         // should all be simplified when https://github.com/PyO3/pyo3/pull/3761 is merged
-        let tuple = slf.to_tuple();
+        let tuple = slf.get().to_tuple().into_pyobject(slf.py())?;
         let len = tuple.len();
         let ilen = isize::try_from(len).expect("length should be < isize::MAX");
-        let llen = c_long::try_from(len).expect("length should be < c_long::MAX");
 
         if let Ok(slice) = index.downcast::<PySlice>() {
-            let indices = slice.indices(llen)?;
+            let indices = slice.indices(ilen)?;
 
             let PySliceIndices {
                 start, stop, step, ..
             } = indices;
 
             let result = if let Ok(ustep) = usize::try_from(step) {
-                PyTuple::new_bound(
+                PyTuple::new(
                     slf.py(),
                     (start..stop).step_by(ustep).map(|idx| {
                         let idx = usize::try_from(idx).expect("index should not be negative");
                         tuple.get_item(idx).expect("get_item should always succeed")
                     }),
-                )
+                )?
             } else {
                 let ustep = usize::try_from(-step).expect("negating a negative is always positive");
-                PyTuple::new_bound(
+                PyTuple::new(
                     slf.py(),
                     (start..stop).rev().step_by(ustep).map(|idx| {
                         let idx = usize::try_from(idx).expect("index should not be negative");
                         tuple.get_item(idx).expect("get_item should always succeed")
                     }),
-                )
+                )?
             };
 
             Ok(result.into_any())
@@ -312,11 +324,19 @@ impl Version {
         slf: &Bound<'py, Self>,
         other: &Bound<'_, PySequence>,
     ) -> PyResult<Bound<'py, PyTuple>> {
-        slf.to_tuple().as_sequence().concat(other)?.to_tuple()
+        slf.get()
+            .to_tuple()
+            .into_pyobject(slf.py())?
+            .into_sequence()
+            .concat(other)?
+            .to_tuple()
     }
 
     fn __contains__(slf: &Bound<'_, Self>, value: &Bound<'_, PyAny>) -> PyResult<bool> {
-        slf.to_tuple().contains(value)
+        slf.get()
+            .to_tuple()
+            .into_pyobject(slf.py())?
+            .contains(value)
     }
 
     #[getter]
@@ -325,11 +345,20 @@ impl Version {
     }
 
     fn __repeat__<'py>(slf: &Bound<'py, Self>, count: usize) -> PyResult<Bound<'py, PyTuple>> {
-        slf.to_tuple().as_sequence().repeat(count)?.to_tuple()
+        slf.get()
+            .to_tuple()
+            .into_pyobject(slf.py())?
+            .into_sequence()
+            .repeat(count)?
+            .to_tuple()
     }
 
     fn __iter__<'py>(slf: &Bound<'py, Self>) -> PyResult<Bound<'py, PyIterator>> {
-        slf.to_tuple().as_sequence().iter()
+        slf.get()
+            .to_tuple()
+            .into_pyobject(slf.py())?
+            .into_sequence()
+            .try_iter()
     }
 }
 
@@ -341,7 +370,7 @@ pub fn build_info(py: Python) -> String {
 
     let py_impl = built::PYO3_PY_IMPL.to_lowercase();
     let py_build_ver = built::PYO3_PY_VER;
-    let py_abi3 = built::PYO3_PY_ABI3.then_some("-abi3").unwrap_or_default();
+    let py_abi3 = if built::PYO3_PY_ABI3 { "-abi3" } else { "" };
     let py_shared = if built::PYO3_PY_SHARED {
         "shared"
     } else {
