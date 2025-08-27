@@ -4,7 +4,7 @@ mod version;
 use pyo3::prelude::*;
 
 #[pymodule]
-fn _impl(m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn pykeyset(m: &Bound<'_, PyModule>) -> PyResult<()> {
     let version = version::version()?;
 
     m.add("version_info", version)?;
