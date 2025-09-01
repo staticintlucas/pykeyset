@@ -1,14 +1,15 @@
+use pyo3::prelude::*;
+
+use version::{VERSION, VERSION_STR};
+
 mod core;
 mod version;
 
-use pyo3::prelude::*;
-
 #[pymodule]
 fn pykeyset(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    let version = version::version()?;
-
-    m.add("version_info", version)?;
-    m.add("version", version.to_string())?;
+    m.add("version_info", VERSION)?;
+    m.add("version", VERSION_STR)?;
+    m.add("__version__", VERSION_STR)?;
     m.add_function(wrap_pyfunction!(version::build_info, m)?)?;
 
     m.add_class::<core::Font>()?;
