@@ -27,16 +27,16 @@ impl Drawing {
 
     fn to_png(&self) -> Py<PyBytes> {
         let result = self.0.to_png(96.).unwrap(); // TODO: handle errors
-        Python::with_gil(|py| PyBytes::new(py, &result).into())
+        Python::attach(|py| PyBytes::new(py, &result).into())
     }
 
     fn to_pdf(&self) -> Py<PyBytes> {
         let result = self.0.to_pdf();
-        Python::with_gil(|py| PyBytes::new(py, &result).into())
+        Python::attach(|py| PyBytes::new(py, &result).into())
     }
 
     fn to_ai(&self) -> Py<PyBytes> {
         let result = self.0.to_ai();
-        Python::with_gil(|py| PyBytes::new(py, &result).into())
+        Python::attach(|py| PyBytes::new(py, &result).into())
     }
 }
