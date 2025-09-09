@@ -5,22 +5,22 @@ all-features = true
 ignore = []
 
 [licenses]
-allow = ["MIT", "Apache-2.0"]
-confidence-threshold = 0.95
-exceptions = [
-    { allow = ["Unicode-3.0"], crate = "unicode-ident" },
-    { allow = ["Unicode-3.0"], crate = "yoke" },
-    { allow = ["Unicode-3.0"], crate = "yoke-derive" },
-    { allow = ["Unicode-3.0"], crate = "zerofrom" },
-    { allow = ["Unicode-3.0"], crate = "zerofrom-derive" },
-    { allow = ["BSD-2-Clause"], crate = "arrayref" },
-    { allow = ["BSD-3-Clause"], crate = "tiny-skia" },
-    { allow = ["BSD-3-Clause"], crate = "tiny-skia-path" },
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception", # Used by target-lexicon (transient dep through pyo3)
+    "BSD-2-Clause", # Used by arrayref
+    "BSD-3-Clause", # Used by tiny-skia/tiny-skia-path
+    "Zlib", # Used by const_format/const_format_proc_macros
+    "Unicode-3.0", # Used by various icu4x crates, both direct and transient dependencies
 ]
+confidence-threshold = 0.95
+exceptions = []
 
 [bans]
 multiple-versions = "deny"
 wildcards = "deny"
+allow-wildcard-paths = true
 skip = [
     { crate = "bitflags@1.3.2", reason = "tiny-skia uses older png, leading to this older transient dep" },
 ]
@@ -28,4 +28,4 @@ skip = [
 [sources]
 unknown-registry = "deny"
 unknown-git = "deny"
-allow-git = []
+allow-git = ["https://github.com/staticintlucas/keyset-rs"]

@@ -3,9 +3,10 @@ name = "pykeyset"
 version = "0.1.1"
 authors = ["Lucas Jansen"]
 edition = "2021"
-rust-version = "1.81"
+rust-version = "1.82"
 repository = "https://github.com/staticintlucas/keyset-rs"
 license = "MIT OR Apache-2.0"
+publish = false # Don't publish this to crates.io
 
 [lib]
 crate-type = ["cdylib"]
@@ -15,7 +16,7 @@ experimental-inspect = ["pyo3/experimental-inspect"]
 
 [dependencies]
 indoc = "2.0"
-keyset = { git = "https://github.com/staticintlucas/keyset-rs", rev = "200da18" }
+keyset = { git = "https://github.com/staticintlucas/keyset-rs", rev = "40c66c3" }
 pyo3 = { version = "0.26", features = ["extension-module", "abi3-py38"] }
 shadow-rs = { version = "1.0", default-features = false }
 
