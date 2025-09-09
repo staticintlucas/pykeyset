@@ -5,18 +5,23 @@ on: [push, pull_request]
 jobs:
   lint:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python: [3.8, 3.13] # TODO pypy ?
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-python@v5
+        uses: dtolnay/rust-toolchain@v1
         with:
-          python-version: ${{ matrix.python }}
-      - run: pip install fonttools==4.43.0
-      - run: pip install -U pre-commit
-      - run: pre-commit run --all
+          components: rustfmt, clippy
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-shear, taplo
+      - run: cargo fmt --all -- --check
+      - run: cargo clippy --all-targets --all-features
+        env:
+          RUSTFLAGS: -D warnings
+      - run: cargo shear
+      - run: taplo fmt --check
+      - uses: EmbarkStudios/cargo-deny-action@v1
+        with:
+          arguments: --workspace --all-features
 
   build-linux:
     runs-on: ubuntu-latest
@@ -31,8 +36,6 @@ jobs:
           target: ${{ matrix.target }}
           args: --release --out dist
           manylinux: 2014
-          before-script-linux: |
-            python3 -m pip install fonttools==4.43.0
       - uses: actions/upload-artifact@v4
         with:
           name: wheels-linux-${{ matrix.target }}
@@ -56,7 +59,6 @@ jobs:
         with:
           python-version: '3.13'
           architecture: ${{ matrix.target.python }}
-      - run: pip install fonttools==4.43.0
       - uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.target.arch }}
@@ -77,7 +79,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
-      - run: pip install fonttools==4.43.0
       - uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.target }}
