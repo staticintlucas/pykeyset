@@ -7,6 +7,7 @@ use pyo3::inspect::types::TypeInfo;
 use pyo3::prelude::*;
 use pyo3::pyclass::CompareOp;
 use pyo3::types::{PyIterator, PySequence, PySlice, PySliceIndices, PyString, PyTuple};
+use shadow_rs::formatcp;
 
 shadow_rs::shadow!(shadow);
 
@@ -315,7 +316,7 @@ pub fn build_info(py: Python) -> String {
     let pkg_ver = shadow::PKG_VERSION;
     let commit = shadow::PKG_COMMIT;
 
-    let py_impl = shadow::PYO3_PY_IMPL.to_lowercase();
+    let py_impl = shadow::PYO3_PY_IMPL;
     let py_build_ver = shadow::PYO3_PY_VER;
     let no_gil = if shadow::PYO3_NO_GIL { "t" } else { "" };
     let abi3 = if shadow::PYO3_ABI3 { "-abi3" } else { "" };
@@ -334,31 +335,46 @@ pub fn build_info(py: Python) -> String {
     let rustc_debug = shadow::DEBUG;
 
     let target_triple = shadow::BUILD_TARGET;
-    let arch = format_args!(
-        "{} {} endian",
+    let arch = formatcp!(
+        "{} [{} endian]",
         shadow::BUILD_TARGET_ARCH,
         shadow::BUILD_TARGET_ENDIAN
     );
     #[expect(clippy::const_is_empty, reason = "compile-time generated const")]
-    let (os, family, env) = (
-        if shadow::BUILD_TARGET_OS != "none" || shadow::BUILD_TARGET_FAMILY.is_empty() {
-            format_args!(" {}", shadow::BUILD_TARGET_OS)
-        } else {
-            format_args!("")
-        },
+    let os = {
         if !shadow::BUILD_TARGET_FAMILY.is_empty()
             && shadow::BUILD_TARGET_FAMILY != shadow::BUILD_TARGET_OS
         {
-            format_args!(" {}", shadow::BUILD_TARGET_FAMILY)
+            if shadow::BUILD_TARGET_OS != "none" {
+                if !shadow::BUILD_TARGET_ENV.is_empty() {
+                    formatcp!(
+                        "{} [{}/{}]",
+                        shadow::BUILD_TARGET_OS,
+                        shadow::BUILD_TARGET_FAMILY,
+                        shadow::BUILD_TARGET_ENV
+                    )
+                } else {
+                    formatcp!(
+                        "{} [{}]",
+                        shadow::BUILD_TARGET_OS,
+                        shadow::BUILD_TARGET_FAMILY
+                    )
+                }
+            } else if !shadow::BUILD_TARGET_ENV.is_empty() {
+                formatcp!(
+                    "{} [{}]",
+                    shadow::BUILD_TARGET_FAMILY,
+                    shadow::BUILD_TARGET_ENV
+                )
+            } else {
+                shadow::BUILD_TARGET_FAMILY
+            }
+        } else if !shadow::BUILD_TARGET_ENV.is_empty() {
+            formatcp!("{} [{}]", shadow::BUILD_TARGET_OS, shadow::BUILD_TARGET_ENV)
         } else {
-            format_args!("")
-        },
-        if shadow::BUILD_TARGET_ENV.is_empty() {
-            format_args!("")
-        } else {
-            format_args!(" {}", shadow::BUILD_TARGET_ENV)
-        },
-    );
+            shadow::BUILD_TARGET_OS
+        }
+    };
 
     let dep_keyset_rs = shadow::DEP_KEYSET_RS_VER;
     let dep_pyo3 = shadow::DEP_PYO3_VER;
@@ -368,7 +384,7 @@ pub fn build_info(py: Python) -> String {
             {pkg_name} {pkg_ver} ({commit})
             python: {py_impl} {py_build_ver}{no_gil}{abi3} {shared} (running on {py_ver})
             rustc: {rustc_ver} (host: {rustc_host})
-            target: {target_triple} ({arch};{os}{family}{env})
+            target: {target_triple} ({arch}; {os})
             profile: {rustc_profile} (opt_level: {rustc_opt_level}; debug: {rustc_debug})
             keyset-rs: {dep_keyset_rs}
             pyo3: {dep_pyo3}

@@ -46,7 +46,7 @@ fn pyo3_consts(mut file: &File, _shadow: &Shadow) -> SdResult<()> {
         file,
 
         /// Python implementation
-        PYO3_PY_IMPL: &str = implementation;
+        PYO3_PY_IMPL: &str = implementation.to_string().to_lowercase();
 
         /// Python version. e.g. 3.9
         PYO3_PY_VER: &str = version;
