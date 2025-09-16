@@ -10,8 +10,8 @@ use pyo3_build_config::{BuildFlag, BuildFlags, InterpreterConfig};
 use shadow_rs::{SdResult, Shadow, ShadowBuilder, ShadowError, CARGO_CLIPPY_ALLOW_ALL};
 
 macro_rules! write_vars {
-    ($file:expr, $(#[$($attrs:tt)*])* $name:ident: & $($lt:lifetime)? str = $val:expr; $($rest:tt)*) => {
-        write_vars!(@inner $file, $(#[$($attrs)*])* $name: &'static str = format!("{:?}", $val.to_string()));
+    ($file:expr, $(#[$($attrs:tt)*])* $name:ident: &str = $val:expr; $($rest:tt)*) => {
+        write_vars!(@inner $file, $(#[$($attrs)*])* $name: &str = format!("{:?}", $val.to_string()));
         write_vars!($file, $($rest)*);
     };
     ($file:expr, $(#[$($attrs:tt)*])* $name:ident: $typ:ty = $val:expr; $($rest:tt)*) => {
@@ -130,7 +130,7 @@ fn keyset_consts(mut file: &File, shadow: &Shadow) -> SdResult<()> {
         {
             ""
         } else {
-            " (dirty)"
+            " [dirty]"
         };
         format!("{hash} {date}{dirty}")
     };
@@ -227,18 +227,6 @@ fn misc_consts(mut file: &File, _shadow: &Shadow) -> SdResult<()> {
 
         /// Whether debug assertions are enabled
         DEBUG: &str = env::var("DEBUG")?;
-
-        /// Target endianness
-        BUILD_TARGET_ENDIAN: &str = env::var("CARGO_CFG_TARGET_ENDIAN")?;
-
-        /// Target operating system
-        BUILD_TARGET_OS: &str = env::var("CARGO_CFG_TARGET_OS")?;
-
-        /// Target family
-        BUILD_TARGET_FAMILY: &str = env::var("CARGO_CFG_TARGET_FAMILY")?;
-
-        /// Target environment ABI
-        BUILD_TARGET_ENV: &str = env::var("CARGO_CFG_TARGET_ENV")?;
     }
 
     Ok(())

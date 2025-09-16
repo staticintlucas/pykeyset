@@ -1,7 +1,5 @@
 use pyo3::prelude::*;
 
-use version::{VERSION, VERSION_STR};
-
 mod core;
 mod version;
 
@@ -21,9 +19,9 @@ mod pykeyset {
     #[pymodule_init]
     fn init(m: &Bound<'_, PyModule>) -> PyResult<()> {
         // TODO can't add variables to declarative modules
-        m.add("version_info", VERSION)?;
-        m.add("version", VERSION_STR)?;
-        m.add("__version__", VERSION_STR)?;
+        m.add("version_info", version::VERSION)?;
+        m.add("version", version::VERSION_STR)?;
+        m.add("__version__", version::VERSION_STR)?;
         m.add_function(wrap_pyfunction!(version::build_info, m)?)?;
         Ok(())
     }

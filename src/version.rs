@@ -7,7 +7,6 @@ use pyo3::inspect::types::TypeInfo;
 use pyo3::prelude::*;
 use pyo3::pyclass::CompareOp;
 use pyo3::types::{PyIterator, PySequence, PySlice, PySliceIndices, PyString, PyTuple};
-use shadow_rs::formatcp;
 
 shadow_rs::shadow!(shadow);
 
@@ -335,46 +334,6 @@ pub fn build_info(py: Python) -> String {
     let rustc_debug = shadow::DEBUG;
 
     let target_triple = shadow::BUILD_TARGET;
-    let arch = formatcp!(
-        "{} [{} endian]",
-        shadow::BUILD_TARGET_ARCH,
-        shadow::BUILD_TARGET_ENDIAN
-    );
-    #[expect(clippy::const_is_empty, reason = "compile-time generated const")]
-    let os = {
-        if !shadow::BUILD_TARGET_FAMILY.is_empty()
-            && shadow::BUILD_TARGET_FAMILY != shadow::BUILD_TARGET_OS
-        {
-            if shadow::BUILD_TARGET_OS != "none" {
-                if !shadow::BUILD_TARGET_ENV.is_empty() {
-                    formatcp!(
-                        "{} [{}/{}]",
-                        shadow::BUILD_TARGET_OS,
-                        shadow::BUILD_TARGET_FAMILY,
-                        shadow::BUILD_TARGET_ENV
-                    )
-                } else {
-                    formatcp!(
-                        "{} [{}]",
-                        shadow::BUILD_TARGET_OS,
-                        shadow::BUILD_TARGET_FAMILY
-                    )
-                }
-            } else if !shadow::BUILD_TARGET_ENV.is_empty() {
-                formatcp!(
-                    "{} [{}]",
-                    shadow::BUILD_TARGET_FAMILY,
-                    shadow::BUILD_TARGET_ENV
-                )
-            } else {
-                shadow::BUILD_TARGET_FAMILY
-            }
-        } else if !shadow::BUILD_TARGET_ENV.is_empty() {
-            formatcp!("{} [{}]", shadow::BUILD_TARGET_OS, shadow::BUILD_TARGET_ENV)
-        } else {
-            shadow::BUILD_TARGET_OS
-        }
-    };
 
     let dep_keyset_rs = shadow::DEP_KEYSET_RS_VER;
     let dep_pyo3 = shadow::DEP_PYO3_VER;
@@ -382,12 +341,20 @@ pub fn build_info(py: Python) -> String {
     formatdoc! {
         r#"
             {pkg_name} {pkg_ver} ({commit})
-            python: {py_impl} {py_build_ver}{no_gil}{abi3} {shared} (running on {py_ver})
-            rustc: {rustc_ver} (host: {rustc_host})
-            target: {target_triple} ({arch}; {os})
-            profile: {rustc_profile} (opt_level: {rustc_opt_level}; debug: {rustc_debug})
-            keyset-rs: {dep_keyset_rs}
-            pyo3: {dep_pyo3}
+            python:
+              target: {py_impl} {py_build_ver}{no_gil}{abi3} {shared}
+              using: {py_ver}
+            rust:
+              compiler: {rustc_ver}
+              host: {rustc_host}
+              target: {target_triple}
+            build:
+              profile: {rustc_profile}
+              opt_level: {rustc_opt_level}
+              debug: {rustc_debug}
+            dependencies:
+              keyset-rs: {dep_keyset_rs}
+              pyo3: {dep_pyo3}
         "#
     }
 }
