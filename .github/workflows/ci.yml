@@ -46,7 +46,7 @@ jobs:
       - run: |
           pip install -U pip
           pip install -U pytest
-      - run: cargo llvm-cov show-env --no-cfg-coverage >> $GITHUB_ENV
+      - run: cargo llvm-cov show-env --no-cfg-coverage | tr -d \'\" >> $GITHUB_ENV
       - run: cargo llvm-cov clean --workspace
       - uses: PyO3/maturin-action@v1
         with:
