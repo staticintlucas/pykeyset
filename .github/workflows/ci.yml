@@ -38,12 +38,9 @@ jobs:
       - uses: taiki-e/install-action@v2
         with:
           tool: cargo-llvm-cov
+      - run: python3 -m venv .venv
       - run: |
-          python3 -m venv .venv
           source .venv/bin/activate
-          echo PATH=$PATH >> $GITHUB_ENV
-          echo VIRTUAL_ENV=$VIRTUAL_ENV >> $GITHUB_ENV
-      - run: |
           pip install -U pip
           pip install -U pytest
       - run: cargo llvm-cov show-env --no-cfg-coverage | tr -d \'\" >> $GITHUB_ENV
@@ -52,7 +49,9 @@ jobs:
         with:
           command: develop
           args: --features=test
-      - run: pytest tests/
+      - run: |
+          source .venv/bin/activate
+          pytest tests/
       - run: cargo llvm-cov report
       - run: cargo llvm-cov report --codecov --output-path lcov.info
       - uses: codecov/codecov-action@v4
