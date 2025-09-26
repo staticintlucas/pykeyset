@@ -13,6 +13,7 @@ crate-type = ["cdylib"]
 
 [features]
 experimental-inspect = ["pyo3/experimental-inspect"]
+test = [] # Enables some plumbing necessary for our tests
 
 [dependencies]
 indoc = "2.0"

@@ -63,6 +63,30 @@ impl<'py> IntoPyObject<'py> for ReleaseLevel {
     }
 }
 
+#[cfg(feature = "test")]
+impl<'py> FromPyObject<'py> for ReleaseLevel {
+    #[cfg(feature = "experimental-inspect")]
+    const INPUT_TYPE: &'static str = "typing.Any";
+
+    fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
+        let val = ob.extract::<String>()?;
+        match &*val {
+            "alpha" => Ok(Self::Alpha),
+            "beta" => Ok(Self::Beta),
+            "candidate" => Ok(Self::Candidate),
+            "final" => Ok(Self::Final),
+            _ => Err(PyValueError::new_err(format!(
+                "invalid releaselevel str: '{val}'"
+            ))),
+        }
+    }
+
+    #[cfg(feature = "experimental-inspect")]
+    fn type_input() -> TypeInfo {
+        TypeInfo::builtin("str")
+    }
+}
+
 // Reimplementation of sys.version_info's type
 #[pyclass(sequence, get_all, frozen, module = "pykeyset", name = "version_info")]
 #[derive(Debug, Clone, Copy)]
@@ -109,6 +133,22 @@ impl fmt::Display for Version {
 
 #[pymethods]
 impl Version {
+    /// We use this constructor so we can exercise version_info with a known
+    /// fixed version number in our tests
+    #[cfg(feature = "test")]
+    #[new]
+    #[allow(private_interfaces)]
+    pub fn new(major: u8, minor: u8, patch: u8, releaselevel: ReleaseLevel, serial: u8) -> Self {
+        Self {
+            major,
+            minor,
+            patch,
+            releaselevel,
+            serial,
+        }
+    }
+
+    #[pyo3(signature = (value, /))]
     pub fn count(slf: &Bound<'_, Self>, value: &Bound<'_, PyAny>) -> PyResult<usize> {
         slf.get()
             .to_tuple()
@@ -117,11 +157,12 @@ impl Version {
             .count(value)
     }
 
+    #[pyo3(signature = (value, start = None, end = None, /))]
     pub fn index(
         slf: &Bound<'_, Self>,
         value: &Bound<'_, PyAny>,
         start: Option<&Bound<'_, PyAny>>,
-        stop: Option<&Bound<'_, PyAny>>,
+        end: Option<&Bound<'_, PyAny>>,
     ) -> PyResult<usize> {
         let tuple = slf.get().to_tuple().into_pyobject(slf.py())?;
         let ilen = isize::try_from(tuple.len()).unwrap_or(isize::MAX);
@@ -146,28 +187,28 @@ impl Version {
             0
         };
 
-        let stop = if let Some(stop) = stop {
+        let end = if let Some(end) = end {
             // Note extract takes care of calling __index__ if required
-            let istop = if let Ok(stop) = stop.extract::<isize>() {
-                stop
+            let iend = if let Ok(end) = end.extract::<isize>() {
+                end
             } else {
                 Err(PyTypeError::new_err(
                     "slice indices must be integers or have an __index__ method",
                 ))?
             };
 
-            usize::try_from(if istop < 0 {
-                isize::max(istop + ilen, 0)
+            usize::try_from(if iend < 0 {
+                isize::max(iend + ilen, 0)
             } else {
-                istop
+                iend
             })
-            .expect("istop should always be >0")
+            .expect("iend should always be >0")
         } else {
             usize::MAX
         };
 
         tuple
-            .get_slice(start, stop)
+            .get_slice(start, end)
             .index(value)
             .map(|index| start + index)
             .map_err(|e| {
@@ -185,6 +226,7 @@ impl Version {
 
     fn __repr__(slf: &Bound<'_, Self>) -> PyResult<String> {
         let typename = slf.get_type().name()?;
+        let module = slf.get_type().module()?;
         let &Self {
             major,
             minor,
@@ -193,7 +235,7 @@ impl Version {
             serial,
         } = slf.get();
         Ok(format!(
-            "{typename}(major={major}, minor={minor}, patch={patch}, \
+            "{module}.{typename}(major={major}, minor={minor}, patch={patch}, \
                 releaselevel='{releaselevel}', serial={serial})",
         ))
     }
@@ -217,8 +259,6 @@ impl Version {
         slf: &Bound<'py, Self>,
         index: Bound<'_, PyAny>,
     ) -> PyResult<Bound<'py, PyAny>> {
-        // TODO: Yes I know there is a lot of conversion to/from isize/usize/c_long here, but that
-        // should all be simplified when https://github.com/PyO3/pyo3/pull/3761 is merged
         let tuple = slf.get().to_tuple().into_pyobject(slf.py())?;
         let len = tuple.len();
         let ilen = isize::try_from(len).expect("length should be < isize::MAX");
@@ -240,6 +280,7 @@ impl Version {
                 )?
             } else {
                 let ustep = usize::try_from(-step).expect("negating a negative is always positive");
+                let (start, stop) = (stop + 1, start + 1);
                 PyTuple::new(
                     slf.py(),
                     (start..stop).rev().step_by(ustep).map(|idx| {
@@ -288,7 +329,7 @@ impl Version {
 
     #[getter]
     fn __match_args__(&self) -> (&str, &str, &str, &str, &str) {
-        ("major", "minor", "micro", "releaselevel", "serial")
+        ("major", "minor", "patch", "releaselevel", "serial")
     }
 
     fn __repeat__<'py>(slf: &Bound<'py, Self>, count: usize) -> PyResult<Bound<'py, PyTuple>> {
