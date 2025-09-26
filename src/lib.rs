@@ -9,16 +9,16 @@ mod pykeyset {
     use super::*;
 
     #[pymodule_export]
+    use super::core::Drawing;
+    #[pymodule_export]
     use super::core::Layout;
     #[pymodule_export]
     use super::core::Profile;
-    #[pymodule_export]
-    use super::core::Drawing;
 
     #[pymodule]
     mod font {
         #[pymodule_export]
-        use crate::font::{Font, load, loadb};
+        use crate::font::{load, loadb, Font};
     }
 
     #[pymodule_init]
