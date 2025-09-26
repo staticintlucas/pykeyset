@@ -24,6 +24,34 @@ jobs:
         with:
           arguments: --workspace --all-features
 
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: stable
+          components: llvm-tools
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-llvm-cov
+      - run: pip install -U maturin pytest
+      - run: |
+          source <(cargo llvm-cov show-env --export-prefix --no-cfg-coverage)
+          cargo llvm-cov clean --workspace
+          maturin develop --features=test
+          pytest tests/
+          cargo llvm-cov report
+          cargo llvm-cov report --codecov --output-path lcov.info
+      - uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: lcov.info
+          fail_ci_if_error: true
+
   build-linux:
     runs-on: ubuntu-latest
     strategy:
