@@ -38,14 +38,23 @@ jobs:
       - uses: taiki-e/install-action@v2
         with:
           tool: cargo-llvm-cov
-      - run: pip install -U maturin pytest
       - run: |
-          source <(cargo llvm-cov show-env --export-prefix --no-cfg-coverage)
-          cargo llvm-cov clean --workspace
-          maturin develop --features=test
-          pytest tests/
-          cargo llvm-cov report
-          cargo llvm-cov report --codecov --output-path lcov.info
+          python3 -m venv .venv
+          source .venv/bin/activate
+          echo PATH=$PATH >> $GITHUB_ENV
+          echo VIRTUAL_ENV=$VIRTUAL_ENV >> $GITHUB_ENV
+      - run: |
+          pip install -U pip
+          pip install -U pytest
+      - run: cargo llvm-cov show-env --no-cfg-coverage >> $GITHUB_ENV
+      - run: cargo llvm-cov clean --workspace
+      - uses: PyO3/maturin-action@v1
+        with:
+          command: develop
+          args: --features=test
+      - run: pytest tests/
+      - run: cargo llvm-cov report
+      - run: cargo llvm-cov report --codecov --output-path lcov.info
       - uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
