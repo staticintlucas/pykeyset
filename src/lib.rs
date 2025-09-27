@@ -21,13 +21,18 @@ mod pykeyset {
         use crate::font::{load, loadb, Font};
     }
 
-    #[pymodule_init]
-    fn init(m: &Bound<'_, PyModule>) -> PyResult<()> {
-        // TODO can't add variables to declarative modules
-        m.add("version_info", version::VERSION)?;
-        m.add("version", version::VERSION_STR)?;
-        m.add("__version__", version::VERSION_STR)?;
-        m.add_function(wrap_pyfunction!(version::build_info, m)?)?;
-        Ok(())
-    }
+    #[pymodule_export]
+    #[expect(non_upper_case_globals, reason = "Python naming convention")]
+    const version: &str = version::VERSION_STR;
+
+    #[pymodule_export]
+    #[expect(non_upper_case_globals, reason = "Python naming convention")]
+    const __version__: &str = version::VERSION_STR;
+
+    #[pymodule_export]
+    #[expect(non_upper_case_globals, reason = "Python naming convention")]
+    const version_info: version::Version = version::VERSION;
+
+    #[pymodule_export]
+    use version::build_info;
 }
