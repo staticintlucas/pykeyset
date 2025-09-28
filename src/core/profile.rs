@@ -9,7 +9,7 @@ pub struct Profile(pub keyset::profile::Profile);
 impl Profile {
     #[new]
     fn new(toml: &str) -> PyResult<Self> {
-        match keyset::profile::Profile::from_toml(toml) {
+        match keyset::profile::Profile::from_toml_str(toml) {
             Ok(profile) => Ok(Self(profile)),
             Err(error) => Err(PyValueError::new_err(error.to_string())),
         }

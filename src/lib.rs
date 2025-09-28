@@ -2,6 +2,7 @@ use pyo3::prelude::*;
 
 mod core;
 mod font;
+mod layout;
 mod version;
 
 #[pymodule]
@@ -11,9 +12,16 @@ mod pykeyset {
     #[pymodule_export]
     use super::core::Drawing;
     #[pymodule_export]
-    use super::core::Layout;
-    #[pymodule_export]
     use super::core::Profile;
+
+    #[pymodule]
+    mod layout {
+        #[pymodule_export]
+        use crate::layout::{
+            load, loadb, loads, HomingKey, IsoHorizontal, IsoVertical, Key, KeyShape, NoneKey,
+            NormalKey, SpaceKey, SteppedCaps,
+        };
+    }
 
     #[pymodule]
     mod font {

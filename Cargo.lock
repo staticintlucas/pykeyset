@@ -464,11 +464,12 @@ dependencies = [
 [[package]]
 name = "keyset"
 version = "0.3.2"
-source = "git+https://github.com/staticintlucas/keyset-rs?rev=40c66c3#40c66c3c4c0758aa5e847387cd82d3e39f16ab1b"
+source = "git+https://github.com/staticintlucas/keyset-rs?rev=398bda9b22a12ad2939a820e3469cb7058df6e1f#398bda9b22a12ad2939a820e3469cb7058df6e1f"
 dependencies = [
  "keyset-color",
  "keyset-drawing",
  "keyset-font",
+ "keyset-geom",
  "keyset-key",
  "keyset-profile",
 ]
@@ -476,7 +477,7 @@ dependencies = [
 [[package]]
 name = "keyset-color"
 version = "0.3.2"
-source = "git+https://github.com/staticintlucas/keyset-rs?rev=40c66c3#40c66c3c4c0758aa5e847387cd82d3e39f16ab1b"
+source = "git+https://github.com/staticintlucas/keyset-rs?rev=398bda9b22a12ad2939a820e3469cb7058df6e1f#398bda9b22a12ad2939a820e3469cb7058df6e1f"
 dependencies = [
  "isclose",
  "rgb",
@@ -486,7 +487,7 @@ dependencies = [
 [[package]]
 name = "keyset-drawing"
 version = "0.3.2"
-source = "git+https://github.com/staticintlucas/keyset-rs?rev=40c66c3#40c66c3c4c0758aa5e847387cd82d3e39f16ab1b"
+source = "git+https://github.com/staticintlucas/keyset-rs?rev=398bda9b22a12ad2939a820e3469cb7058df6e1f#398bda9b22a12ad2939a820e3469cb7058df6e1f"
 dependencies = [
  "indoc",
  "isclose",
@@ -505,7 +506,7 @@ dependencies = [
 [[package]]
 name = "keyset-font"
 version = "0.3.2"
-source = "git+https://github.com/staticintlucas/keyset-rs?rev=40c66c3#40c66c3c4c0758aa5e847387cd82d3e39f16ab1b"
+source = "git+https://github.com/staticintlucas/keyset-rs?rev=398bda9b22a12ad2939a820e3469cb7058df6e1f#398bda9b22a12ad2939a820e3469cb7058df6e1f"
 dependencies = [
  "itertools",
  "keyset-geom",
@@ -517,7 +518,7 @@ dependencies = [
 [[package]]
 name = "keyset-geom"
 version = "0.3.2"
-source = "git+https://github.com/staticintlucas/keyset-rs?rev=40c66c3#40c66c3c4c0758aa5e847387cd82d3e39f16ab1b"
+source = "git+https://github.com/staticintlucas/keyset-rs?rev=398bda9b22a12ad2939a820e3469cb7058df6e1f#398bda9b22a12ad2939a820e3469cb7058df6e1f"
 dependencies = [
  "isclose",
  "num-traits",
@@ -527,7 +528,7 @@ dependencies = [
 [[package]]
 name = "keyset-key"
 version = "0.3.2"
-source = "git+https://github.com/staticintlucas/keyset-rs?rev=40c66c3#40c66c3c4c0758aa5e847387cd82d3e39f16ab1b"
+source = "git+https://github.com/staticintlucas/keyset-rs?rev=398bda9b22a12ad2939a820e3469cb7058df6e1f#398bda9b22a12ad2939a820e3469cb7058df6e1f"
 dependencies = [
  "keyset-color",
  "keyset-geom",
@@ -538,7 +539,7 @@ dependencies = [
 [[package]]
 name = "keyset-profile"
 version = "0.3.2"
-source = "git+https://github.com/staticintlucas/keyset-rs?rev=40c66c3#40c66c3c4c0758aa5e847387cd82d3e39f16ab1b"
+source = "git+https://github.com/staticintlucas/keyset-rs?rev=398bda9b22a12ad2939a820e3469cb7058df6e1f#398bda9b22a12ad2939a820e3469cb7058df6e1f"
 dependencies = [
  "keyset-geom",
  "keyset-key",

@@ -9,7 +9,7 @@ pub struct Layout(pub Box<[keyset::key::Key]>);
 impl Layout {
     #[staticmethod]
     fn from_kle(kle: &str) -> PyResult<Self> {
-        match keyset::key::kle::from_json(kle) {
+        match keyset::key::kle::from_json_str(kle) {
             Ok(layout) => Ok(Self(layout)),
             Err(error) => Err(PyValueError::new_err(error.to_string())),
         }
