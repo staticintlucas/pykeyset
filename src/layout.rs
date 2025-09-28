@@ -1,9 +1,9 @@
 use std::{fs, path::PathBuf};
 
 use keyset::geom::{KeyUnit, Point, Unit, Vector};
+use pyo3::exceptions::PyValueError;
 #[cfg(feature = "experimental-inspect")]
 use pyo3::inspect::types::TypeInfo;
-use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::types::PyString;
 
@@ -267,7 +267,10 @@ enum KeyShapeEnum {
 }
 
 impl KeyShapeEnum {
-    const DEFAULT: Self = Self::NormalKey(NormalKey { width: 0.0, height: 0.0 });
+    const DEFAULT: Self = Self::NormalKey(NormalKey {
+        width: 0.0,
+        height: 0.0,
+    });
 }
 
 impl From<KeyShapeEnum> for keyset::key::Shape {
