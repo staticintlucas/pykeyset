@@ -1,7 +1,7 @@
-use pyo3::{exceptions::PyValueError, types::PyTuple};
 #[cfg(feature = "experimental-inspect")]
 use pyo3::inspect::types::TypeInfo;
 use pyo3::prelude::*;
+use pyo3::{exceptions::PyValueError, types::PyTuple};
 
 pub struct Color(keyset::Color);
 
@@ -47,7 +47,6 @@ impl FromPyObject<'_> for Color {
         ])
     }
 }
-
 
 impl<'py> IntoPyObject<'py> for Color {
     type Target = PyTuple;
