@@ -7,6 +7,8 @@ use pyo3::inspect::types::TypeInfo;
 use pyo3::prelude::*;
 use pyo3::types::PyString;
 
+use crate::color::Color;
+
 #[pyfunction]
 pub fn load(path: PathBuf) -> PyResult<Vec<Key>> {
     keyset::kle::from_json(&fs::read(path)?)
@@ -266,13 +268,6 @@ enum KeyShapeEnum {
     IsoHorizontal(IsoHorizontal),
 }
 
-impl KeyShapeEnum {
-    const DEFAULT: Self = Self::NormalKey(NormalKey {
-        width: 0.0,
-        height: 0.0,
-    });
-}
-
 impl From<KeyShapeEnum> for keyset::key::Shape {
     fn from(value: KeyShapeEnum) -> Self {
         match value {
@@ -294,17 +289,18 @@ pub struct Key(keyset::Key);
 #[pymethods]
 impl Key {
     #[new]
-    #[pyo3(signature = (*, x = 0.0, y = 0.0, shape = KeyShapeEnum::DEFAULT))]
+    #[pyo3(signature = (*, x = 0.0, y = 0.0, shape = KeyShapeEnum::NormalKey(NormalKey { width: 1.0, height: 1.0 }), color = keyset::Key::default().color.into()))]
     fn new(
         x: f32,
         y: f32,
         shape: KeyShapeEnum,
-        // TODO: color: Color,
+        color: Color,
         // TODO: legends: [Legend; 9],
     ) -> PyResult<Self> {
         let result = keyset::Key {
             position: Point::new(KeyUnit(x), KeyUnit(y)),
             shape: shape.into(),
+            color: color.into(),
             ..Default::default()
         };
 
@@ -350,5 +346,15 @@ impl Key {
     #[setter]
     fn set_shape(&mut self, shape: KeyShapeEnum) {
         self.0.shape = shape.into();
+    }
+
+    #[getter]
+    fn get_color(&self) -> Color {
+        self.0.color.into()
+    }
+
+    #[setter]
+    fn set_color(&mut self, color: Color) {
+        self.0.color = color.into();
     }
 }

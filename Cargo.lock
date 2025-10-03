@@ -784,6 +784,7 @@ name = "pykeyset"
 version = "0.1.1"
 dependencies = [
  "cargo-lock",
+ "csscolorparser",
  "indoc",
  "keyset",
  "pyo3",

@@ -1,5 +1,6 @@
 use pyo3::prelude::*;
 
+mod color;
 mod core;
 mod font;
 mod layout;
