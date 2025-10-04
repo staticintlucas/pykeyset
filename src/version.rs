@@ -87,6 +87,22 @@ impl<'py> FromPyObject<'py> for ReleaseLevel {
     }
 }
 
+// TODO: why is this needed to make PyO3 happy?
+#[cfg(not(feature = "test"))]
+impl<'py> FromPyObject<'py> for ReleaseLevel {
+    #[cfg(feature = "experimental-inspect")]
+    const INPUT_TYPE: &'static str = "typing.Any";
+
+    fn extract_bound(_ob: &Bound<'py, PyAny>) -> PyResult<Self> {
+        unimplemented!()
+    }
+
+    #[cfg(feature = "experimental-inspect")]
+    fn type_input() -> TypeInfo {
+        TypeInfo::builtin("str")
+    }
+}
+
 // Reimplementation of sys.version_info's type
 #[pyclass(sequence, get_all, frozen, module = "pykeyset", name = "version_info")]
 #[derive(Debug, Clone, Copy)]
