@@ -1,9 +1,14 @@
-use std::{fs, path::PathBuf};
+#[cfg(feature = "experimental-inspect")]
+use std::borrow::Cow;
+use std::fs;
+use std::path::PathBuf;
 
+#[cfg(feature = "experimental-inspect")]
+use const_format::concatcp;
 use keyset::geom::{KeyUnit, Point, Unit, Vector};
 use pyo3::exceptions::PyValueError;
 #[cfg(feature = "experimental-inspect")]
-use pyo3::inspect::types::TypeInfo;
+use pyo3::inspect::types::{ModuleName, TypeInfo};
 use pyo3::prelude::*;
 use pyo3::types::PyString;
 
@@ -37,6 +42,9 @@ impl<'py> IntoPyObject<'py> for HomingType {
     type Target = PyString;
     type Output = Bound<'py, Self::Target>;
     type Error = std::convert::Infallible;
+
+    #[cfg(feature = "experimental-inspect")]
+    const OUTPUT_TYPE: &'static str = "str";
 
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         match self.0 {
@@ -127,13 +135,20 @@ impl<'py> IntoPyObject<'py> for NoneKey {
     type Output = Bound<'py, Self::Target>;
     type Error = pyo3::PyErr;
 
+    #[cfg(feature = "experimental-inspect")]
+    const OUTPUT_TYPE: &'static str = "pykeyset.layout.NoneKey";
+
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         Bound::new(py, PyClassInitializer::from(KeyShape).add_subclass(self))
     }
 
     #[cfg(feature = "experimental-inspect")]
     fn type_output() -> TypeInfo {
-        TypeInfo::builtin("pykeyset.layout.NoneKey")
+        TypeInfo::Class {
+            module: ModuleName::CurrentModule,
+            name: Cow::from("NoneKey"),
+            type_vars: vec![],
+        }
     }
 }
 
@@ -184,13 +199,20 @@ impl<'py> IntoPyObject<'py> for NormalKey {
     type Output = Bound<'py, Self::Target>;
     type Error = pyo3::PyErr;
 
+    #[cfg(feature = "experimental-inspect")]
+    const OUTPUT_TYPE: &'static str = "pykeyset.layout.NormalKey";
+
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         Bound::new(py, PyClassInitializer::from(KeyShape).add_subclass(self))
     }
 
     #[cfg(feature = "experimental-inspect")]
     fn type_output() -> TypeInfo {
-        TypeInfo::builtin("pykeyset.layout.NormalKey")
+        TypeInfo::Class {
+            module: ModuleName::CurrentModule,
+            name: Cow::from("NormalKey"),
+            type_vars: vec![],
+        }
     }
 }
 
@@ -241,13 +263,20 @@ impl<'py> IntoPyObject<'py> for SpaceKey {
     type Output = Bound<'py, Self::Target>;
     type Error = pyo3::PyErr;
 
+    #[cfg(feature = "experimental-inspect")]
+    const OUTPUT_TYPE: &'static str = "pykeyset.layout.SpaceKey";
+
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         Bound::new(py, PyClassInitializer::from(KeyShape).add_subclass(self))
     }
 
     #[cfg(feature = "experimental-inspect")]
     fn type_output() -> TypeInfo {
-        TypeInfo::builtin("pykeyset.layout.SpaceKey")
+        TypeInfo::Class {
+            module: ModuleName::CurrentModule,
+            name: Cow::from("SpaceKey"),
+            type_vars: vec![],
+        }
     }
 }
 
@@ -285,13 +314,20 @@ impl<'py> IntoPyObject<'py> for HomingKey {
     type Output = Bound<'py, Self::Target>;
     type Error = pyo3::PyErr;
 
+    #[cfg(feature = "experimental-inspect")]
+    const OUTPUT_TYPE: &'static str = "pykeyset.layout.HomingKey";
+
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         Bound::new(py, PyClassInitializer::from(KeyShape).add_subclass(self))
     }
 
     #[cfg(feature = "experimental-inspect")]
     fn type_output() -> TypeInfo {
-        TypeInfo::builtin("pykeyset.layout.HomingKey")
+        TypeInfo::Class {
+            module: ModuleName::CurrentModule,
+            name: Cow::from("HomingKey"),
+            type_vars: vec![],
+        }
     }
 }
 
@@ -319,13 +355,20 @@ impl<'py> IntoPyObject<'py> for SteppedCaps {
     type Output = Bound<'py, Self::Target>;
     type Error = pyo3::PyErr;
 
+    #[cfg(feature = "experimental-inspect")]
+    const OUTPUT_TYPE: &'static str = "pykeyset.layout.SteppedCaps";
+
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         Bound::new(py, PyClassInitializer::from(KeyShape).add_subclass(self))
     }
 
     #[cfg(feature = "experimental-inspect")]
     fn type_output() -> TypeInfo {
-        TypeInfo::builtin("pykeyset.layout.SteppedCaps")
+        TypeInfo::Class {
+            module: ModuleName::CurrentModule,
+            name: Cow::from("SteppedCaps"),
+            type_vars: vec![],
+        }
     }
 }
 
@@ -353,13 +396,20 @@ impl<'py> IntoPyObject<'py> for IsoVertical {
     type Output = Bound<'py, Self::Target>;
     type Error = pyo3::PyErr;
 
+    #[cfg(feature = "experimental-inspect")]
+    const OUTPUT_TYPE: &'static str = "pykeyset.layout.IsoVertical";
+
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         Bound::new(py, PyClassInitializer::from(KeyShape).add_subclass(self))
     }
 
     #[cfg(feature = "experimental-inspect")]
     fn type_output() -> TypeInfo {
-        TypeInfo::builtin("pykeyset.layout.IsoVertical")
+        TypeInfo::Class {
+            module: ModuleName::CurrentModule,
+            name: Cow::from("IsoVertical"),
+            type_vars: vec![],
+        }
     }
 }
 
@@ -387,13 +437,20 @@ impl<'py> IntoPyObject<'py> for IsoHorizontal {
     type Output = Bound<'py, Self::Target>;
     type Error = pyo3::PyErr;
 
+    #[cfg(feature = "experimental-inspect")]
+    const OUTPUT_TYPE: &'static str = "pykeyset.layout.IsoHorizontal";
+
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         Bound::new(py, PyClassInitializer::from(KeyShape).add_subclass(self))
     }
 
     #[cfg(feature = "experimental-inspect")]
     fn type_output() -> TypeInfo {
-        TypeInfo::builtin("pykeyset.layout.IsoHorizontal")
+        TypeInfo::Class {
+            module: ModuleName::CurrentModule,
+            name: Cow::from("IsoHorizontal"),
+            type_vars: vec![],
+        }
     }
 }
 
@@ -440,6 +497,25 @@ impl<'py> IntoPyObject<'py> for KeyShapeEnum {
     type Target = PyAny;
     type Output = Bound<'py, Self::Target>;
     type Error = pyo3::PyErr;
+
+    #[cfg(feature = "experimental-inspect")]
+    const OUTPUT_TYPE: &'static str = concatcp!(
+        "typing.Union[",
+        NoneKey::OUTPUT_TYPE,
+        ", ",
+        NormalKey::OUTPUT_TYPE,
+        ", ",
+        SpaceKey::OUTPUT_TYPE,
+        ", ",
+        HomingKey::OUTPUT_TYPE,
+        ", ",
+        SteppedCaps::OUTPUT_TYPE,
+        ", ",
+        IsoVertical::OUTPUT_TYPE,
+        ", ",
+        IsoHorizontal::OUTPUT_TYPE,
+        "]"
+    );
 
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         match self {

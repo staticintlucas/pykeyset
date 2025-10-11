@@ -7,6 +7,7 @@ use pyo3::inspect::types::TypeInfo;
 use pyo3::prelude::*;
 use pyo3::pyclass::CompareOp;
 use pyo3::types::{PyIterator, PySequence, PySlice, PySliceIndices, PyString, PyTuple};
+use pyo3::PyTypeInfo;
 
 shadow_rs::shadow!(shadow);
 
@@ -53,6 +54,9 @@ impl<'py> IntoPyObject<'py> for ReleaseLevel {
     type Output = Bound<'py, Self::Target>;
     type Error = std::convert::Infallible;
 
+    #[cfg(feature = "experimental-inspect")]
+    const OUTPUT_TYPE: &'static str = "str";
+
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         format!("{self}").into_pyobject(py)
     }
@@ -66,7 +70,7 @@ impl<'py> IntoPyObject<'py> for ReleaseLevel {
 #[cfg(feature = "test")]
 impl<'py> FromPyObject<'py> for ReleaseLevel {
     #[cfg(feature = "experimental-inspect")]
-    const INPUT_TYPE: &'static str = "typing.Any";
+    const INPUT_TYPE: &'static str = "str";
 
     fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
         let val = ob.extract::<String>()?;
@@ -91,7 +95,7 @@ impl<'py> FromPyObject<'py> for ReleaseLevel {
 #[cfg(not(feature = "test"))]
 impl<'py> FromPyObject<'py> for ReleaseLevel {
     #[cfg(feature = "experimental-inspect")]
-    const INPUT_TYPE: &'static str = "typing.Any";
+    const INPUT_TYPE: &'static str = "str";
 
     fn extract_bound(_ob: &Bound<'py, PyAny>) -> PyResult<Self> {
         unimplemented!()
@@ -241,8 +245,8 @@ impl Version {
     }
 
     fn __repr__(slf: &Bound<'_, Self>) -> PyResult<String> {
-        let typename = slf.get_type().name()?;
-        let module = slf.get_type().module()?;
+        let typename = <Self as PyTypeInfo>::NAME;
+        let module = <Self as PyTypeInfo>::MODULE.unwrap();
         let &Self {
             major,
             minor,

@@ -8,7 +8,7 @@ pub struct Color(keyset::Color);
 impl FromPyObject<'_> for Color {
     #[cfg(feature = "experimental-inspect")]
     const INPUT_TYPE: &'static str =
-        "typing.Union[collections.abc.Mapping[str, int], collections.abc.Sequence[int], str]";
+        "typing.Union[typing.Mapping[str, int], typing.Sequence[int], str]";
 
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
         let (r, g, b) = if let Ok(r) = ob.get_item("r") {
@@ -38,8 +38,6 @@ impl FromPyObject<'_> for Color {
 
     #[cfg(feature = "experimental-inspect")]
     fn type_input() -> TypeInfo {
-        use pyo3::inspect::types::TypeInfo;
-
         TypeInfo::union_of(&[
             TypeInfo::mapping_of(TypeInfo::builtin("str"), TypeInfo::builtin("str")),
             TypeInfo::sequence_of(TypeInfo::builtin("int")),
@@ -53,13 +51,16 @@ impl<'py> IntoPyObject<'py> for Color {
     type Output = Bound<'py, Self::Target>;
     type Error = pyo3::PyErr;
 
+    #[cfg(feature = "experimental-inspect")]
+    const OUTPUT_TYPE: &'static str = "typing.Tuple[float, float, float]";
+
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         PyTuple::new(py, [self.0.r(), self.0.g(), self.0.b()])
     }
 
     #[cfg(feature = "experimental-inspect")]
     fn type_output() -> TypeInfo {
-        TypeInfo::builtin("(float, float, float)")
+        TypeInfo::Tuple(Some(vec![TypeInfo::builtin("float"); 3]))
     }
 }
 

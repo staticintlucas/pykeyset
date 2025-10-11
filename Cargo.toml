@@ -12,10 +12,11 @@ publish = false # Don't publish this to crates.io
 crate-type = ["cdylib"]
 
 [features]
-experimental-inspect = ["pyo3/experimental-inspect"]
+experimental-inspect = ["pyo3/experimental-inspect", "dep:const_format"]
 test = [] # Enables some plumbing necessary for our tests
 
 [dependencies]
+const_format = { version = "0.2", optional = true }
 csscolorparser = "0.6"
 indoc = "2.0"
 keyset = { git = "https://github.com/staticintlucas/keyset-rs", rev = "4bb34b8f8cf50127166b35a234a492087138d2c3" }
