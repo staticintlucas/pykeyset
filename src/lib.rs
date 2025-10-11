@@ -19,8 +19,8 @@ mod pykeyset {
     mod layout {
         #[pymodule_export]
         use crate::layout::{
-            load, loadb, loads, HomingKey, IsoHorizontal, IsoVertical, Key, KeyShape, NoneKey,
-            NormalKey, SpaceKey, SteppedCaps,
+            load, loadb, loads, HomingKey, IsoHorizontal, IsoVertical, Key, KeyShape, Legend,
+            NoneKey, NormalKey, SpaceKey, SteppedCaps,
         };
     }
 

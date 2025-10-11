@@ -18,7 +18,7 @@ test = [] # Enables some plumbing necessary for our tests
 [dependencies]
 csscolorparser = "0.6"
 indoc = "2.0"
-keyset = { git = "https://github.com/staticintlucas/keyset-rs", rev = "398bda9b22a12ad2939a820e3469cb7058df6e1f" }
+keyset = { git = "https://github.com/staticintlucas/keyset-rs", rev = "4bb34b8f8cf50127166b35a234a492087138d2c3" }
 pyo3 = { version = "0.26", features = ["extension-module", "abi3-py38"] }
 shadow-rs = { version = "1.0", default-features = false }
 

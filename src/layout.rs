@@ -87,6 +87,15 @@ pub struct NoneKey {
     height: f32,
 }
 
+impl NoneKey {
+    pub fn from_size(size: Vector<KeyUnit>) -> Self {
+        Self {
+            width: size.x.get(),
+            height: size.y.get(),
+        }
+    }
+}
+
 #[pymethods]
 impl NoneKey {
     #[new]
@@ -113,11 +122,35 @@ impl From<NoneKey> for keyset::key::Shape {
     }
 }
 
+impl<'py> IntoPyObject<'py> for NoneKey {
+    type Target = NoneKey;
+    type Output = Bound<'py, Self::Target>;
+    type Error = pyo3::PyErr;
+
+    fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
+        Bound::new(py, PyClassInitializer::from(KeyShape).add_subclass(self))
+    }
+
+    #[cfg(feature = "experimental-inspect")]
+    fn type_output() -> TypeInfo {
+        TypeInfo::builtin("pykeyset.layout.NoneKey")
+    }
+}
+
 #[pyclass(module = "pykeyset.layout", extends = KeyShape, get_all, set_all)]
 #[derive(Debug, Clone, Copy)]
 pub struct NormalKey {
     width: f32,
     height: f32,
+}
+
+impl NormalKey {
+    pub fn with_size(size: Vector<KeyUnit>) -> Self {
+        Self {
+            width: size.x.get(),
+            height: size.y.get(),
+        }
+    }
 }
 
 #[pymethods]
@@ -146,11 +179,35 @@ impl From<NormalKey> for keyset::key::Shape {
     }
 }
 
+impl<'py> IntoPyObject<'py> for NormalKey {
+    type Target = Self;
+    type Output = Bound<'py, Self::Target>;
+    type Error = pyo3::PyErr;
+
+    fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
+        Bound::new(py, PyClassInitializer::from(KeyShape).add_subclass(self))
+    }
+
+    #[cfg(feature = "experimental-inspect")]
+    fn type_output() -> TypeInfo {
+        TypeInfo::builtin("pykeyset.layout.NormalKey")
+    }
+}
+
 #[pyclass(module = "pykeyset.layout", extends = KeyShape, get_all, set_all)]
 #[derive(Debug, Clone, Copy)]
 pub struct SpaceKey {
     width: f32,
     height: f32,
+}
+
+impl SpaceKey {
+    pub fn with_size(size: Vector<KeyUnit>) -> Self {
+        Self {
+            width: size.x.get(),
+            height: size.y.get(),
+        }
+    }
 }
 
 #[pymethods]
@@ -179,10 +236,33 @@ impl From<SpaceKey> for keyset::key::Shape {
     }
 }
 
+impl<'py> IntoPyObject<'py> for SpaceKey {
+    type Target = Self;
+    type Output = Bound<'py, Self::Target>;
+    type Error = pyo3::PyErr;
+
+    fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
+        Bound::new(py, PyClassInitializer::from(KeyShape).add_subclass(self))
+    }
+
+    #[cfg(feature = "experimental-inspect")]
+    fn type_output() -> TypeInfo {
+        TypeInfo::builtin("pykeyset.layout.SpaceKey")
+    }
+}
+
 #[pyclass(module = "pykeyset.layout", extends = KeyShape, get_all, set_all)]
 #[derive(Debug, Clone, Copy)]
 pub struct HomingKey {
     r#type: Option<HomingType>,
+}
+
+impl HomingKey {
+    pub fn with_type(r#type: Option<keyset::key::Homing>) -> Self {
+        Self {
+            r#type: r#type.map(HomingType),
+        }
+    }
 }
 
 #[pymethods]
@@ -197,6 +277,21 @@ impl HomingKey {
 impl From<HomingKey> for keyset::key::Shape {
     fn from(value: HomingKey) -> Self {
         keyset::key::Shape::Homing(value.r#type.map(|t| t.0))
+    }
+}
+
+impl<'py> IntoPyObject<'py> for HomingKey {
+    type Target = Self;
+    type Output = Bound<'py, Self::Target>;
+    type Error = pyo3::PyErr;
+
+    fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
+        Bound::new(py, PyClassInitializer::from(KeyShape).add_subclass(self))
+    }
+
+    #[cfg(feature = "experimental-inspect")]
+    fn type_output() -> TypeInfo {
+        TypeInfo::builtin("pykeyset.layout.HomingKey")
     }
 }
 
@@ -219,6 +314,21 @@ impl From<SteppedCaps> for keyset::key::Shape {
     }
 }
 
+impl<'py> IntoPyObject<'py> for SteppedCaps {
+    type Target = Self;
+    type Output = Bound<'py, Self::Target>;
+    type Error = pyo3::PyErr;
+
+    fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
+        Bound::new(py, PyClassInitializer::from(KeyShape).add_subclass(self))
+    }
+
+    #[cfg(feature = "experimental-inspect")]
+    fn type_output() -> TypeInfo {
+        TypeInfo::builtin("pykeyset.layout.SteppedCaps")
+    }
+}
+
 #[pyclass(module = "pykeyset.layout", extends = KeyShape)]
 #[derive(Debug, Clone, Copy)]
 pub struct IsoVertical;
@@ -238,6 +348,21 @@ impl From<IsoVertical> for keyset::key::Shape {
     }
 }
 
+impl<'py> IntoPyObject<'py> for IsoVertical {
+    type Target = Self;
+    type Output = Bound<'py, Self::Target>;
+    type Error = pyo3::PyErr;
+
+    fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
+        Bound::new(py, PyClassInitializer::from(KeyShape).add_subclass(self))
+    }
+
+    #[cfg(feature = "experimental-inspect")]
+    fn type_output() -> TypeInfo {
+        TypeInfo::builtin("pykeyset.layout.IsoVertical")
+    }
+}
+
 #[pyclass(module = "pykeyset.layout", extends = KeyShape)]
 #[derive(Debug, Clone, Copy)]
 pub struct IsoHorizontal;
@@ -254,6 +379,21 @@ impl From<IsoHorizontal> for keyset::key::Shape {
     fn from(value: IsoHorizontal) -> Self {
         _ = value;
         keyset::key::Shape::IsoHorizontal
+    }
+}
+
+impl<'py> IntoPyObject<'py> for IsoHorizontal {
+    type Target = Self;
+    type Output = Bound<'py, Self::Target>;
+    type Error = pyo3::PyErr;
+
+    fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
+        Bound::new(py, PyClassInitializer::from(KeyShape).add_subclass(self))
+    }
+
+    #[cfg(feature = "experimental-inspect")]
+    fn type_output() -> TypeInfo {
+        TypeInfo::builtin("pykeyset.layout.IsoHorizontal")
     }
 }
 
@@ -282,6 +422,94 @@ impl From<KeyShapeEnum> for keyset::key::Shape {
     }
 }
 
+impl From<keyset::key::Shape> for KeyShapeEnum {
+    fn from(value: keyset::key::Shape) -> Self {
+        match value {
+            keyset::key::Shape::None(size) => Self::NoneKey(NoneKey::from_size(size)),
+            keyset::key::Shape::Normal(size) => Self::NormalKey(NormalKey::with_size(size)),
+            keyset::key::Shape::Space(size) => Self::SpaceKey(SpaceKey::with_size(size)),
+            keyset::key::Shape::Homing(homing) => Self::HomingKey(HomingKey::with_type(homing)),
+            keyset::key::Shape::SteppedCaps => Self::SteppedCaps(SteppedCaps),
+            keyset::key::Shape::IsoVertical => Self::IsoVertical(IsoVertical),
+            keyset::key::Shape::IsoHorizontal => Self::IsoHorizontal(IsoHorizontal),
+        }
+    }
+}
+
+impl<'py> IntoPyObject<'py> for KeyShapeEnum {
+    type Target = PyAny;
+    type Output = Bound<'py, Self::Target>;
+    type Error = pyo3::PyErr;
+
+    fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
+        match self {
+            KeyShapeEnum::NoneKey(shape) => Ok(shape.into_pyobject(py)?.into_any()),
+            KeyShapeEnum::NormalKey(shape) => Ok(shape.into_pyobject(py)?.into_any()),
+            KeyShapeEnum::SpaceKey(shape) => Ok(shape.into_pyobject(py)?.into_any()),
+            KeyShapeEnum::HomingKey(shape) => Ok(shape.into_pyobject(py)?.into_any()),
+            KeyShapeEnum::SteppedCaps(shape) => Ok(shape.into_pyobject(py)?.into_any()),
+            KeyShapeEnum::IsoVertical(shape) => Ok(shape.into_pyobject(py)?.into_any()),
+            KeyShapeEnum::IsoHorizontal(shape) => Ok(shape.into_pyobject(py)?.into_any()),
+        }
+    }
+
+    #[cfg(feature = "experimental-inspect")]
+    fn type_output() -> TypeInfo {
+        TypeInfo::union_of(&[
+            NoneKey::type_output(),
+            NormalKey::type_output(),
+            SpaceKey::type_output(),
+            HomingKey::type_output(),
+            SteppedCaps::type_output(),
+            IsoVertical::type_output(),
+            IsoHorizontal::type_output(),
+        ])
+    }
+}
+
+#[pyclass(module = "pykeyset.layout")]
+#[derive(Debug, Clone)]
+pub struct Legend(keyset::key::Legend);
+
+#[pymethods]
+impl Legend {
+    #[new]
+    #[pyo3(signature = (*, text, size, color))]
+    pub fn new(text: &str, size: usize, color: Color) -> Self {
+        Self(keyset::key::Legend::new(text, size, color.into()))
+    }
+
+    #[getter]
+    fn get_text(&self) -> String {
+        self.0.text.to_string()
+    }
+
+    #[setter]
+    fn set_text(&mut self, text: &str) {
+        self.0.text = keyset::key::Text::parse_from(text);
+    }
+
+    #[getter]
+    fn get_size(&self) -> usize {
+        self.0.size_idx
+    }
+
+    #[setter]
+    fn set_size(&mut self, size: usize) {
+        self.0.size_idx = size;
+    }
+
+    #[getter]
+    fn get_color(&self) -> Color {
+        self.0.color.into()
+    }
+
+    #[setter]
+    fn set_color(&mut self, color: Color) {
+        self.0.color = color.into();
+    }
+}
+
 #[pyclass(module = "pykeyset.layout")]
 #[derive(Debug, Clone)]
 pub struct Key(keyset::Key);
@@ -289,18 +517,36 @@ pub struct Key(keyset::Key);
 #[pymethods]
 impl Key {
     #[new]
-    #[pyo3(signature = (*, x = 0.0, y = 0.0, shape = KeyShapeEnum::NormalKey(NormalKey { width: 1.0, height: 1.0 }), color = keyset::Key::default().color.into()))]
+    #[pyo3(signature = (
+        *,
+        x = 0.0,
+        y = 0.0,
+        shape = KeyShapeEnum::NormalKey(NormalKey { width: 1.0, height: 1.0 }),
+        color = keyset::Key::default().color.into(),
+        legends = vec![],
+    ))]
     fn new(
         x: f32,
         y: f32,
         shape: KeyShapeEnum,
         color: Color,
-        // TODO: legends: [Legend; 9],
+        mut legends: Vec<Bound<'_, PyAny>>,
     ) -> PyResult<Self> {
+        legends.truncate(keyset::Key::LEGEND_COUNT);
+        let mut legends = legends
+            .into_iter()
+            .map(|leg| {
+                leg.extract::<Option<Legend>>()
+                    .map(|opt| opt.map(|Legend(l)| Box::new(l)))
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        legends.resize(keyset::Key::LEGEND_COUNT, None);
+
         let result = keyset::Key {
             position: Point::new(KeyUnit(x), KeyUnit(y)),
             shape: shape.into(),
             color: color.into(),
+            legends: legends.try_into().unwrap(),
             ..Default::default()
         };
 
@@ -338,10 +584,10 @@ impl Key {
         self.0.position.y = KeyUnit(position.1);
     }
 
-    // #[getter]
-    // fn get_shape(&self) ->  {
-    //     TODO
-    // }
+    #[getter]
+    fn get_shape(&self) -> KeyShapeEnum {
+        self.0.shape.into()
+    }
 
     #[setter]
     fn set_shape(&mut self, shape: KeyShapeEnum) {
@@ -356,5 +602,31 @@ impl Key {
     #[setter]
     fn set_color(&mut self, color: Color) {
         self.0.color = color.into();
+    }
+
+    #[getter]
+    fn get_legends(&self) -> Vec<Option<Legend>> {
+        self.0
+            .legends
+            .iter()
+            .map(|opt| opt.as_ref().map(|l| Legend(*l.clone())))
+            .collect()
+    }
+
+    #[setter]
+    fn set_legends(&mut self, mut legends: Vec<Bound<'_, PyAny>>) -> PyResult<()> {
+        legends.truncate(keyset::Key::LEGEND_COUNT);
+        let mut legends = legends
+            .into_iter()
+            .map(|leg| {
+                leg.extract::<Option<Legend>>()
+                    .map(|opt| opt.map(|Legend(l)| Box::new(l)))
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+
+        legends.resize(keyset::Key::LEGEND_COUNT, None);
+        self.0.legends = legends.try_into().unwrap();
+
+        Ok(())
     }
 }
