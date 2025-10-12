@@ -3,10 +3,8 @@ use std::borrow::Cow;
 use std::fs;
 use std::path::PathBuf;
 
-#[cfg(feature = "experimental-inspect")]
-use const_format::concatcp;
 use keyset::geom::{KeyUnit, Point, Unit, Vector};
-use pyo3::exceptions::PyValueError;
+use pyo3::exceptions::{PyTypeError, PyValueError};
 #[cfg(feature = "experimental-inspect")]
 use pyo3::inspect::types::{ModuleName, TypeInfo};
 use pyo3::prelude::*;
@@ -454,7 +452,7 @@ impl<'py> IntoPyObject<'py> for IsoHorizontal {
     }
 }
 
-#[derive(Debug, Clone, Copy, FromPyObject)]
+#[derive(Debug, Clone, Copy)]
 enum KeyShapeEnum {
     NoneKey(NoneKey),
     NormalKey(NormalKey),
@@ -493,29 +491,51 @@ impl From<keyset::key::Shape> for KeyShapeEnum {
     }
 }
 
+impl<'py> FromPyObject<'py> for KeyShapeEnum {
+    #[cfg(feature = "experimental-inspect")]
+    const INPUT_TYPE: &'static str = <KeyShape as FromPyObject>::INPUT_TYPE;
+
+    fn extract_bound(obj: &::pyo3::Bound<'py, ::pyo3::PyAny>) -> ::pyo3::PyResult<Self> {
+        if let Ok(result) = obj.extract::<NoneKey>() {
+            return Ok(KeyShapeEnum::NoneKey(result));
+        }
+        if let Ok(result) = obj.extract::<NormalKey>() {
+            return Ok(KeyShapeEnum::NormalKey(result));
+        }
+        if let Ok(result) = obj.extract::<SpaceKey>() {
+            return Ok(KeyShapeEnum::SpaceKey(result));
+        }
+        if let Ok(result) = obj.extract::<HomingKey>() {
+            return Ok(KeyShapeEnum::HomingKey(result));
+        }
+        if let Ok(result) = obj.extract::<SteppedCaps>() {
+            return Ok(KeyShapeEnum::SteppedCaps(result));
+        }
+        if let Ok(result) = obj.extract::<IsoVertical>() {
+            return Ok(KeyShapeEnum::IsoVertical(result));
+        }
+        if let Ok(result) = obj.extract::<IsoHorizontal>() {
+            return Ok(KeyShapeEnum::IsoHorizontal(result));
+        }
+        Err(PyTypeError::new_err(format!(
+            "'{}' can not be converted to KeyShape",
+            obj.get_type().name()?
+        )))
+    }
+
+    #[cfg(feature = "experimental-inspect")]
+    fn type_input() -> TypeInfo {
+        <KeyShape as FromPyObject>::type_input()
+    }
+}
+
 impl<'py> IntoPyObject<'py> for KeyShapeEnum {
     type Target = PyAny;
     type Output = Bound<'py, Self::Target>;
     type Error = pyo3::PyErr;
 
     #[cfg(feature = "experimental-inspect")]
-    const OUTPUT_TYPE: &'static str = concatcp!(
-        "typing.Union[",
-        NoneKey::OUTPUT_TYPE,
-        ", ",
-        NormalKey::OUTPUT_TYPE,
-        ", ",
-        SpaceKey::OUTPUT_TYPE,
-        ", ",
-        HomingKey::OUTPUT_TYPE,
-        ", ",
-        SteppedCaps::OUTPUT_TYPE,
-        ", ",
-        IsoVertical::OUTPUT_TYPE,
-        ", ",
-        IsoHorizontal::OUTPUT_TYPE,
-        "]"
-    );
+    const OUTPUT_TYPE: &'static str = <KeyShape as IntoPyObject>::OUTPUT_TYPE;
 
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         match self {
@@ -531,15 +551,7 @@ impl<'py> IntoPyObject<'py> for KeyShapeEnum {
 
     #[cfg(feature = "experimental-inspect")]
     fn type_output() -> TypeInfo {
-        TypeInfo::union_of(&[
-            NoneKey::type_output(),
-            NormalKey::type_output(),
-            SpaceKey::type_output(),
-            HomingKey::type_output(),
-            SteppedCaps::type_output(),
-            IsoVertical::type_output(),
-            IsoHorizontal::type_output(),
-        ])
+        <KeyShape as IntoPyObject>::type_output()
     }
 }
 
