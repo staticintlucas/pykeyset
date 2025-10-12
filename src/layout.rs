@@ -36,6 +36,18 @@ pub fn loads(str: &str) -> PyResult<Vec<Key>> {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct HomingType(keyset::key::Homing);
 
+impl From<HomingType> for keyset::key::Homing {
+    fn from(value: HomingType) -> Self {
+        value.0
+    }
+}
+
+impl From<keyset::key::Homing> for HomingType {
+    fn from(value: keyset::key::Homing) -> Self {
+        Self(value)
+    }
+}
+
 impl<'py> IntoPyObject<'py> for HomingType {
     type Target = PyString;
     type Output = Bound<'py, Self::Target>;
@@ -287,7 +299,7 @@ pub struct HomingKey {
 impl HomingKey {
     pub fn with_type(r#type: Option<keyset::key::Homing>) -> Self {
         Self {
-            r#type: r#type.map(HomingType),
+            r#type: r#type.map(Into::into),
         }
     }
 }
@@ -303,7 +315,7 @@ impl HomingKey {
 
 impl From<HomingKey> for keyset::key::Shape {
     fn from(value: HomingKey) -> Self {
-        keyset::key::Shape::Homing(value.r#type.map(|t| t.0))
+        keyset::key::Shape::Homing(value.r#type.map(Into::into))
     }
 }
 

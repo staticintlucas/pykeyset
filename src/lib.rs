@@ -4,6 +4,7 @@ mod color;
 mod core;
 mod font;
 mod layout;
+mod profile;
 mod version;
 
 #[pymodule]
@@ -12,8 +13,18 @@ mod pykeyset {
 
     #[pymodule_export]
     use super::core::Drawing;
-    #[pymodule_export]
-    use super::core::Profile;
+    // #[pymodule_export]
+    // use super::core::Profile;
+
+    #[pymodule]
+    mod profile {
+        #[pymodule_export]
+        use crate::profile::{
+            load, loadb, loads, BottomSurface, Cylindrical, Flat, Homing, HomingBar, HomingBump,
+            HomingScoop, LegendGeometry, LegendGeometryMap, LegendMargin, Profile, ProfileType,
+            Spherical, TopSurface,
+        };
+    }
 
     #[pymodule]
     mod layout {
