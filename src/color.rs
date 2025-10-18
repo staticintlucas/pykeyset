@@ -1,5 +1,6 @@
 #[cfg(feature = "experimental-inspect")]
 use pyo3::inspect::types::TypeInfo;
+use pyo3::intern;
 use pyo3::prelude::*;
 use pyo3::{exceptions::PyValueError, types::PyTuple};
 
@@ -11,11 +12,13 @@ impl FromPyObject<'_> for Color {
         "typing.Union[typing.Mapping[str, int], typing.Sequence[int], str]";
 
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
-        let (r, g, b) = if let Ok(r) = ob.get_item("r") {
+        let py = ob.py();
+
+        let (r, g, b) = if let Ok(r) = ob.get_item(intern!(py, "r")) {
             (
                 r.extract::<f32>()?,
-                ob.get_item("g")?.extract::<f32>()?,
-                ob.get_item("b")?.extract::<f32>()?,
+                ob.get_item(intern!(py, "g"))?.extract::<f32>()?,
+                ob.get_item(intern!(py, "b"))?.extract::<f32>()?,
             )
         } else if let Ok(r) = ob.get_item(0) {
             (

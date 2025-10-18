@@ -76,15 +76,31 @@ impl<'py> FromPyObject<'py> for HomingType {
     const INPUT_TYPE: &'static str = "str";
 
     fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
-        let val = ob.extract::<String>()?;
-        match &*val {
-            "scoop" | "scooped" | "dish" | "dished" | "deepdish" | "deep-dish" | "deep_dish"
-            | "deep dish" => Ok(Self(keyset::key::Homing::Scoop)),
-            "bar" | "barred" | "line" => Ok(Self(keyset::key::Homing::Bar)),
-            "bump" | "nub" | "dot" | "nipple" => Ok(Self(keyset::key::Homing::Bump)),
-            _ => Err(PyValueError::new_err(format!(
+        const SCOOP_ALIASES: [&str; 8] = [
+            "scoop",
+            "scooped",
+            "dish",
+            "dished",
+            "deepdish",
+            "deep-dish",
+            "deep_dish",
+            "deep dish",
+        ];
+        const BAR_ALIASES: [&str; 3] = ["bar", "barred", "line"];
+        const BUMP_ALIASES: [&str; 4] = ["bump", "nub", "dot", "nipple"];
+
+        let val = ob.cast::<PyString>()?;
+
+        if SCOOP_ALIASES.iter().any(|&a| a == val) {
+            Ok(Self(keyset::key::Homing::Scoop))
+        } else if BAR_ALIASES.iter().any(|&a| a == val) {
+            Ok(Self(keyset::key::Homing::Bar))
+        } else if BUMP_ALIASES.iter().any(|&a| a == val) {
+            Ok(Self(keyset::key::Homing::Bump))
+        } else {
+            Err(PyValueError::new_err(format!(
                 "invalid homing type str: '{val}'"
-            ))),
+            )))
         }
     }
 

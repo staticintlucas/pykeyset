@@ -4,6 +4,7 @@ use indoc::formatdoc;
 use pyo3::exceptions::{PyTypeError, PyValueError};
 #[cfg(feature = "experimental-inspect")]
 use pyo3::inspect::types::TypeInfo;
+use pyo3::intern;
 use pyo3::prelude::*;
 use pyo3::pyclass::CompareOp;
 use pyo3::types::{PyIterator, PySequence, PySlice, PySliceIndices, PyString, PyTuple};
@@ -39,13 +40,12 @@ enum ReleaseLevel {
 
 impl fmt::Display for ReleaseLevel {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let s = match &self {
+        f.write_str(match &self {
             Self::Alpha => "alpha",
             Self::Beta => "beta",
             Self::Candidate => "candidate",
             Self::Final => "final",
-        };
-        write!(f, "{s}")
+        })
     }
 }
 
@@ -58,7 +58,7 @@ impl<'py> IntoPyObject<'py> for ReleaseLevel {
     const OUTPUT_TYPE: &'static str = "str";
 
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
-        format!("{self}").into_pyobject(py)
+        self.to_string().into_pyobject(py)
     }
 
     #[cfg(feature = "experimental-inspect")]
@@ -73,15 +73,19 @@ impl<'py> FromPyObject<'py> for ReleaseLevel {
     const INPUT_TYPE: &'static str = "str";
 
     fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
-        let val = ob.extract::<String>()?;
-        match &*val {
-            "alpha" => Ok(Self::Alpha),
-            "beta" => Ok(Self::Beta),
-            "candidate" => Ok(Self::Candidate),
-            "final" => Ok(Self::Final),
-            _ => Err(PyValueError::new_err(format!(
+        let val = ob.cast::<PyString>()?;
+        if val == "alpha" {
+            Ok(Self::Alpha)
+        } else if val == "beta" {
+            Ok(Self::Beta)
+        } else if val == "candidate" {
+            Ok(Self::Candidate)
+        } else if val == "final" {
+            Ok(Self::Final)
+        } else {
+            Err(PyValueError::new_err(format!(
                 "invalid releaselevel str: '{val}'"
-            ))),
+            )))
         }
     }
 
@@ -318,7 +322,7 @@ impl Version {
             } else {
                 Err(PyTypeError::new_err(format!(
                     "tuple indices must be integers or slices, not {}",
-                    index.get_type().getattr("__name__")?
+                    index.get_type().getattr(intern!(index.py(), "__name__"))?
                 )))?
             };
 

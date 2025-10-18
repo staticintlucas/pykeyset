@@ -44,13 +44,15 @@ impl<'py> FromPyObject<'py> for ProfileFormat {
     const INPUT_TYPE: &'static str = "str";
 
     fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
-        let val = ob.extract::<String>()?;
-        match &*val.to_lowercase() {
-            "toml" => Ok(Self::Toml),
-            "json" => Ok(Self::Json),
-            _ => Err(PyValueError::new_err(format!(
+        let val = ob.cast::<PyString>()?;
+        if val == "toml" {
+            Ok(Self::Toml)
+        } else if val == "json" {
+            Ok(Self::Json)
+        } else {
+            Err(PyValueError::new_err(format!(
                 "'{val}' is not a valid format, expected 'toml' or 'json'."
-            ))),
+            )))
         }
     }
 
