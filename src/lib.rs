@@ -5,6 +5,7 @@ mod core;
 mod font;
 mod layout;
 mod profile;
+mod utils;
 mod version;
 
 #[pymodule]
