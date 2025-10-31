@@ -33,6 +33,7 @@ impl From<keyset::font::Error> for FontError {
 
 #[pyclass(module = "pykeyset.font", frozen)]
 #[derive(Debug, Clone)]
+#[repr(transparent)]
 pub struct Font(keyset::Font);
 
 #[pymethods]
@@ -99,5 +100,17 @@ impl Font {
 
     fn has_glyph(&self, code_point: char) -> bool {
         self.0.has_glyph(code_point)
+    }
+}
+
+impl From<Font> for keyset::font::Font {
+    fn from(value: Font) -> Self {
+        value.0
+    }
+}
+
+impl From<keyset::font::Font> for Font {
+    fn from(value: keyset::font::Font) -> Self {
+        Self(value)
     }
 }

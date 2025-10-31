@@ -628,6 +628,7 @@ impl Legend {
 
 #[pyclass(module = "pykeyset.layout")]
 #[derive(Debug, Clone)]
+#[repr(transparent)]
 pub struct Key(keyset::Key);
 
 #[pymethods]
@@ -744,5 +745,17 @@ impl Key {
         self.0.legends = legends.try_into().unwrap();
 
         Ok(())
+    }
+}
+
+impl From<Key> for keyset::Key {
+    fn from(value: Key) -> Self {
+        value.0
+    }
+}
+
+impl From<keyset::Key> for Key {
+    fn from(value: keyset::Key) -> Self {
+        Self(value)
     }
 }

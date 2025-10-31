@@ -1,7 +1,7 @@
 use pyo3::prelude::*;
 
 mod color;
-mod core;
+mod drawing;
 mod font;
 mod layout;
 mod profile;
@@ -12,10 +12,11 @@ mod version;
 mod pykeyset {
     use super::*;
 
-    #[pymodule_export]
-    use super::core::Drawing;
-    // #[pymodule_export]
-    // use super::core::Profile;
+    #[pymodule]
+    mod drawing {
+        #[pymodule_export]
+        use crate::drawing::Drawing;
+    }
 
     #[pymodule]
     mod profile {
