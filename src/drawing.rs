@@ -18,17 +18,19 @@ pub enum PathOrFile<M: utils::Mode> {
     File(utils::File<M>),
 }
 
-impl<M> FromPyObject<'_> for PathOrFile<M>
+impl<'a, 'py, M> FromPyObject<'a, 'py> for PathOrFile<M>
 where
     M: utils::Mode,
 {
-    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+    type Error = PyErr;
+
+    fn extract(ob: Borrowed<'a, 'py, PyAny>) -> PyResult<Self> {
         if let Ok(path) = ob.extract::<PathBuf>() {
             Ok(PathOrFile::Path(path))
         } else if let Ok(file) = ob.extract::<utils::File<M>>() {
             Ok(PathOrFile::File(file))
         } else {
-            Err(PyErr::new::<PyValueError, _>(
+            Err(PyValueError::new_err(
                 "expected a path or a file-like object",
             ))
         }

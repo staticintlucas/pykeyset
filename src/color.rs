@@ -6,12 +6,14 @@ use pyo3::{exceptions::PyValueError, types::PyTuple};
 
 pub struct Color(keyset::Color);
 
-impl FromPyObject<'_> for Color {
+impl<'a, 'py> FromPyObject<'a, 'py> for Color {
+    type Error = PyErr;
+
     #[cfg(feature = "experimental-inspect")]
     const INPUT_TYPE: &'static str =
         "typing.Union[typing.Mapping[str, int], typing.Sequence[int], str]";
 
-    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+    fn extract(ob: Borrowed<'a, 'py, PyAny>) -> PyResult<Self> {
         let py = ob.py();
 
         let (r, g, b) = if let Ok(r) = ob.get_item(intern!(py, "r")) {
@@ -29,9 +31,9 @@ impl FromPyObject<'_> for Color {
         } else if let Ok(s) = ob.extract::<String>() {
             let csscolorparser::Color { r, g, b, a: _ } = csscolorparser::parse(s.as_str())
                 .map_err(|e| PyValueError::new_err(format!("invalid color string: {e}")))?;
-            (r as f32, g as f32, b as f32)
+            (r, g, b)
         } else {
-            return Err(pyo3::exceptions::PyValueError::new_err(
+            return Err(PyValueError::new_err(
                 "color must be a mapping with 'r', 'g', 'b' keys, a sequence of 3 or 4 integers, or a hex string",
             ));
         };
@@ -52,7 +54,7 @@ impl FromPyObject<'_> for Color {
 impl<'py> IntoPyObject<'py> for Color {
     type Target = PyTuple;
     type Output = Bound<'py, Self::Target>;
-    type Error = pyo3::PyErr;
+    type Error = PyErr;
 
     #[cfg(feature = "experimental-inspect")]
     const OUTPUT_TYPE: &'static str = "typing.Tuple[float, float, float]";

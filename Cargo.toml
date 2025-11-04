@@ -17,14 +17,14 @@ test = [] # Enables some plumbing necessary for our tests
 
 [dependencies]
 const_format = "0.2"
-csscolorparser = "0.6"
+csscolorparser = "0.7"
 indoc = "2.0"
 keyset = { git = "https://github.com/staticintlucas/keyset-rs", rev = "e9b5509b60720476588e52ca44ddebb1b63eda40" }
-pyo3 = { version = "0.26", features = ["extension-module", "abi3-py38"] }
+pyo3 = { version = "0.27", features = ["extension-module", "abi3-py38"] }
 shadow-rs = { version = "1.0", default-features = false }
 
 [build-dependencies]
 cargo-lock = "10.0"
 indoc = "2.0"
-pyo3-build-config = { version = "0.26", features = ["resolve-config"] }
+pyo3-build-config = { version = "0.27", features = ["resolve-config"] }
 shadow-rs = "1.0"

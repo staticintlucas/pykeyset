@@ -39,11 +39,13 @@ impl<'py> IntoPyObject<'py> for ProfileFormat {
     }
 }
 
-impl<'py> FromPyObject<'py> for ProfileFormat {
+impl<'a, 'py> FromPyObject<'a, 'py> for ProfileFormat {
+    type Error = PyErr;
+
     #[cfg(feature = "experimental-inspect")]
     const INPUT_TYPE: &'static str = "str";
 
-    fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
+    fn extract(ob: Borrowed<'a, 'py, PyAny>) -> PyResult<Self> {
         let val = ob.cast::<PyString>()?;
         if val == "toml" {
             Ok(Self::Toml)
@@ -51,7 +53,8 @@ impl<'py> FromPyObject<'py> for ProfileFormat {
             Ok(Self::Json)
         } else {
             Err(PyValueError::new_err(format!(
-                "'{val}' is not a valid format, expected 'toml' or 'json'."
+                "'{}' is not a valid format, expected 'toml' or 'json'.",
+                val.to_string_lossy()
             )))
         }
     }
@@ -142,7 +145,7 @@ impl From<Cylindrical> for keyset::profile::Type {
 impl<'py> IntoPyObject<'py> for Cylindrical {
     type Target = Self;
     type Output = Bound<'py, Self::Target>;
-    type Error = pyo3::PyErr;
+    type Error = PyErr;
 
     #[cfg(feature = "experimental-inspect")]
     const OUTPUT_TYPE: &'static str = "pykeyset.profile.Cylindrical";
@@ -191,7 +194,7 @@ impl From<Spherical> for keyset::profile::Type {
 impl<'py> IntoPyObject<'py> for Spherical {
     type Target = Self;
     type Output = Bound<'py, Self::Target>;
-    type Error = pyo3::PyErr;
+    type Error = PyErr;
 
     #[cfg(feature = "experimental-inspect")]
     const OUTPUT_TYPE: &'static str = "pykeyset.profile.Spherical";
@@ -236,7 +239,7 @@ impl From<Flat> for keyset::profile::Type {
 impl<'py> IntoPyObject<'py> for Flat {
     type Target = Self;
     type Output = Bound<'py, Self::Target>;
-    type Error = pyo3::PyErr;
+    type Error = PyErr;
 
     #[cfg(feature = "experimental-inspect")]
     const OUTPUT_TYPE: &'static str = "pykeyset.profile.Flat";
@@ -287,11 +290,13 @@ impl From<keyset::profile::Type> for ProfileTypeEnum {
     }
 }
 
-impl<'py> FromPyObject<'py> for ProfileTypeEnum {
+impl<'a, 'py> FromPyObject<'a, 'py> for ProfileTypeEnum {
+    type Error = PyErr;
+
     #[cfg(feature = "experimental-inspect")]
     const INPUT_TYPE: &'static str = <ProfileType as FromPyObject>::INPUT_TYPE;
 
-    fn extract_bound(obj: &::pyo3::Bound<'py, ::pyo3::PyAny>) -> ::pyo3::PyResult<Self> {
+    fn extract(obj: Borrowed<'a, 'py, PyAny>) -> PyResult<Self> {
         if let Ok(result) = obj.extract::<Cylindrical>() {
             return Ok(ProfileTypeEnum::Cylindrical(result));
         }
@@ -316,7 +321,7 @@ impl<'py> FromPyObject<'py> for ProfileTypeEnum {
 impl<'py> IntoPyObject<'py> for ProfileTypeEnum {
     type Target = PyAny;
     type Output = Bound<'py, Self::Target>;
-    type Error = pyo3::PyErr;
+    type Error = PyErr;
 
     #[cfg(feature = "experimental-inspect")]
     const OUTPUT_TYPE: &'static str = <ProfileType as IntoPyObject>::OUTPUT_TYPE;

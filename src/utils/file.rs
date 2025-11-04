@@ -33,14 +33,14 @@ fn text_io_base(py: Python<'_>) -> PyResult<&Bound<'_, PyAny>> {
 }
 
 pub trait Mode {
-    fn assert(inner: &Bound<'_, PyAny>) -> PyResult<()>;
+    fn assert(inner: Borrowed<'_, '_, PyAny>) -> PyResult<()>;
 }
 
 #[derive(Debug, Clone, Copy)]
 pub struct ReadText;
 
 impl Mode for ReadText {
-    fn assert(inner: &Bound<'_, PyAny>) -> PyResult<()> {
+    fn assert(inner: Borrowed<'_, '_, PyAny>) -> PyResult<()> {
         let py = inner.py();
 
         if inner.is_instance(io_base(py)?)? {
@@ -74,7 +74,7 @@ impl Mode for ReadText {
 pub struct ReadBinary;
 
 impl Mode for ReadBinary {
-    fn assert(inner: &Bound<'_, PyAny>) -> PyResult<()> {
+    fn assert(inner: Borrowed<'_, '_, PyAny>) -> PyResult<()> {
         let py = inner.py();
 
         if inner.is_instance(io_base(py)?)? {
@@ -108,7 +108,7 @@ impl Mode for ReadBinary {
 pub struct ReadAny;
 
 impl Mode for ReadAny {
-    fn assert(inner: &Bound<'_, PyAny>) -> PyResult<()> {
+    fn assert(inner: Borrowed<'_, '_, PyAny>) -> PyResult<()> {
         let py = inner.py();
 
         if inner.is_instance(io_base(py)?)? {
@@ -137,7 +137,7 @@ impl Mode for ReadAny {
 pub struct WriteText;
 
 impl Mode for WriteText {
-    fn assert(inner: &Bound<'_, PyAny>) -> PyResult<()> {
+    fn assert(inner: Borrowed<'_, '_, PyAny>) -> PyResult<()> {
         let py = inner.py();
 
         if inner.is_instance(io_base(py)?)? {
@@ -168,7 +168,7 @@ impl Mode for WriteText {
 pub struct WriteBinary;
 
 impl Mode for WriteBinary {
-    fn assert(inner: &Bound<'_, PyAny>) -> PyResult<()> {
+    fn assert(inner: Borrowed<'_, '_, PyAny>) -> PyResult<()> {
         let py = inner.py();
 
         if inner.is_instance(io_base(py)?)? {
@@ -202,7 +202,7 @@ impl Mode for WriteBinary {
 pub struct WriteAny;
 
 impl Mode for WriteAny {
-    fn assert(inner: &Bound<'_, PyAny>) -> PyResult<()> {
+    fn assert(inner: Borrowed<'_, '_, PyAny>) -> PyResult<()> {
         let py = inner.py();
 
         if inner.is_instance(io_base(py)?)? {
@@ -345,11 +345,13 @@ impl File<WriteAny> {
     }
 }
 
-impl<'py, M> FromPyObject<'py> for File<M>
+impl<'a, 'py, M> FromPyObject<'a, 'py> for File<M>
 where
     M: Mode,
 {
-    fn extract_bound(ob: &'_ Bound<'_, PyAny>) -> PyResult<Self> {
+    type Error = PyErr;
+
+    fn extract(ob: Borrowed<'a, 'py, PyAny>) -> PyResult<Self> {
         M::assert(ob)?;
 
         Ok(File {

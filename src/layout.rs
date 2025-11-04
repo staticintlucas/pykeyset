@@ -71,11 +71,13 @@ impl<'py> IntoPyObject<'py> for HomingType {
     }
 }
 
-impl<'py> FromPyObject<'py> for HomingType {
+impl<'a, 'py> FromPyObject<'a, 'py> for HomingType {
+    type Error = PyErr;
+
     #[cfg(feature = "experimental-inspect")]
     const INPUT_TYPE: &'static str = "str";
 
-    fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
+    fn extract(ob: Borrowed<'a, 'py, PyAny>) -> PyResult<Self> {
         const SCOOP_ALIASES: [&str; 8] = [
             "scoop",
             "scooped",
@@ -99,7 +101,8 @@ impl<'py> FromPyObject<'py> for HomingType {
             Ok(Self(keyset::key::Homing::Bump))
         } else {
             Err(PyValueError::new_err(format!(
-                "invalid homing type str: '{val}'"
+                "invalid homing type str: '{}'",
+                val.to_string_lossy()
             )))
         }
     }
@@ -159,7 +162,7 @@ impl From<NoneKey> for keyset::key::Shape {
 impl<'py> IntoPyObject<'py> for NoneKey {
     type Target = NoneKey;
     type Output = Bound<'py, Self::Target>;
-    type Error = pyo3::PyErr;
+    type Error = PyErr;
 
     #[cfg(feature = "experimental-inspect")]
     const OUTPUT_TYPE: &'static str = "pykeyset.layout.NoneKey";
@@ -223,7 +226,7 @@ impl From<NormalKey> for keyset::key::Shape {
 impl<'py> IntoPyObject<'py> for NormalKey {
     type Target = Self;
     type Output = Bound<'py, Self::Target>;
-    type Error = pyo3::PyErr;
+    type Error = PyErr;
 
     #[cfg(feature = "experimental-inspect")]
     const OUTPUT_TYPE: &'static str = "pykeyset.layout.NormalKey";
@@ -287,7 +290,7 @@ impl From<SpaceKey> for keyset::key::Shape {
 impl<'py> IntoPyObject<'py> for SpaceKey {
     type Target = Self;
     type Output = Bound<'py, Self::Target>;
-    type Error = pyo3::PyErr;
+    type Error = PyErr;
 
     #[cfg(feature = "experimental-inspect")]
     const OUTPUT_TYPE: &'static str = "pykeyset.layout.SpaceKey";
@@ -338,7 +341,7 @@ impl From<HomingKey> for keyset::key::Shape {
 impl<'py> IntoPyObject<'py> for HomingKey {
     type Target = Self;
     type Output = Bound<'py, Self::Target>;
-    type Error = pyo3::PyErr;
+    type Error = PyErr;
 
     #[cfg(feature = "experimental-inspect")]
     const OUTPUT_TYPE: &'static str = "pykeyset.layout.HomingKey";
@@ -379,7 +382,7 @@ impl From<SteppedCaps> for keyset::key::Shape {
 impl<'py> IntoPyObject<'py> for SteppedCaps {
     type Target = Self;
     type Output = Bound<'py, Self::Target>;
-    type Error = pyo3::PyErr;
+    type Error = PyErr;
 
     #[cfg(feature = "experimental-inspect")]
     const OUTPUT_TYPE: &'static str = "pykeyset.layout.SteppedCaps";
@@ -420,7 +423,7 @@ impl From<IsoVertical> for keyset::key::Shape {
 impl<'py> IntoPyObject<'py> for IsoVertical {
     type Target = Self;
     type Output = Bound<'py, Self::Target>;
-    type Error = pyo3::PyErr;
+    type Error = PyErr;
 
     #[cfg(feature = "experimental-inspect")]
     const OUTPUT_TYPE: &'static str = "pykeyset.layout.IsoVertical";
@@ -461,7 +464,7 @@ impl From<IsoHorizontal> for keyset::key::Shape {
 impl<'py> IntoPyObject<'py> for IsoHorizontal {
     type Target = Self;
     type Output = Bound<'py, Self::Target>;
-    type Error = pyo3::PyErr;
+    type Error = PyErr;
 
     #[cfg(feature = "experimental-inspect")]
     const OUTPUT_TYPE: &'static str = "pykeyset.layout.IsoHorizontal";
@@ -519,11 +522,13 @@ impl From<keyset::key::Shape> for KeyShapeEnum {
     }
 }
 
-impl<'py> FromPyObject<'py> for KeyShapeEnum {
+impl<'a, 'py> FromPyObject<'a, 'py> for KeyShapeEnum {
+    type Error = PyErr;
+
     #[cfg(feature = "experimental-inspect")]
     const INPUT_TYPE: &'static str = <KeyShape as FromPyObject>::INPUT_TYPE;
 
-    fn extract_bound(obj: &::pyo3::Bound<'py, ::pyo3::PyAny>) -> ::pyo3::PyResult<Self> {
+    fn extract(obj: Borrowed<'a, '_, PyAny>) -> PyResult<Self> {
         if let Ok(result) = obj.extract::<NoneKey>() {
             return Ok(KeyShapeEnum::NoneKey(result));
         }
@@ -560,7 +565,7 @@ impl<'py> FromPyObject<'py> for KeyShapeEnum {
 impl<'py> IntoPyObject<'py> for KeyShapeEnum {
     type Target = PyAny;
     type Output = Bound<'py, Self::Target>;
-    type Error = pyo3::PyErr;
+    type Error = PyErr;
 
     #[cfg(feature = "experimental-inspect")]
     const OUTPUT_TYPE: &'static str = <KeyShape as IntoPyObject>::OUTPUT_TYPE;
@@ -653,10 +658,11 @@ impl Key {
         let mut legends = legends
             .into_iter()
             .map(|leg| {
-                leg.extract::<Option<Legend>>()
-                    .map(|opt| opt.map(|Legend(l)| Box::new(l)))
+                Ok(leg
+                    .extract::<Option<Legend>>()?
+                    .map(|Legend(l)| Box::new(l)))
             })
-            .collect::<Result<Vec<_>, _>>()?;
+            .collect::<Result<Vec<_>, PyErr>>()?;
         legends.resize(keyset::Key::LEGEND_COUNT, None);
 
         let result = keyset::Key {
@@ -736,10 +742,11 @@ impl Key {
         let mut legends = legends
             .into_iter()
             .map(|leg| {
-                leg.extract::<Option<Legend>>()
-                    .map(|opt| opt.map(|Legend(l)| Box::new(l)))
+                Ok(leg
+                    .extract::<Option<Legend>>()?
+                    .map(|Legend(l)| Box::new(l)))
             })
-            .collect::<Result<Vec<_>, _>>()?;
+            .collect::<Result<Vec<_>, PyErr>>()?;
 
         legends.resize(keyset::Key::LEGEND_COUNT, None);
         self.0.legends = legends.try_into().unwrap();

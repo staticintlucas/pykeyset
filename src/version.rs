@@ -68,11 +68,13 @@ impl<'py> IntoPyObject<'py> for ReleaseLevel {
 }
 
 #[cfg(feature = "test")]
-impl<'py> FromPyObject<'py> for ReleaseLevel {
+impl<'a, 'py> FromPyObject<'a, 'py> for ReleaseLevel {
+    type Error = PyErr;
+
     #[cfg(feature = "experimental-inspect")]
     const INPUT_TYPE: &'static str = "str";
 
-    fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
+    fn extract(ob: Borrowed<'a, 'py, PyAny>) -> PyResult<Self> {
         let val = ob.cast::<PyString>()?;
         if val == "alpha" {
             Ok(Self::Alpha)
@@ -84,7 +86,8 @@ impl<'py> FromPyObject<'py> for ReleaseLevel {
             Ok(Self::Final)
         } else {
             Err(PyValueError::new_err(format!(
-                "invalid releaselevel str: '{val}'"
+                "invalid releaselevel str: '{}'",
+                val.to_string_lossy()
             )))
         }
     }
@@ -97,11 +100,13 @@ impl<'py> FromPyObject<'py> for ReleaseLevel {
 
 // TODO: why is this needed to make PyO3 happy?
 #[cfg(not(feature = "test"))]
-impl<'py> FromPyObject<'py> for ReleaseLevel {
+impl<'a, 'py> FromPyObject<'a, 'py> for ReleaseLevel {
+    type Error = PyErr;
+
     #[cfg(feature = "experimental-inspect")]
     const INPUT_TYPE: &'static str = "str";
 
-    fn extract_bound(_ob: &Bound<'py, PyAny>) -> PyResult<Self> {
+    fn extract(_ob: Borrowed<'a, 'py, PyAny>) -> PyResult<Self> {
         unimplemented!()
     }
 
@@ -287,7 +292,7 @@ impl Version {
         let len = tuple.len();
         let ilen = isize::try_from(len).expect("length should be < isize::MAX");
 
-        if let Ok(slice) = index.downcast::<PySlice>() {
+        if let Ok(slice) = index.cast::<PySlice>() {
             let indices = slice.indices(ilen)?;
 
             let PySliceIndices {
