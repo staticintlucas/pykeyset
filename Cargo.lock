@@ -135,15 +135,6 @@ dependencies = [
 
 [[package]]
 name = "csscolorparser"
-version = "0.6.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eb2a7d3066da2de787b7f032c736763eb7ae5d355f81a68bab2675a96008b0bf"
-dependencies = [
- "phf",
-]
-
-[[package]]
-name = "csscolorparser"
 version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5fda6aace1fbef3aa217b27f4c8d7d071ef2a70a5ca51050b1f17d40299d3f16"
@@ -564,11 +555,11 @@ dependencies = [
 
 [[package]]
 name = "kle-serial"
-version = "0.3.2"
+version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9b4b0f922ac7566a5f4cd8e37de8af9496d2359ae36c9197c3ebb7da0c8116be"
+checksum = "84241ea44acb21c4dd578281f75531367481b09403b173551647e9f9324a588b"
 dependencies = [
- "csscolorparser 0.6.2",
+ "csscolorparser",
  "num-traits",
  "rgb",
  "serde",
@@ -798,7 +789,7 @@ version = "0.1.1"
 dependencies = [
  "cargo-lock",
  "const_format",
- "csscolorparser 0.7.2",
+ "csscolorparser",
  "indoc",
  "keyset",
  "pyo3",
