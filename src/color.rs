@@ -1,3 +1,4 @@
+use pyo3::exceptions::PyTypeError;
 #[cfg(feature = "experimental-inspect")]
 use pyo3::inspect::types::TypeInfo;
 use pyo3::intern;
@@ -16,15 +17,18 @@ impl<'a, 'py> FromPyObject<'a, 'py> for Color {
     fn extract(ob: Borrowed<'a, 'py, PyAny>) -> PyResult<Self> {
         let py = ob.py();
 
-        let (r, g, b) = if let Ok(r) = ob.get_item(intern!(py, "r")) {
+        let (r, g, b) = if let Ok(r) = ob
+            .get_item(intern!(py, "r"))
+            .and_then(|el| el.extract::<f32>())
+        {
             (
-                r.extract::<f32>()?,
+                r,
                 ob.get_item(intern!(py, "g"))?.extract::<f32>()?,
                 ob.get_item(intern!(py, "b"))?.extract::<f32>()?,
             )
-        } else if let Ok(r) = ob.get_item(0) {
+        } else if let Ok(r) = ob.get_item(0).and_then(|el| el.extract::<f32>()) {
             (
-                r.extract::<f32>()?,
+                r,
                 ob.get_item(1)?.extract::<f32>()?,
                 ob.get_item(2)?.extract::<f32>()?,
             )
@@ -33,10 +37,18 @@ impl<'a, 'py> FromPyObject<'a, 'py> for Color {
                 .map_err(|e| PyValueError::new_err(format!("invalid color string: {e}")))?;
             (r, g, b)
         } else {
-            return Err(PyValueError::new_err(
-                "color must be a mapping with 'r', 'g', 'b' keys, a sequence of 3 or 4 integers, or a hex string",
+            return Err(PyTypeError::new_err(
+                "color must be a mapping with 'r', 'g', 'b' keys, a sequence of 3 or 4 integers, or a CSS color string",
             ));
         };
+
+        for &component in &[r, g, b] {
+            if !(0.0..=1.0).contains(&component) {
+                return Err(PyValueError::new_err(
+                    "color components must be in the range [0.0, 1.0]",
+                ));
+            }
+        }
 
         Ok(Self(keyset::Color::new(r, g, b)))
     }
@@ -81,4 +93,12 @@ impl From<keyset::Color> for Color {
     fn from(c: keyset::Color) -> Self {
         Self(c)
     }
+}
+
+#[cfg(feature = "test")]
+#[pyfunction]
+pub fn color_round_trip(color: Color) -> Color {
+    let color: keyset::Color = color.into();
+    let color: Color = color.into();
+    color
 }

@@ -57,4 +57,11 @@ mod pykeyset {
 
     #[pymodule_export]
     use version::build_info;
+
+    #[cfg(feature = "test")]
+    #[pymodule]
+    mod test {
+        #[pymodule_export]
+        use crate::color::color_round_trip;
+    }
 }
