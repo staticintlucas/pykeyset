@@ -62,6 +62,6 @@ mod pykeyset {
     #[pymodule]
     mod test {
         #[pymodule_export]
-        use crate::color::color_round_trip;
+        use crate::color::test::{color_identity, color_round_trip};
     }
 }

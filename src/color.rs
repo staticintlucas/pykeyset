@@ -96,9 +96,18 @@ impl From<keyset::Color> for Color {
 }
 
 #[cfg(feature = "test")]
-#[pyfunction]
-pub fn color_round_trip(color: Color) -> Color {
-    let color: keyset::Color = color.into();
-    let color: Color = color.into();
-    color
+pub mod test {
+    use super::*;
+
+    #[pyfunction]
+    pub fn color_identity(color: Color) -> Color {
+        color
+    }
+
+    #[pyfunction]
+    pub fn color_round_trip(color: Color) -> Color {
+        let color: keyset::Color = color.into();
+        let color: Color = color.into();
+        color
+    }
 }
