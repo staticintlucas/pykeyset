@@ -29,6 +29,14 @@
 
     cargo llvm-cov report {{args}}
 
+@repl: _venv
+    #!/usr/bin/env -S bash -euo pipefail
+
+    source .just-venv/bin/activate
+
+    maturin develop
+    exec python3 -i -c "import pykeyset as ks; print('>>> import pykeyset as ks')"
+
 # set up venv for testing
 @_venv:
     #!/usr/bin/env -S bash -euo pipefail
