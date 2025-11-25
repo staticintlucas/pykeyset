@@ -58,9 +58,9 @@ impl Mode for ReadText {
             }
         } else {
             // Fall back to trying to read and checking the return type
-            if inner
-                .call_method1(intern!(py, "read"), (0,))?
-                .is_instance_of::<PyString>()
+            if !inner
+                .call_method1(intern!(py, "read"), (0,))
+                .is_ok_and(|r| r.is_instance_of::<PyString>())
             {
                 return Err(PyValueError::new_err("expected a text file-like object"));
             }
@@ -92,9 +92,9 @@ impl Mode for ReadBinary {
             }
         } else {
             // Fall back to trying to read and checking the return type
-            if inner
-                .call_method1(intern!(py, "read"), (0,))?
-                .is_instance_of::<PyBytes>()
+            if !inner
+                .call_method1(intern!(py, "read"), (0,))
+                .is_ok_and(|r| r.is_instance_of::<PyBytes>())
             {
                 return Err(PyValueError::new_err("expected a binary file-like object"));
             }
@@ -122,10 +122,13 @@ impl Mode for ReadAny {
             }
         } else {
             // Fall back to trying to read and checking the return type
-            let inner = inner.call_method1(intern!(py, "read"), (0,))?;
-
-            if !(inner.is_instance_of::<PyBytes>() || inner.is_instance_of::<PyString>()) {
-                return Err(PyValueError::new_err("expected a binary file-like object"));
+            if !inner
+                .call_method1(intern!(py, "read"), (0,))
+                .is_ok_and(|r| r.is_instance_of::<PyBytes>() || r.is_instance_of::<PyString>())
+            {
+                return Err(PyValueError::new_err(
+                    "expected a readable file-like object",
+                ));
             }
         }
 
@@ -155,7 +158,7 @@ impl Mode for WriteText {
             }
         } else {
             // Fall back to trying to write and checking for errors
-            if inner.call_method1(intern!(py, "write"), ("",)).is_ok() {
+            if inner.call_method1(intern!(py, "write"), ("",)).is_err() {
                 return Err(PyValueError::new_err("expected a text file-like object"));
             }
         }
@@ -188,7 +191,7 @@ impl Mode for WriteBinary {
             // Fall back to trying to write and checking for errors
             if inner
                 .call_method1(intern!(py, "write"), ([0u8; 0],))
-                .is_ok()
+                .is_err()
             {
                 return Err(PyValueError::new_err("expected a binary file-like object"));
             }
@@ -214,17 +217,16 @@ impl Mode for WriteAny {
                     "expected a writeable file-like object",
                 ));
             }
-
-            if inner.is_instance(text_io_base(py)?)? {
-                return Err(PyValueError::new_err("expected a binary file-like object"));
-            }
         } else {
             // Fall back to trying to write and checking for errors
             if inner
                 .call_method1(intern!(py, "write"), ([0u8; 0],))
-                .is_ok()
+                .is_err()
+                && inner.call_method1(intern!(py, "write"), ("",)).is_err()
             {
-                return Err(PyValueError::new_err("expected a binary file-like object"));
+                return Err(PyValueError::new_err(
+                    "expected a writeable file-like object",
+                ));
             }
         }
 
@@ -359,4 +361,27 @@ where
             _mode: std::marker::PhantomData,
         })
     }
+}
+
+#[cfg(feature = "test")]
+pub mod test {
+    use super::*;
+
+    #[pyfunction]
+    pub fn read_text_file_noop(_file: File<ReadText>) {}
+
+    #[pyfunction]
+    pub fn read_binary_file_noop(_file: File<ReadBinary>) {}
+
+    #[pyfunction]
+    pub fn read_any_file_noop(_file: File<ReadAny>) {}
+
+    #[pyfunction]
+    pub fn write_text_file_noop(_file: File<WriteText>) {}
+
+    #[pyfunction]
+    pub fn write_binary_file_noop(_file: File<WriteBinary>) {}
+
+    #[pyfunction]
+    pub fn write_any_file_noop(_file: File<WriteAny>) {}
 }

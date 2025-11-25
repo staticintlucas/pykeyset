@@ -63,5 +63,11 @@ mod pykeyset {
     mod test {
         #[pymodule_export]
         use crate::color::test::{color_identity, color_round_trip};
+
+        #[pymodule_export]
+        use crate::utils::file::test::{
+            read_any_file_noop, read_binary_file_noop, read_text_file_noop, write_any_file_noop,
+            write_binary_file_noop, write_text_file_noop,
+        };
     }
 }
