@@ -1,8 +1,14 @@
 use pyo3::exceptions::PyTypeError;
 #[cfg(feature = "experimental-inspect")]
-use pyo3::inspect::types::TypeInfo;
+use pyo3::inspect::{types::TypeInfo, PyStaticExpr};
 use pyo3::intern;
 use pyo3::prelude::*;
+#[cfg(feature = "experimental-inspect")]
+use pyo3::type_hint_identifier;
+#[cfg(feature = "experimental-inspect")]
+use pyo3::type_hint_subscript;
+#[cfg(feature = "experimental-inspect")]
+use pyo3::type_hint_union;
 use pyo3::{exceptions::PyValueError, types::PyTuple};
 
 pub struct Color(keyset::Color);
@@ -10,9 +16,20 @@ pub struct Color(keyset::Color);
 impl<'a, 'py> FromPyObject<'a, 'py> for Color {
     type Error = PyErr;
 
+    // typing.Mapping[str, int] | typing.Sequence[int] | str";
     #[cfg(feature = "experimental-inspect")]
-    const INPUT_TYPE: &'static str =
-        "typing.Union[typing.Mapping[str, int], typing.Sequence[int], str]";
+    const INPUT_TYPE: PyStaticExpr = type_hint_union!(
+        type_hint_subscript!(
+            type_hint_identifier!("typing", "Mapping"),
+            type_hint_identifier!("builtins", "str"),
+            type_hint_identifier!("builtins", "int")
+        ),
+        type_hint_subscript!(
+            type_hint_identifier!("typing", "Sequence"),
+            type_hint_identifier!("builtins", "int")
+        ),
+        type_hint_identifier!("builtins", "str")
+    );
 
     fn extract(ob: Borrowed<'a, 'py, PyAny>) -> PyResult<Self> {
         let py = ob.py();
@@ -68,8 +85,14 @@ impl<'py> IntoPyObject<'py> for Color {
     type Output = Bound<'py, Self::Target>;
     type Error = PyErr;
 
+    // typing.Tuple[float, float, float]
     #[cfg(feature = "experimental-inspect")]
-    const OUTPUT_TYPE: &'static str = "typing.Tuple[float, float, float]";
+    const OUTPUT_TYPE: PyStaticExpr = type_hint_subscript!(
+        type_hint_identifier!("typing", "Tuple"),
+        type_hint_identifier!("builtins", "float"),
+        type_hint_identifier!("builtins", "float"),
+        type_hint_identifier!("builtins", "float")
+    );
 
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         PyTuple::new(py, [self.0.r(), self.0.g(), self.0.b()])

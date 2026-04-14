@@ -1,12 +1,15 @@
 use std::fs;
 use std::path::PathBuf;
 
-use const_format::concatcp;
 use keyset::geom::{ConvertFrom as _, ConvertInto as _, Mm, Unit, Vector};
 use pyo3::exceptions::{PyNotImplementedError, PyTypeError, PyValueError};
 #[cfg(feature = "experimental-inspect")]
 use pyo3::inspect::types::{ModuleName, TypeInfo};
+#[cfg(feature = "experimental-inspect")]
+use pyo3::inspect::PyStaticExpr;
 use pyo3::prelude::*;
+#[cfg(feature = "experimental-inspect")]
+use pyo3::type_hint_identifier;
 use pyo3::types::PyString;
 use pyo3::PyTypeInfo;
 
@@ -23,7 +26,7 @@ impl<'py> IntoPyObject<'py> for ProfileFormat {
     type Error = std::convert::Infallible;
 
     #[cfg(feature = "experimental-inspect")]
-    const OUTPUT_TYPE: &'static str = "str";
+    const OUTPUT_TYPE: PyStaticExpr = type_hint_identifier!("builtins", "str");
 
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         match self {
@@ -43,7 +46,7 @@ impl<'a, 'py> FromPyObject<'a, 'py> for ProfileFormat {
     type Error = PyErr;
 
     #[cfg(feature = "experimental-inspect")]
-    const INPUT_TYPE: &'static str = "str";
+    const INPUT_TYPE: PyStaticExpr = type_hint_identifier!("builtins", "str");
 
     fn extract(ob: Borrowed<'a, 'py, PyAny>) -> PyResult<Self> {
         let val = ob.cast::<PyString>()?;
@@ -91,31 +94,30 @@ pub fn loads(str: &str, format: ProfileFormat) -> PyResult<Profile> {
     loadb(str.as_bytes(), format)
 }
 
-#[pyclass(module = "pykeyset.profile", subclass)]
+#[pyclass(module = "pykeyset.profile", subclass, from_py_object)]
 #[derive(Debug, Clone, Copy)]
 pub struct ProfileType;
 
 #[pymethods]
 impl ProfileType {
     #[new]
-    fn new() -> PyResult<Self> {
-        Err(PyTypeError::new_err(concatcp!(
-            "can't instantiate abstract class ",
-            <ProfileType as PyTypeInfo>::NAME
+    fn new(py: Python<'_>) -> PyResult<Self> {
+        Err(PyTypeError::new_err(format!(
+            "can't instantiate abstract class {}",
+            ProfileType::type_object(py).name()?
         )))
     }
 
     #[getter]
-    fn depth(&self) -> PyResult<f32> {
-        Err(PyNotImplementedError::new_err(concatcp!(
-            "attribute 'depth' of abstract class ",
-            <ProfileType as PyTypeInfo>::NAME,
-            " is not implemented"
+    fn depth(&self, py: Python<'_>) -> PyResult<f32> {
+        Err(PyNotImplementedError::new_err(format!(
+            "attribute 'depth' of abstract class {} is not implemented",
+            ProfileType::type_object(py).name()?
         )))
     }
 }
 
-#[pyclass(module = "pykeyset.profile", extends = ProfileType)]
+#[pyclass(module = "pykeyset.profile", extends = ProfileType, from_py_object)]
 #[derive(Debug, Clone, Copy)]
 pub struct Cylindrical {
     depth: Mm,
@@ -148,7 +150,7 @@ impl<'py> IntoPyObject<'py> for Cylindrical {
     type Error = PyErr;
 
     #[cfg(feature = "experimental-inspect")]
-    const OUTPUT_TYPE: &'static str = "pykeyset.profile.Cylindrical";
+    const OUTPUT_TYPE: PyStaticExpr = type_hint_identifier!("pykeyset.profile", "Cylindrical");
 
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         Bound::new(py, PyClassInitializer::from(ProfileType).add_subclass(self))
@@ -164,7 +166,7 @@ impl<'py> IntoPyObject<'py> for Cylindrical {
     }
 }
 
-#[pyclass(module = "pykeyset.profile", extends = ProfileType)]
+#[pyclass(module = "pykeyset.profile", extends = ProfileType, from_py_object)]
 #[derive(Debug, Clone, Copy)]
 pub struct Spherical {
     depth: Mm,
@@ -197,7 +199,7 @@ impl<'py> IntoPyObject<'py> for Spherical {
     type Error = PyErr;
 
     #[cfg(feature = "experimental-inspect")]
-    const OUTPUT_TYPE: &'static str = "pykeyset.profile.Spherical";
+    const OUTPUT_TYPE: PyStaticExpr = type_hint_identifier!("pykeyset.profile", "Spherical");
 
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         Bound::new(py, PyClassInitializer::from(ProfileType).add_subclass(self))
@@ -213,7 +215,7 @@ impl<'py> IntoPyObject<'py> for Spherical {
     }
 }
 
-#[pyclass(module = "pykeyset.profile", extends = ProfileType)]
+#[pyclass(module = "pykeyset.profile", extends = ProfileType, from_py_object)]
 #[derive(Debug, Clone, Copy)]
 pub struct Flat;
 
@@ -242,7 +244,7 @@ impl<'py> IntoPyObject<'py> for Flat {
     type Error = PyErr;
 
     #[cfg(feature = "experimental-inspect")]
-    const OUTPUT_TYPE: &'static str = "pykeyset.profile.Flat";
+    const OUTPUT_TYPE: PyStaticExpr = type_hint_identifier!("pykeyset.profile", "Flat");
 
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         Bound::new(py, PyClassInitializer::from(ProfileType).add_subclass(self))
@@ -294,7 +296,7 @@ impl<'a, 'py> FromPyObject<'a, 'py> for ProfileTypeEnum {
     type Error = PyErr;
 
     #[cfg(feature = "experimental-inspect")]
-    const INPUT_TYPE: &'static str = <ProfileType as FromPyObject>::INPUT_TYPE;
+    const INPUT_TYPE: PyStaticExpr = <ProfileType as FromPyObject>::INPUT_TYPE;
 
     fn extract(obj: Borrowed<'a, 'py, PyAny>) -> PyResult<Self> {
         if let Ok(result) = obj.extract::<Cylindrical>() {
@@ -324,7 +326,7 @@ impl<'py> IntoPyObject<'py> for ProfileTypeEnum {
     type Error = PyErr;
 
     #[cfg(feature = "experimental-inspect")]
-    const OUTPUT_TYPE: &'static str = <ProfileType as IntoPyObject>::OUTPUT_TYPE;
+    const OUTPUT_TYPE: PyStaticExpr = <ProfileType as IntoPyObject>::OUTPUT_TYPE;
 
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         match self {
@@ -340,7 +342,7 @@ impl<'py> IntoPyObject<'py> for ProfileTypeEnum {
     }
 }
 
-#[pyclass(module = "pykeyset.profile", get_all, set_all)]
+#[pyclass(module = "pykeyset.profile", get_all, set_all, from_py_object)]
 #[derive(Debug, Clone, Copy)]
 pub struct HomingScoop {
     depth: f32,
@@ -362,7 +364,7 @@ impl From<keyset::profile::ScoopProps> for HomingScoop {
     }
 }
 
-#[pyclass(module = "pykeyset.profile", get_all, set_all)]
+#[pyclass(module = "pykeyset.profile", get_all, set_all, from_py_object)]
 #[derive(Debug, Clone, Copy)]
 pub struct HomingBar {
     width: f32,
@@ -403,7 +405,7 @@ impl HomingBar {
     }
 }
 
-#[pyclass(module = "pykeyset.profile", get_all, set_all)]
+#[pyclass(module = "pykeyset.profile", get_all, set_all, from_py_object)]
 #[derive(Debug, Clone, Copy)]
 pub struct HomingBump {
     diameter: f32,
@@ -441,7 +443,7 @@ impl HomingBump {
     }
 }
 
-#[pyclass(module = "pykeyset.profile", get_all, set_all)]
+#[pyclass(module = "pykeyset.profile", get_all, set_all, from_py_object)]
 #[derive(Debug, Clone, Copy)]
 pub struct Homing {
     default: crate::layout::HomingType,
@@ -472,7 +474,7 @@ impl From<keyset::profile::HomingProps> for Homing {
     }
 }
 
-#[pyclass(module = "pykeyset.profile", get_all, set_all)]
+#[pyclass(module = "pykeyset.profile", get_all, set_all, from_py_object)]
 #[derive(Debug, Clone, Copy)]
 pub struct LegendMargin {
     top: f32,
@@ -495,7 +497,7 @@ impl LegendMargin {
     }
 }
 
-#[pyclass(module = "pykeyset.profile", get_all, set_all)]
+#[pyclass(module = "pykeyset.profile", get_all, set_all, from_py_object)]
 #[derive(Debug, Clone, Copy)]
 pub struct LegendGeometry {
     height: f32,
@@ -531,7 +533,7 @@ impl From<keyset::profile::LegendGeom> for LegendGeometry {
     }
 }
 
-#[pyclass(module = "pykeyset.profile", get_all, set_all)]
+#[pyclass(module = "pykeyset.profile", get_all, set_all, from_py_object)]
 #[derive(Debug, Clone, Copy)]
 pub struct LegendGeometryMap {
     alpha: LegendGeometry,
@@ -559,7 +561,7 @@ impl From<keyset::profile::LegendGeomMap> for LegendGeometryMap {
     }
 }
 
-#[pyclass(module = "pykeyset.profile", get_all, set_all)]
+#[pyclass(module = "pykeyset.profile", get_all, set_all, from_py_object)]
 #[derive(Debug, Clone, Copy)]
 pub struct TopSurface {
     width: f32,
@@ -589,7 +591,7 @@ impl From<keyset::profile::TopSurface> for TopSurface {
     }
 }
 
-#[pyclass(module = "pykeyset.profile", get_all, set_all)]
+#[pyclass(module = "pykeyset.profile", get_all, set_all, from_py_object)]
 #[derive(Debug, Clone, Copy)]
 pub struct BottomSurface {
     width: f32,
@@ -616,7 +618,7 @@ impl From<keyset::profile::BottomSurface> for BottomSurface {
     }
 }
 
-#[pyclass(module = "pykeyset.profile", get_all, set_all)]
+#[pyclass(module = "pykeyset.profile", get_all, set_all, from_py_object)]
 #[derive(Debug, Clone, Copy)]
 pub struct Profile {
     r#type: ProfileTypeEnum,

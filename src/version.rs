@@ -4,9 +4,13 @@ use indoc::formatdoc;
 use pyo3::exceptions::{PyTypeError, PyValueError};
 #[cfg(feature = "experimental-inspect")]
 use pyo3::inspect::types::TypeInfo;
+#[cfg(feature = "experimental-inspect")]
+use pyo3::inspect::PyStaticExpr;
 use pyo3::intern;
 use pyo3::prelude::*;
 use pyo3::pyclass::CompareOp;
+#[cfg(feature = "experimental-inspect")]
+use pyo3::type_hint_identifier;
 use pyo3::types::{PyIterator, PySequence, PySlice, PySliceIndices, PyString, PyTuple};
 use pyo3::PyTypeInfo;
 
@@ -55,7 +59,7 @@ impl<'py> IntoPyObject<'py> for ReleaseLevel {
     type Error = std::convert::Infallible;
 
     #[cfg(feature = "experimental-inspect")]
-    const OUTPUT_TYPE: &'static str = "str";
+    const OUTPUT_TYPE: PyStaticExpr = type_hint_identifier!("builtins", "str");
 
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         self.to_string().into_pyobject(py)
@@ -72,7 +76,7 @@ impl<'a, 'py> FromPyObject<'a, 'py> for ReleaseLevel {
     type Error = PyErr;
 
     #[cfg(feature = "experimental-inspect")]
-    const INPUT_TYPE: &'static str = "str";
+    const INPUT_TYPE: PyStaticExpr = type_hint_identifier!("builtins", "str");
 
     fn extract(ob: Borrowed<'a, 'py, PyAny>) -> PyResult<Self> {
         let val = ob.cast::<PyString>()?;
@@ -104,7 +108,7 @@ impl<'a, 'py> FromPyObject<'a, 'py> for ReleaseLevel {
     type Error = PyErr;
 
     #[cfg(feature = "experimental-inspect")]
-    const INPUT_TYPE: &'static str = "str";
+    const INPUT_TYPE: PyStaticExpr = type_hint_identifier!("builtins", "str");
 
     fn extract(_ob: Borrowed<'a, 'py, PyAny>) -> PyResult<Self> {
         unimplemented!()
@@ -117,7 +121,14 @@ impl<'a, 'py> FromPyObject<'a, 'py> for ReleaseLevel {
 }
 
 // Reimplementation of sys.version_info's type
-#[pyclass(sequence, get_all, frozen, module = "pykeyset", name = "version_info")]
+#[pyclass(
+    sequence,
+    get_all,
+    frozen,
+    module = "pykeyset",
+    name = "version_info",
+    skip_from_py_object
+)]
 #[derive(Debug, Clone, Copy)]
 pub struct Version {
     major: u8,
@@ -253,9 +264,9 @@ impl Version {
         self.to_string()
     }
 
-    fn __repr__(slf: &Bound<'_, Self>) -> PyResult<String> {
-        let typename = <Self as PyTypeInfo>::NAME;
-        let module = <Self as PyTypeInfo>::MODULE.unwrap();
+    fn __repr__(slf: &Bound<'_, Self>, py: Python<'_>) -> PyResult<String> {
+        let typename = Self::type_object(py).name()?;
+        let module = Self::type_object(py).module()?;
         let &Self {
             major,
             minor,

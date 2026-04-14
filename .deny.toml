@@ -11,7 +11,6 @@ allow = [
     "Apache-2.0 WITH LLVM-exception", # Used by target-lexicon (transient dep through pyo3)
     "BSD-2-Clause", # Used by arrayref
     "BSD-3-Clause", # Used by tiny-skia/tiny-skia-path
-    "Zlib", # Used by const_format/const_format_proc_macros
     "Unicode-3.0", # Used by various icu4x crates, both direct and transient dependencies
 ]
 confidence-threshold = 0.95

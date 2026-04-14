@@ -31,7 +31,7 @@ impl From<keyset::font::Error> for FontError {
     }
 }
 
-#[pyclass(module = "pykeyset.font", frozen)]
+#[pyclass(module = "pykeyset.font", frozen, from_py_object)]
 #[derive(Debug, Clone)]
 #[repr(transparent)]
 pub struct Font(keyset::Font);

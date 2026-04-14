@@ -7,7 +7,11 @@ use keyset::geom::{KeyUnit, Point, Unit, Vector};
 use pyo3::exceptions::{PyTypeError, PyValueError};
 #[cfg(feature = "experimental-inspect")]
 use pyo3::inspect::types::{ModuleName, TypeInfo};
+#[cfg(feature = "experimental-inspect")]
+use pyo3::inspect::PyStaticExpr;
 use pyo3::prelude::*;
+#[cfg(feature = "experimental-inspect")]
+use pyo3::type_hint_identifier;
 use pyo3::types::PyString;
 
 use crate::color::Color;
@@ -54,7 +58,7 @@ impl<'py> IntoPyObject<'py> for HomingType {
     type Error = std::convert::Infallible;
 
     #[cfg(feature = "experimental-inspect")]
-    const OUTPUT_TYPE: &'static str = "str";
+    const OUTPUT_TYPE: PyStaticExpr = type_hint_identifier!("builtins", "str");
 
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         match self.0 {
@@ -75,7 +79,7 @@ impl<'a, 'py> FromPyObject<'a, 'py> for HomingType {
     type Error = PyErr;
 
     #[cfg(feature = "experimental-inspect")]
-    const INPUT_TYPE: &'static str = "str";
+    const INPUT_TYPE: PyStaticExpr = type_hint_identifier!("builtins", "str");
 
     fn extract(ob: Borrowed<'a, 'py, PyAny>) -> PyResult<Self> {
         const SCOOP_ALIASES: [&str; 8] = [
@@ -113,11 +117,11 @@ impl<'a, 'py> FromPyObject<'a, 'py> for HomingType {
     }
 }
 
-#[pyclass(module = "pykeyset.layout", subclass)]
+#[pyclass(module = "pykeyset.layout", subclass, from_py_object)]
 #[derive(Debug, Clone, Copy)]
 pub struct KeyShape;
 
-#[pyclass(module = "pykeyset.layout", extends = KeyShape, get_all, set_all)]
+#[pyclass(module = "pykeyset.layout", extends = KeyShape, get_all, set_all, from_py_object)]
 #[derive(Debug, Clone, Copy)]
 pub struct NoneKey {
     width: f32,
@@ -165,7 +169,7 @@ impl<'py> IntoPyObject<'py> for NoneKey {
     type Error = PyErr;
 
     #[cfg(feature = "experimental-inspect")]
-    const OUTPUT_TYPE: &'static str = "pykeyset.layout.NoneKey";
+    const OUTPUT_TYPE: PyStaticExpr = type_hint_identifier!("pykeyset.layout", "NoneKey");
 
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         Bound::new(py, PyClassInitializer::from(KeyShape).add_subclass(self))
@@ -181,7 +185,7 @@ impl<'py> IntoPyObject<'py> for NoneKey {
     }
 }
 
-#[pyclass(module = "pykeyset.layout", extends = KeyShape, get_all, set_all)]
+#[pyclass(module = "pykeyset.layout", extends = KeyShape, get_all, set_all, from_py_object)]
 #[derive(Debug, Clone, Copy)]
 pub struct NormalKey {
     width: f32,
@@ -229,7 +233,7 @@ impl<'py> IntoPyObject<'py> for NormalKey {
     type Error = PyErr;
 
     #[cfg(feature = "experimental-inspect")]
-    const OUTPUT_TYPE: &'static str = "pykeyset.layout.NormalKey";
+    const OUTPUT_TYPE: PyStaticExpr = type_hint_identifier!("pykeyset.layout", "NormalKey");
 
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         Bound::new(py, PyClassInitializer::from(KeyShape).add_subclass(self))
@@ -245,7 +249,7 @@ impl<'py> IntoPyObject<'py> for NormalKey {
     }
 }
 
-#[pyclass(module = "pykeyset.layout", extends = KeyShape, get_all, set_all)]
+#[pyclass(module = "pykeyset.layout", extends = KeyShape, get_all, set_all, from_py_object)]
 #[derive(Debug, Clone, Copy)]
 pub struct SpaceKey {
     width: f32,
@@ -293,7 +297,7 @@ impl<'py> IntoPyObject<'py> for SpaceKey {
     type Error = PyErr;
 
     #[cfg(feature = "experimental-inspect")]
-    const OUTPUT_TYPE: &'static str = "pykeyset.layout.SpaceKey";
+    const OUTPUT_TYPE: PyStaticExpr = type_hint_identifier!("pykeyset.layout", "SpaceKey");
 
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         Bound::new(py, PyClassInitializer::from(KeyShape).add_subclass(self))
@@ -309,7 +313,7 @@ impl<'py> IntoPyObject<'py> for SpaceKey {
     }
 }
 
-#[pyclass(module = "pykeyset.layout", extends = KeyShape, get_all, set_all)]
+#[pyclass(module = "pykeyset.layout", extends = KeyShape, get_all, set_all, from_py_object)]
 #[derive(Debug, Clone, Copy)]
 pub struct HomingKey {
     r#type: Option<HomingType>,
@@ -344,7 +348,7 @@ impl<'py> IntoPyObject<'py> for HomingKey {
     type Error = PyErr;
 
     #[cfg(feature = "experimental-inspect")]
-    const OUTPUT_TYPE: &'static str = "pykeyset.layout.HomingKey";
+    const OUTPUT_TYPE: PyStaticExpr = type_hint_identifier!("pykeyset.layout", "HomingKey");
 
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         Bound::new(py, PyClassInitializer::from(KeyShape).add_subclass(self))
@@ -360,7 +364,7 @@ impl<'py> IntoPyObject<'py> for HomingKey {
     }
 }
 
-#[pyclass(module = "pykeyset.layout", extends = KeyShape)]
+#[pyclass(module = "pykeyset.layout", extends = KeyShape, from_py_object)]
 #[derive(Debug, Clone, Copy)]
 pub struct SteppedCaps;
 
@@ -385,7 +389,7 @@ impl<'py> IntoPyObject<'py> for SteppedCaps {
     type Error = PyErr;
 
     #[cfg(feature = "experimental-inspect")]
-    const OUTPUT_TYPE: &'static str = "pykeyset.layout.SteppedCaps";
+    const OUTPUT_TYPE: PyStaticExpr = type_hint_identifier!("pykeyset.layout", "SteppedCaps");
 
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         Bound::new(py, PyClassInitializer::from(KeyShape).add_subclass(self))
@@ -401,7 +405,7 @@ impl<'py> IntoPyObject<'py> for SteppedCaps {
     }
 }
 
-#[pyclass(module = "pykeyset.layout", extends = KeyShape)]
+#[pyclass(module = "pykeyset.layout", extends = KeyShape, from_py_object)]
 #[derive(Debug, Clone, Copy)]
 pub struct IsoVertical;
 
@@ -426,7 +430,7 @@ impl<'py> IntoPyObject<'py> for IsoVertical {
     type Error = PyErr;
 
     #[cfg(feature = "experimental-inspect")]
-    const OUTPUT_TYPE: &'static str = "pykeyset.layout.IsoVertical";
+    const OUTPUT_TYPE: PyStaticExpr = type_hint_identifier!("pykeyset.layout", "IsoVertical");
 
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         Bound::new(py, PyClassInitializer::from(KeyShape).add_subclass(self))
@@ -442,7 +446,7 @@ impl<'py> IntoPyObject<'py> for IsoVertical {
     }
 }
 
-#[pyclass(module = "pykeyset.layout", extends = KeyShape)]
+#[pyclass(module = "pykeyset.layout", extends = KeyShape, from_py_object)]
 #[derive(Debug, Clone, Copy)]
 pub struct IsoHorizontal;
 
@@ -467,7 +471,7 @@ impl<'py> IntoPyObject<'py> for IsoHorizontal {
     type Error = PyErr;
 
     #[cfg(feature = "experimental-inspect")]
-    const OUTPUT_TYPE: &'static str = "pykeyset.layout.IsoHorizontal";
+    const OUTPUT_TYPE: PyStaticExpr = type_hint_identifier!("pykeyset.layout", "IsoHorizontal");
 
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         Bound::new(py, PyClassInitializer::from(KeyShape).add_subclass(self))
@@ -526,7 +530,7 @@ impl<'a, 'py> FromPyObject<'a, 'py> for KeyShapeEnum {
     type Error = PyErr;
 
     #[cfg(feature = "experimental-inspect")]
-    const INPUT_TYPE: &'static str = <KeyShape as FromPyObject>::INPUT_TYPE;
+    const INPUT_TYPE: PyStaticExpr = <KeyShape as FromPyObject>::INPUT_TYPE;
 
     fn extract(obj: Borrowed<'a, '_, PyAny>) -> PyResult<Self> {
         if let Ok(result) = obj.extract::<NoneKey>() {
@@ -568,7 +572,7 @@ impl<'py> IntoPyObject<'py> for KeyShapeEnum {
     type Error = PyErr;
 
     #[cfg(feature = "experimental-inspect")]
-    const OUTPUT_TYPE: &'static str = <KeyShape as IntoPyObject>::OUTPUT_TYPE;
+    const OUTPUT_TYPE: PyStaticExpr = <KeyShape as IntoPyObject>::OUTPUT_TYPE;
 
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         match self {
@@ -588,7 +592,7 @@ impl<'py> IntoPyObject<'py> for KeyShapeEnum {
     }
 }
 
-#[pyclass(module = "pykeyset.layout")]
+#[pyclass(module = "pykeyset.layout", from_py_object)]
 #[derive(Debug, Clone)]
 pub struct Legend(keyset::key::Legend);
 
@@ -631,7 +635,7 @@ impl Legend {
     }
 }
 
-#[pyclass(module = "pykeyset.layout")]
+#[pyclass(module = "pykeyset.layout", from_py_object)]
 #[derive(Debug, Clone)]
 #[repr(transparent)]
 pub struct Key(keyset::Key);
