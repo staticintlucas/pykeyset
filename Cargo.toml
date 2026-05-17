@@ -18,12 +18,12 @@ test = [] # Enables some plumbing necessary for our tests
 [dependencies]
 csscolorparser = "0.8"
 indoc = "2.0"
-keyset = { git = "https://github.com/staticintlucas/keyset-rs", rev = "83364ca86d1e8bed12a6fa67c0b658b2a02bfefb" }
+keyset = { git = "https://github.com/staticintlucas/keyset-rs", rev = "8516c327e9ba25ef5f0d4a0582751936d3a67e10" }
 pyo3 = { version = "0.28", features = ["extension-module", "abi3-py38"] }
-shadow-rs = { version = "1.0", default-features = false }
+shadow-rs = { version = "2.0", default-features = false }
 
 [build-dependencies]
 cargo-lock = "11.0"
 indoc = "2.0"
 pyo3-build-config = { version = "0.28", features = ["resolve-config"] }
-shadow-rs = "1.0"
+shadow-rs = "2.0"
