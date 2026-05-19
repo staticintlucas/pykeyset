@@ -83,26 +83,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target:
-          - arch: x86_64
-            python: x64
-          - arch: i686
-            python: x86 # This works around PyO3 requiring 32-bit Python even though it's not used
-          - arch: aarch64
-            python: x64
+        target: [x86_64, i686, aarch64]
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
-        with:
-          python-version: '3.13'
-          architecture: ${{ matrix.target.python }}
       - uses: PyO3/maturin-action@v1
         with:
-          target: ${{ matrix.target.arch }}
+          target: ${{ matrix.target }}
           args: --release --out dist
       - uses: actions/upload-artifact@v6
         with:
-          name: wheels-windows-${{ matrix.target.arch }}
+          name: wheels-windows-${{ matrix.target }}
           path: dist
 
   build-macos:
