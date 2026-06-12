@@ -4,8 +4,6 @@ use std::path::PathBuf;
 use keyset::geom::{ConvertFrom as _, ConvertInto as _, Mm, Unit, Vector};
 use pyo3::exceptions::{PyNotImplementedError, PyTypeError, PyValueError};
 #[cfg(feature = "experimental-inspect")]
-use pyo3::inspect::types::{ModuleName, TypeInfo};
-#[cfg(feature = "experimental-inspect")]
 use pyo3::inspect::PyStaticExpr;
 use pyo3::prelude::*;
 #[cfg(feature = "experimental-inspect")]
@@ -35,11 +33,6 @@ impl<'py> IntoPyObject<'py> for ProfileFormat {
         }
         .into_pyobject(py)
     }
-
-    #[cfg(feature = "experimental-inspect")]
-    fn type_output() -> TypeInfo {
-        TypeInfo::builtin("str")
-    }
 }
 
 impl<'a, 'py> FromPyObject<'a, 'py> for ProfileFormat {
@@ -60,11 +53,6 @@ impl<'a, 'py> FromPyObject<'a, 'py> for ProfileFormat {
                 val.to_string_lossy()
             )))
         }
-    }
-
-    #[cfg(feature = "experimental-inspect")]
-    fn type_input() -> TypeInfo {
-        TypeInfo::builtin("str")
     }
 }
 
@@ -126,8 +114,8 @@ pub struct Cylindrical {
 #[pymethods]
 impl Cylindrical {
     #[new]
-    fn new(depth: f32) -> (Self, ProfileType) {
-        (Self { depth: Mm(depth) }, ProfileType)
+    fn new(depth: f32) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(ProfileType).add_subclass(Self { depth: Mm(depth) })
     }
 
     #[getter]
@@ -155,15 +143,6 @@ impl<'py> IntoPyObject<'py> for Cylindrical {
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         Bound::new(py, PyClassInitializer::from(ProfileType).add_subclass(self))
     }
-
-    #[cfg(feature = "experimental-inspect")]
-    fn type_output() -> TypeInfo {
-        TypeInfo::Class {
-            module: ModuleName::CurrentModule,
-            name: "Cylindrical".into(),
-            type_vars: vec![],
-        }
-    }
 }
 
 #[pyclass(module = "pykeyset.profile", extends = ProfileType, from_py_object)]
@@ -175,8 +154,8 @@ pub struct Spherical {
 #[pymethods]
 impl Spherical {
     #[new]
-    fn new(depth: f32) -> (Self, ProfileType) {
-        (Self { depth: Mm(depth) }, ProfileType)
+    fn new(depth: f32) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(ProfileType).add_subclass(Self { depth: Mm(depth) })
     }
 
     #[getter]
@@ -204,15 +183,6 @@ impl<'py> IntoPyObject<'py> for Spherical {
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         Bound::new(py, PyClassInitializer::from(ProfileType).add_subclass(self))
     }
-
-    #[cfg(feature = "experimental-inspect")]
-    fn type_output() -> TypeInfo {
-        TypeInfo::Class {
-            module: ModuleName::CurrentModule,
-            name: "Spherical".into(),
-            type_vars: vec![],
-        }
-    }
 }
 
 #[pyclass(module = "pykeyset.profile", extends = ProfileType, from_py_object)]
@@ -222,8 +192,8 @@ pub struct Flat;
 #[pymethods]
 impl Flat {
     #[new]
-    fn new() -> (Self, ProfileType) {
-        (Self, ProfileType)
+    fn new() -> PyClassInitializer<Self> {
+        PyClassInitializer::from(ProfileType).add_subclass(Self)
     }
 
     #[getter]
@@ -248,15 +218,6 @@ impl<'py> IntoPyObject<'py> for Flat {
 
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         Bound::new(py, PyClassInitializer::from(ProfileType).add_subclass(self))
-    }
-
-    #[cfg(feature = "experimental-inspect")]
-    fn type_output() -> TypeInfo {
-        TypeInfo::Class {
-            module: ModuleName::CurrentModule,
-            name: "Flat".into(),
-            type_vars: vec![],
-        }
     }
 }
 
@@ -313,11 +274,6 @@ impl<'a, 'py> FromPyObject<'a, 'py> for ProfileTypeEnum {
             obj.get_type().name()?
         )))
     }
-
-    #[cfg(feature = "experimental-inspect")]
-    fn type_input() -> TypeInfo {
-        <ProfileType as FromPyObject>::type_input()
-    }
 }
 
 impl<'py> IntoPyObject<'py> for ProfileTypeEnum {
@@ -334,11 +290,6 @@ impl<'py> IntoPyObject<'py> for ProfileTypeEnum {
             ProfileTypeEnum::Spherical(typ) => Ok(typ.into_pyobject(py)?.into_any()),
             ProfileTypeEnum::Flat(typ) => Ok(typ.into_pyobject(py)?.into_any()),
         }
-    }
-
-    #[cfg(feature = "experimental-inspect")]
-    fn type_output() -> TypeInfo {
-        <ProfileType as IntoPyObject>::type_output()
     }
 }
 

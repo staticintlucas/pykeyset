@@ -3,8 +3,6 @@ use std::fmt;
 use indoc::formatdoc;
 use pyo3::exceptions::{PyTypeError, PyValueError};
 #[cfg(feature = "experimental-inspect")]
-use pyo3::inspect::types::TypeInfo;
-#[cfg(feature = "experimental-inspect")]
 use pyo3::inspect::PyStaticExpr;
 use pyo3::intern;
 use pyo3::prelude::*;
@@ -64,11 +62,6 @@ impl<'py> IntoPyObject<'py> for ReleaseLevel {
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         self.to_string().into_pyobject(py)
     }
-
-    #[cfg(feature = "experimental-inspect")]
-    fn type_output() -> TypeInfo {
-        TypeInfo::builtin("str")
-    }
 }
 
 #[cfg(feature = "test")]
@@ -95,11 +88,6 @@ impl<'a, 'py> FromPyObject<'a, 'py> for ReleaseLevel {
             )))
         }
     }
-
-    #[cfg(feature = "experimental-inspect")]
-    fn type_input() -> TypeInfo {
-        TypeInfo::builtin("str")
-    }
 }
 
 // TODO: why is this needed to make PyO3 happy?
@@ -112,11 +100,6 @@ impl<'a, 'py> FromPyObject<'a, 'py> for ReleaseLevel {
 
     fn extract(_ob: Borrowed<'a, 'py, PyAny>) -> PyResult<Self> {
         unimplemented!()
-    }
-
-    #[cfg(feature = "experimental-inspect")]
-    fn type_input() -> TypeInfo {
-        TypeInfo::builtin("str")
     }
 }
 
@@ -391,7 +374,7 @@ impl Version {
 }
 
 #[pyfunction]
-pub fn build_info(py: Python) -> String {
+pub fn build_info() -> String {
     let pkg_name = shadow::PROJECT_NAME;
     let pkg_ver = shadow::PKG_VERSION;
     let commit = shadow::PKG_COMMIT;
@@ -399,14 +382,15 @@ pub fn build_info(py: Python) -> String {
     let py_impl = shadow::PYO3_PY_IMPL;
     let py_build_ver = shadow::PYO3_PY_VER;
     let no_gil = if shadow::PYO3_NO_GIL { "t" } else { "" };
-    let abi3 = if shadow::PYO3_ABI3 { "-abi3" } else { "" };
+    // let abi3 = if shadow::PYO3_ABI3 { "-abi3" } else { "" };
+    let abi3 = shadow::PYO3_ABI3;
     let shared = if shadow::PYO3_SHARED {
         "shared"
     } else {
         "static"
     };
 
-    let py_ver = py.version().replace(char::is_whitespace, " ");
+    let py_ver = Python::version_str().replace(char::is_whitespace, " ");
 
     let rustc_ver = shadow::RUST_VERSION;
     let rustc_host = shadow::HOST;

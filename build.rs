@@ -6,7 +6,7 @@ use std::path::PathBuf;
 
 use cargo_lock::Lockfile;
 use indoc::writedoc;
-use pyo3_build_config::{BuildFlag, BuildFlags, InterpreterConfig};
+use pyo3_build_config::{GilUsed, PythonAbiKind, StableAbi};
 use shadow_rs::{SdResult, Shadow, ShadowBuilder, ShadowError, CARGO_CLIPPY_ALLOW_ALL};
 
 macro_rules! write_vars {
@@ -33,32 +33,25 @@ macro_rules! write_vars {
 }
 
 fn pyo3_consts(mut file: &File, _shadow: &Shadow) -> SdResult<()> {
-    let &InterpreterConfig {
-        implementation,
-        version,
-        shared,
-        abi3,
-        build_flags: BuildFlags(ref build_flags),
-        ..
-    } = pyo3_build_config::get();
+    let interpreter_config = pyo3_build_config::get();
 
     write_vars! {
         file,
 
         /// Python implementation
-        PYO3_PY_IMPL: &str = implementation.to_string().to_lowercase();
+        PYO3_PY_IMPL: &str = interpreter_config.implementation().to_string().to_lowercase();
 
         /// Python version. e.g. 3.9
-        PYO3_PY_VER: &str = version;
+        PYO3_PY_VER: &str = interpreter_config.version();
 
         /// Whether link library is shared
-        PYO3_SHARED: bool = shared;
+        PYO3_SHARED: bool = interpreter_config.shared();
 
         /// Whether we're compiled against the stable ABI/limited API
-        PYO3_ABI3: bool = abi3;
+        PYO3_ABI3: &str = interpreter_config.target_abi().version();
 
         /// Whether the GIL is disabled
-        PYO3_NO_GIL: bool = build_flags.contains(&BuildFlag::Py_GIL_DISABLED);
+        PYO3_NO_GIL: bool = matches!(interpreter_config.target_abi().kind(), PythonAbiKind::Stable(StableAbi::Abi3t) | PythonAbiKind::VersionSpecific(GilUsed::FreeThreaded));
     }
 
     Ok(())

@@ -1,6 +1,6 @@
 use pyo3::exceptions::PyTypeError;
 #[cfg(feature = "experimental-inspect")]
-use pyo3::inspect::{types::TypeInfo, PyStaticExpr};
+use pyo3::inspect::PyStaticExpr;
 use pyo3::intern;
 use pyo3::prelude::*;
 #[cfg(feature = "experimental-inspect")]
@@ -69,15 +69,6 @@ impl<'a, 'py> FromPyObject<'a, 'py> for Color {
 
         Ok(Self(keyset::Color::new(r, g, b)))
     }
-
-    #[cfg(feature = "experimental-inspect")]
-    fn type_input() -> TypeInfo {
-        TypeInfo::union_of(&[
-            TypeInfo::mapping_of(TypeInfo::builtin("str"), TypeInfo::builtin("str")),
-            TypeInfo::sequence_of(TypeInfo::builtin("int")),
-            TypeInfo::builtin("str"),
-        ])
-    }
 }
 
 impl<'py> IntoPyObject<'py> for Color {
@@ -96,11 +87,6 @@ impl<'py> IntoPyObject<'py> for Color {
 
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         PyTuple::new(py, [self.0.r(), self.0.g(), self.0.b()])
-    }
-
-    #[cfg(feature = "experimental-inspect")]
-    fn type_output() -> TypeInfo {
-        TypeInfo::Tuple(Some(vec![TypeInfo::builtin("float"); 3]))
     }
 }
 

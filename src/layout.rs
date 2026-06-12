@@ -1,12 +1,8 @@
-#[cfg(feature = "experimental-inspect")]
-use std::borrow::Cow;
 use std::fs;
 use std::path::PathBuf;
 
 use keyset::geom::{KeyUnit, Point, Unit, Vector};
 use pyo3::exceptions::{PyTypeError, PyValueError};
-#[cfg(feature = "experimental-inspect")]
-use pyo3::inspect::types::{ModuleName, TypeInfo};
 #[cfg(feature = "experimental-inspect")]
 use pyo3::inspect::PyStaticExpr;
 use pyo3::prelude::*;
@@ -68,11 +64,6 @@ impl<'py> IntoPyObject<'py> for HomingType {
         }
         .into_pyobject(py)
     }
-
-    #[cfg(feature = "experimental-inspect")]
-    fn type_output() -> TypeInfo {
-        TypeInfo::builtin("str")
-    }
 }
 
 impl<'a, 'py> FromPyObject<'a, 'py> for HomingType {
@@ -110,11 +101,6 @@ impl<'a, 'py> FromPyObject<'a, 'py> for HomingType {
             )))
         }
     }
-
-    #[cfg(feature = "experimental-inspect")]
-    fn type_input() -> TypeInfo {
-        TypeInfo::builtin("str")
-    }
 }
 
 #[pyclass(module = "pykeyset.layout", subclass, from_py_object)]
@@ -141,8 +127,8 @@ impl NoneKey {
 impl NoneKey {
     #[new]
     #[pyo3(signature = (/, width, height))]
-    fn new(width: f32, height: f32) -> (Self, KeyShape) {
-        (Self { width, height }, KeyShape)
+    fn new(width: f32, height: f32) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(KeyShape).add_subclass(Self { width, height })
     }
 
     #[getter]
@@ -174,15 +160,6 @@ impl<'py> IntoPyObject<'py> for NoneKey {
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         Bound::new(py, PyClassInitializer::from(KeyShape).add_subclass(self))
     }
-
-    #[cfg(feature = "experimental-inspect")]
-    fn type_output() -> TypeInfo {
-        TypeInfo::Class {
-            module: ModuleName::CurrentModule,
-            name: Cow::from("NoneKey"),
-            type_vars: vec![],
-        }
-    }
 }
 
 #[pyclass(module = "pykeyset.layout", extends = KeyShape, get_all, set_all, from_py_object)]
@@ -205,8 +182,8 @@ impl NormalKey {
 impl NormalKey {
     #[new]
     #[pyo3(signature = (/, width, height))]
-    fn new(width: f32, height: f32) -> (Self, KeyShape) {
-        (Self { width, height }, KeyShape)
+    fn new(width: f32, height: f32) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(KeyShape).add_subclass(Self { width, height })
     }
 
     #[getter]
@@ -238,15 +215,6 @@ impl<'py> IntoPyObject<'py> for NormalKey {
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         Bound::new(py, PyClassInitializer::from(KeyShape).add_subclass(self))
     }
-
-    #[cfg(feature = "experimental-inspect")]
-    fn type_output() -> TypeInfo {
-        TypeInfo::Class {
-            module: ModuleName::CurrentModule,
-            name: Cow::from("NormalKey"),
-            type_vars: vec![],
-        }
-    }
 }
 
 #[pyclass(module = "pykeyset.layout", extends = KeyShape, get_all, set_all, from_py_object)]
@@ -269,8 +237,8 @@ impl SpaceKey {
 impl SpaceKey {
     #[new]
     #[pyo3(signature = (/, width, height))]
-    fn new(width: f32, height: f32) -> (Self, KeyShape) {
-        (Self { width, height }, KeyShape)
+    fn new(width: f32, height: f32) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(KeyShape).add_subclass(Self { width, height })
     }
 
     #[getter]
@@ -302,15 +270,6 @@ impl<'py> IntoPyObject<'py> for SpaceKey {
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         Bound::new(py, PyClassInitializer::from(KeyShape).add_subclass(self))
     }
-
-    #[cfg(feature = "experimental-inspect")]
-    fn type_output() -> TypeInfo {
-        TypeInfo::Class {
-            module: ModuleName::CurrentModule,
-            name: Cow::from("SpaceKey"),
-            type_vars: vec![],
-        }
-    }
 }
 
 #[pyclass(module = "pykeyset.layout", extends = KeyShape, get_all, set_all, from_py_object)]
@@ -331,8 +290,8 @@ impl HomingKey {
 impl HomingKey {
     #[new]
     #[pyo3(signature = (/, r#type = None))]
-    fn new(r#type: Option<HomingType>) -> (Self, KeyShape) {
-        (Self { r#type }, KeyShape)
+    fn new(r#type: Option<HomingType>) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(KeyShape).add_subclass(Self { r#type })
     }
 }
 
@@ -353,15 +312,6 @@ impl<'py> IntoPyObject<'py> for HomingKey {
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         Bound::new(py, PyClassInitializer::from(KeyShape).add_subclass(self))
     }
-
-    #[cfg(feature = "experimental-inspect")]
-    fn type_output() -> TypeInfo {
-        TypeInfo::Class {
-            module: ModuleName::CurrentModule,
-            name: Cow::from("HomingKey"),
-            type_vars: vec![],
-        }
-    }
 }
 
 #[pyclass(module = "pykeyset.layout", extends = KeyShape, from_py_object)]
@@ -371,8 +321,8 @@ pub struct SteppedCaps;
 #[pymethods]
 impl SteppedCaps {
     #[new]
-    fn new() -> (Self, KeyShape) {
-        (Self, KeyShape)
+    fn new() -> PyClassInitializer<Self> {
+        PyClassInitializer::from(KeyShape).add_subclass(Self)
     }
 }
 
@@ -394,15 +344,6 @@ impl<'py> IntoPyObject<'py> for SteppedCaps {
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         Bound::new(py, PyClassInitializer::from(KeyShape).add_subclass(self))
     }
-
-    #[cfg(feature = "experimental-inspect")]
-    fn type_output() -> TypeInfo {
-        TypeInfo::Class {
-            module: ModuleName::CurrentModule,
-            name: Cow::from("SteppedCaps"),
-            type_vars: vec![],
-        }
-    }
 }
 
 #[pyclass(module = "pykeyset.layout", extends = KeyShape, from_py_object)]
@@ -412,8 +353,8 @@ pub struct IsoVertical;
 #[pymethods]
 impl IsoVertical {
     #[new]
-    fn new() -> (Self, KeyShape) {
-        (Self, KeyShape)
+    fn new() -> PyClassInitializer<Self> {
+        PyClassInitializer::from(KeyShape).add_subclass(Self)
     }
 }
 
@@ -435,15 +376,6 @@ impl<'py> IntoPyObject<'py> for IsoVertical {
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         Bound::new(py, PyClassInitializer::from(KeyShape).add_subclass(self))
     }
-
-    #[cfg(feature = "experimental-inspect")]
-    fn type_output() -> TypeInfo {
-        TypeInfo::Class {
-            module: ModuleName::CurrentModule,
-            name: Cow::from("IsoVertical"),
-            type_vars: vec![],
-        }
-    }
 }
 
 #[pyclass(module = "pykeyset.layout", extends = KeyShape, from_py_object)]
@@ -453,8 +385,8 @@ pub struct IsoHorizontal;
 #[pymethods]
 impl IsoHorizontal {
     #[new]
-    fn new() -> (Self, KeyShape) {
-        (Self, KeyShape)
+    fn new() -> PyClassInitializer<Self> {
+        PyClassInitializer::from(KeyShape).add_subclass(Self)
     }
 }
 
@@ -475,15 +407,6 @@ impl<'py> IntoPyObject<'py> for IsoHorizontal {
 
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         Bound::new(py, PyClassInitializer::from(KeyShape).add_subclass(self))
-    }
-
-    #[cfg(feature = "experimental-inspect")]
-    fn type_output() -> TypeInfo {
-        TypeInfo::Class {
-            module: ModuleName::CurrentModule,
-            name: Cow::from("IsoHorizontal"),
-            type_vars: vec![],
-        }
     }
 }
 
@@ -559,11 +482,6 @@ impl<'a, 'py> FromPyObject<'a, 'py> for KeyShapeEnum {
             obj.get_type().name()?
         )))
     }
-
-    #[cfg(feature = "experimental-inspect")]
-    fn type_input() -> TypeInfo {
-        <KeyShape as FromPyObject>::type_input()
-    }
 }
 
 impl<'py> IntoPyObject<'py> for KeyShapeEnum {
@@ -584,11 +502,6 @@ impl<'py> IntoPyObject<'py> for KeyShapeEnum {
             KeyShapeEnum::IsoVertical(shape) => Ok(shape.into_pyobject(py)?.into_any()),
             KeyShapeEnum::IsoHorizontal(shape) => Ok(shape.into_pyobject(py)?.into_any()),
         }
-    }
-
-    #[cfg(feature = "experimental-inspect")]
-    fn type_output() -> TypeInfo {
-        <KeyShape as IntoPyObject>::type_output()
     }
 }
 

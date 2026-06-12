@@ -1,3 +1,4 @@
+use pyo3::exceptions::PyUnicodeDecodeError;
 use pyo3::exceptions::PyValueError;
 use pyo3::intern;
 use pyo3::prelude::*;
@@ -316,10 +317,9 @@ impl File<WriteAny> {
         match inner.call_method1(intern!(py, "write"), (bytes,)) {
             Ok(_) => Ok(()),
             Err(error) => {
-                if inner
-                    .call_method1(intern!(py, "write"), (std::str::from_utf8(bytes)?,))
-                    .is_ok()
-                {
+                let str = std::str::from_utf8(bytes)
+                    .map_err(|err| PyUnicodeDecodeError::new_err_from_utf8(py, bytes, err))?;
+                if inner.call_method1(intern!(py, "write"), (str,)).is_ok() {
                     Ok(())
                 } else {
                     Err(error)
